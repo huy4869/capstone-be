@@ -1,4 +1,4 @@
-﻿namespace Capstone_API.IRepository
+﻿namespace Capstone_API.Repository.Interface
 {
     public interface ISignUpRepository
     {

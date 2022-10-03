@@ -1,6 +1,6 @@
 ﻿using Capstone_API.DBContexts;
-using Capstone_API.IRepository;
 using Capstone_API.Models;
+using Capstone_API.Repository.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;

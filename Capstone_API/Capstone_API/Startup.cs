@@ -1,6 +1,6 @@
 using Capstone_API.DBContexts;
-using Capstone_API.IRepository;
 using Capstone_API.Repository;
+using Capstone_API.Repository.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

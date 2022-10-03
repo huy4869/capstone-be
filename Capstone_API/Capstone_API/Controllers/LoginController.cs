@@ -1,6 +1,6 @@
 ﻿using Capstone_API.DBContexts;
-using Capstone_API.IRepository;
 using Capstone_API.Models;
+using Capstone_API.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,7 +1,7 @@
 ﻿using Capstone_API.Models;
 using System;
 
-namespace Capstone_API.IRepository
+namespace Capstone_API.Repository.Interface
 {
     public interface IManagerRepository
     {
