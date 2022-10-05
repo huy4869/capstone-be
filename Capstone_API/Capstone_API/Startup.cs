@@ -36,9 +36,7 @@ namespace Capstone_API
             services.AddDbContextPool<MyDBContext>(options => options.UseMySql(mySqlConnectionStr,
                 ServerVersion.AutoDetect(mySqlConnectionStr)));
             services.AddControllers();
-            services.AddScoped<IManagerRepository, ManagerRepository>();
-            services.AddScoped<ILoginRepository, LoginRepository>();
-            services.AddScoped<ISignUpRepository, SignUpRepository>();
+            services.AddScoped<IAccessRepository, AccessRepository>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(option => {
                 option.RequireHttpsMetadata = false;
                 option.SaveToken = true;

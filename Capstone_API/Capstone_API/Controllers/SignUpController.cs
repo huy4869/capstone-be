@@ -8,26 +8,25 @@ namespace Capstone_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    // handle sign up a new user 
     public class SignUpController : ControllerBase
     {
-        private readonly ISignUpRepository _repo;
-        private readonly IManagerRepository _mrepo;
+        private readonly IAccessRepository _repo;
 
-        public SignUpController(ISignUpRepository repo, IManagerRepository mrepo)
+        public SignUpController(IAccessRepository repo)
         {
             _repo = repo;
-            _mrepo = mrepo;
         }
 
         [HttpPost("send-otp")]
         public IActionResult SendOtp([FromForm] string phone)
         {
-            if (_mrepo.CheckPhoneNumberExist(phone) == true)
+            if (_repo.CheckPhoneNumberExist(phone) == true)
                 return NotFound("This phone number is registed!");
             string otp = _repo.OTPGenerate();
             if (_repo.SendOtpTwilio(phone,otp) == false)
                 return NotFound("This phone number is not exist!");
-            string jwt = _mrepo.JWTGenerate(phone,"");
+            string jwt = _repo.JWTGenerate(phone,"");
             _repo.SaveOTP(phone,otp,jwt);
             return Ok("Sent");
         }

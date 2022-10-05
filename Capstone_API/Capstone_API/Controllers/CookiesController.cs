@@ -7,6 +7,7 @@ namespace Capstone_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    // Save account and password to cookie after a user login
     public class CookiesController : ControllerBase
     {
         private readonly string Key_Account = "Acc";

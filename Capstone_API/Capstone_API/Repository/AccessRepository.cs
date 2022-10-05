@@ -1,32 +1,68 @@
 ﻿using Capstone_API.DBContexts;
 using Capstone_API.Models;
 using Capstone_API.Repository.Interface;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 
 namespace Capstone_API.Repository
 {
-    public class SignUpRepository : ISignUpRepository
+    public class AccessRepository : IAccessRepository
     {
         private readonly MyDBContext _myDB;
         private readonly IConfiguration _configuration;
 
-        public SignUpRepository(MyDBContext myDB, IConfiguration configuration)
+        public AccessRepository(MyDBContext myDB, IConfiguration configuration)
         {
             _myDB = myDB;
             _configuration = configuration;
         }
 
+        public Account GetAccount(string phone, string password)
+        {
+            List<Account> list = _myDB.Accounts.ToList();
+            Account account2 = list.Find(a =>
+                a.PhoneNumber.Equals(phone) &&
+                 a.Password.Equals(password)
+            );
+            return account2;
+        }
+        public bool CheckPhoneNumberExist(string phone)
+        {
+            List<Account> list = _myDB.Accounts.ToList();
+            Account account2 = list.Find(a =>
+                a.PhoneNumber.Equals(phone)
+            );
+            return (account2 == null) ? false : true;
+        }
+        public string JWTGenerate(string phone, string? pass)
+        {
+            //create claims details based on the user information
+            var claims = new[] {
+                    new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
+                    new Claim("PhoneNumber", phone),
+                    new Claim("Password", pass)
+                   };
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"],
+                claims, expires: DateTime.UtcNow.AddSeconds(60), signingCredentials: signIn);
+            var tokenHandler = new JwtSecurityTokenHandler().WriteToken(token);
+            return tokenHandler;
+        }
         public bool CheckOTP(string otp, string enter)
         {
-           return (otp.Trim().Equals(enter.Trim())) ? true : false;
+            return (otp.Trim().Equals(enter.Trim())) ? true : false;
         }
-
         public bool SendOtpTwilio(string phone, string otp)
         {
             // Find your Account SID and Auth Token at twilio.com/console
@@ -38,7 +74,7 @@ namespace Capstone_API.Repository
             try
             {
                 var message = MessageResource.Create(
-                               body: "Welcome to B-Wallet, Your OTP is: "+ otp,
+                               body: "Welcome to B-Wallet, Your OTP is: " + otp,
                                from: new Twilio.Types.PhoneNumber(_configuration["Twilio:from"]),
                                to: new Twilio.Types.PhoneNumber(phone)
                            );
@@ -50,7 +86,6 @@ namespace Capstone_API.Repository
             }
             return true;
         }
-
         public string OTPGenerate()
         {
             const string valid = "abcdefghijklmnopqrstuvwxyzABCDEF" +
@@ -64,9 +99,8 @@ namespace Capstone_API.Repository
             }
             return res.ToString();
         }
-
-        public void RegisterNewUser(string phone, string pass, string name, 
-            string fb, string bank)
+        public void RegisterNewUser(string phone, string pass, string name,
+           string fb, string bank)
         {
             Account account = new Account();
             User user = new User();
@@ -81,8 +115,7 @@ namespace Capstone_API.Repository
             _myDB.Users.Add(user);
             _myDB.SaveChanges();
         }
-
-        public void SaveOTP(string phone, string otpCode,string jwt)
+        public void SaveOTP(string phone, string otpCode, string jwt)
         {
             Otp otp = new Otp();
             otp.Phone = phone;

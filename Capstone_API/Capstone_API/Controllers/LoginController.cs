@@ -12,27 +12,26 @@ namespace Capstone_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    // handle login proccess
     public class LoginController : ControllerBase
     {
-        private readonly ILoginRepository _repo;
-        private readonly IManagerRepository _mrepo;
+        private readonly IAccessRepository _repo;
 
-        public LoginController(ILoginRepository repo, IManagerRepository mrepo)
+        public LoginController(IAccessRepository repo)
         {
             _repo = repo;
-            _mrepo = mrepo; 
         }
 
         // GET api/<LoginController>/5
         [HttpPost]
         public IActionResult Login([FromForm] string phone, [FromForm] string password)
         {
-            if (_mrepo.CheckPhoneNumberExist(phone) == false)
+            if (_repo.CheckPhoneNumberExist(phone) == false)
                 return NotFound("This phone number is not registed!");
             Account account = _repo.GetAccount(phone, password);
             if (account == null)
                 return NotFound("This password is wrong!");
-            return Ok("JWT Token: "+ _mrepo.JWTGenerate(phone,password));
+            return Ok("JWT Token: "+ _repo.JWTGenerate(phone,password));
         }
     }
 }
