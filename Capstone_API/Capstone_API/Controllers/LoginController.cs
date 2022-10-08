@@ -4,6 +4,7 @@ using Capstone_API.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -24,14 +25,34 @@ namespace Capstone_API.Controllers
 
         // GET api/<LoginController>/5
         [HttpPost]
-        public IActionResult Login([FromForm] string phone, [FromForm] string password)
+        public Respond<string> Login([FromForm] string phone, [FromForm] string password)
         {
             if (_repo.CheckPhoneNumberExist(phone) == false)
-                return NotFound("This phone number is not registed!");
-            Account account = _repo.GetAccount(phone, password);
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Error = "Login fail!",
+                Message = "This phone number is not registed!",
+                Data = null
+            };
+            string encrypt = _repo.Encrypt(password);
+            Account account = _repo.GetAccount(phone, encrypt);
             if (account == null)
-                return NotFound("This password is wrong!");
-            return Ok("JWT Token: "+ _repo.JWTGenerate(phone,password));
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.NotFound,
+                Error = "Login fail!",
+                Message = "This password is wrong!",
+                Data = null
+            };
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Login success!",
+                Data = "JWT Token: " + _repo.JWTGenerate(phone, encrypt)
+            };
+
         }
     }
 }

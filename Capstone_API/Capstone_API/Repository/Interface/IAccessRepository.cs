@@ -13,5 +13,7 @@ namespace Capstone_API.Repository.Interface
         public string OTPGenerate();
         public bool CheckOTP(string otp, string enter);
         public void SaveOTP(string phone, string otp, string jwt);
+        public string Encrypt(string password);
+        public string Decrypt(string password);
     }
 }

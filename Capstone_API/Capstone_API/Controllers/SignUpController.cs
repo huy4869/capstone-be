@@ -3,6 +3,7 @@ using Capstone_API.Repository.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Net;
 
 namespace Capstone_API.Controllers
 {
@@ -19,31 +20,69 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("send-otp")]
-        public IActionResult SendOtp([FromForm] string phone)
+        public Respond<bool> SendOtp([FromForm] string phone)
         {
             if (_repo.CheckPhoneNumberExist(phone) == true)
-                return NotFound("This phone number is registed!");
+            return new Respond<bool>()
+            {
+                StatusCode = HttpStatusCode.NotAcceptable,
+                Error = "",
+                Message = "This phone number is registed!",
+                Data = false
+            };
             string otp = _repo.OTPGenerate();
             if (_repo.SendOtpTwilio(phone,otp) == false)
-                return NotFound("This phone number is not exist!");
+            return new Respond<bool>()
+            {
+                StatusCode = HttpStatusCode.NotAcceptable,
+                Error = "",
+                Message = "This phone number is not exist!",
+                Data = false
+            };
             string jwt = _repo.JWTGenerate(phone,"");
             _repo.SaveOTP(phone,otp,jwt);
-            return Ok("Sent");
+            return new Respond<bool>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Send OTP success!",
+                Data = true
+            };
         }
 
         [HttpPost("check-otp")]
-        public IActionResult CheckOtp([FromForm] string otp, [FromForm] string enter)
+        public Respond<bool> CheckOtp([FromForm] string otp, [FromForm] string enter)
         {
             bool check = _repo.CheckOTP(otp, enter);
-            return check ? Ok("OTP is correct!") : NotFound("OTP is wrong!");
+            if(check)
+                return new Respond<bool>()
+                {
+                    StatusCode = HttpStatusCode.Accepted,
+                    Error = "",
+                    Message = "OTP is correct!",
+                    Data = true
+                };
+            return new Respond<bool>()
+            {
+                StatusCode = HttpStatusCode.NotAcceptable,
+                Error = "",
+                Message = "OTP is wrong!",
+                Data = false
+            };
         }
 
         [HttpPost("register")]
-        public IActionResult SignUp([FromForm] string phone, [FromForm] string password,
+        public Respond<bool> SignUp([FromForm] string phone, [FromForm] string password,
             [FromForm] string name, [FromForm] string fb, [FromForm] string bank)
         {
-            _repo.RegisterNewUser(phone, password, name, fb, bank);
-            return Ok("Register success!!");
+            _repo.RegisterNewUser(phone,_repo.Encrypt(password), name, fb, bank);
+            return new Respond<bool>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Register success!",
+                Data = true
+            };
         }
     }
 }
