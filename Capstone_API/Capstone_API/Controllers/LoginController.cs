@@ -25,9 +25,11 @@ namespace Capstone_API.Controllers
 
         // GET api/<LoginController>/5
         [HttpPost]
-        public Respond<string> Login([FromForm] string phone, [FromForm] string password)
+        public async Task<Respond<string>> Login([FromForm] string phone, [FromForm] string password)
         {
-            if (_repo.CheckPhoneNumberExist(phone) == false)
+            var checkPhone = _repo.CheckPhoneNumberExistAsync(phone);
+            var encrypt = _repo.EncryptAsync(password);
+            if (await checkPhone == false)
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.NotFound,
@@ -35,9 +37,8 @@ namespace Capstone_API.Controllers
                 Message = "This phone number is not registed!",
                 Data = null
             };
-            string encrypt = _repo.Encrypt(password);
-            Account account = _repo.GetAccount(phone, encrypt);
-            if (account == null)
+            var account = _repo.GetAccountAsync(phone,await encrypt);
+            if (await account == null)
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.NotFound,
@@ -45,12 +46,13 @@ namespace Capstone_API.Controllers
                 Message = "This password is wrong!",
                 Data = null
             };
+            var jwt = _repo.JWTGenerateAsync(phone, await encrypt);
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
                 Message = "Login success!",
-                Data = "JWT Token: " + _repo.JWTGenerate(phone, encrypt)
+                Data = "JWT Token: " + await jwt
             };
 
         }

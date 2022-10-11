@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace Capstone_API.Controllers
 {
@@ -20,9 +21,11 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("send-otp")]
-        public Respond<bool> SendOtp([FromForm] string phone)
+        public async Task<Respond<bool>> SendOtp([FromForm] string phone)
         {
-            if (_repo.CheckPhoneNumberExist(phone) == true)
+            var checkPhone = _repo.CheckPhoneNumberExistAsync(phone);
+            var otp = _repo.OTPGenerateAsync();
+            if ( await checkPhone == true)
             return new Respond<bool>()
             {
                 StatusCode = HttpStatusCode.NotAcceptable,
@@ -30,8 +33,7 @@ namespace Capstone_API.Controllers
                 Message = "This phone number is registed!",
                 Data = false
             };
-            string otp = _repo.OTPGenerate();
-            if (_repo.SendOtpTwilio(phone,otp) == false)
+            if (await _repo.SendOtpTwilioAsync(phone,await otp) == false)
             return new Respond<bool>()
             {
                 StatusCode = HttpStatusCode.NotAcceptable,
@@ -39,8 +41,8 @@ namespace Capstone_API.Controllers
                 Message = "This phone number is not exist!",
                 Data = false
             };
-            string jwt = _repo.JWTGenerate(phone,"");
-            _repo.SaveOTP(phone,otp,jwt);
+            string jwt = await _repo.JWTGenerateAsync(phone,"");
+            await _repo.SaveOTPAsync(phone,await otp,jwt);
             return new Respond<bool>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -51,9 +53,9 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("check-otp")]
-        public Respond<bool> CheckOtp([FromForm] string otp, [FromForm] string enter)
+        public async Task<Respond<bool>> CheckOtp([FromForm] string otp, [FromForm] string enter)
         {
-            bool check = _repo.CheckOTP(otp, enter);
+            bool check = await _repo.CheckOTPAsync(otp, enter);
             if(check)
                 return new Respond<bool>()
                 {
@@ -72,10 +74,10 @@ namespace Capstone_API.Controllers
         }
 
         [HttpPost("register")]
-        public Respond<bool> SignUp([FromForm] string phone, [FromForm] string password,
+        public async Task<Respond<bool>> SignUp([FromForm] string phone, [FromForm] string password,
             [FromForm] string name, [FromForm] string fb, [FromForm] string bank)
         {
-            _repo.RegisterNewUser(phone,_repo.Encrypt(password), name, fb, bank);
+            await _repo.RegisterNewUserAsync(phone,await _repo.EncryptAsync(password), name, fb, bank);
             return new Respond<bool>()
             {
                 StatusCode = HttpStatusCode.Accepted,

@@ -11,8 +11,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
+using static System.Net.WebRequestMethods;
 
 namespace Capstone_API.Repository
 {
@@ -27,24 +29,26 @@ namespace Capstone_API.Repository
             _configuration = configuration;
         }
 
-        public Account GetAccount(string phone, string password)
+        public async Task<Account> GetAccountAsync(string phone, string password)
         {
-            List<Account> list = _myDB.Accounts.ToList();
+            List<Account> list = await Task.FromResult(_myDB.Accounts.ToList());
             Account account2 = list.Find(a =>
                 a.PhoneNumber.Equals(phone) &&
                  a.Password.Equals(password)
             );
             return account2;
         }
-        public bool CheckPhoneNumberExist(string phone)
+
+        public async Task<bool> CheckPhoneNumberExistAsync(string phone)
         {
-            List<Account> list = _myDB.Accounts.ToList();
+            List<Account> list = await Task.FromResult(_myDB.Accounts.ToList());
             Account account2 = list.Find(a =>
                 a.PhoneNumber.Equals(phone)
             );
-            return (account2 == null) ? false : true;
+            return account2 != null;
         }
-        public string JWTGenerate(string phone, string? pass)
+
+        public async Task<string> JWTGenerateAsync(string phone, string? pass)
         {
             //create claims details based on the user information
             var claims = new[] {
@@ -53,19 +57,21 @@ namespace Capstone_API.Repository
                     new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
                     new Claim("PhoneNumber", phone),
                     new Claim("Password", pass)
-                   };
+                       };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"],
                 claims, expires: DateTime.UtcNow.AddSeconds(60), signingCredentials: signIn);
             var tokenHandler = new JwtSecurityTokenHandler().WriteToken(token);
-            return tokenHandler;
+            return await Task.FromResult(tokenHandler);
         }
-        public bool CheckOTP(string otp, string enter)
+
+        public async Task<bool> CheckOTPAsync(string otp, string enter)
         {
-            return (otp.Trim().Equals(enter.Trim())) ? true : false;
+            return await Task.FromResult((otp.Trim().Equals(enter.Trim())));
         }
-        public bool SendOtpTwilio(string phone, string otp)
+
+        public async Task<bool> SendOtpTwilioAsync(string phone, string otp)
         {
             // Find your Account SID and Auth Token at twilio.com/console
             // and set the environment variables. See http://twil.io/secure
@@ -84,14 +90,15 @@ namespace Capstone_API.Repository
             catch (Exception)
             {
 
-                return false;
+                return await Task.FromResult(false);
             }
-            return true;
+            return await Task.FromResult(true);
         }
-        public string OTPGenerate()
+
+        public async Task<string> OTPGenerateAsync()
         {
             const string valid = "abcdefghijklmnopqrstuvwxyzABCDEF" +
-                "GHIJKLMNOPQRSTUVWXYZ1234567890";
+            "GHIJKLMNOPQRSTUVWXYZ1234567890";
             int length = 6;
             StringBuilder res = new StringBuilder();
             Random rnd = new Random();
@@ -99,85 +106,88 @@ namespace Capstone_API.Repository
             {
                 res.Append(valid[rnd.Next(valid.Length)]);
             }
-            return res.ToString();
+            return await Task.FromResult(res.ToString());
         }
-        public void RegisterNewUser(string phone, string pass, string name,
+
+        public async Task RegisterNewUserAsync(string phone, string pass, string name,
            string fb, string bank)
         {
-            Account account = new Account();
-            User user = new User();
-            account.PhoneNumber = phone;
-            account.Password = pass;
-            _myDB.Accounts.Add(account);
-            _myDB.SaveChanges();
-            user.UserName = name;
-            user.FBlink = fb;
-            user.BankInfo = bank;
-            user.Account = account;
-            _myDB.Users.Add(user);
-            _myDB.SaveChanges();
-        }
-        public void SaveOTP(string phone, string otpCode, string jwt)
-        {
-            Otp otp = new Otp();
-            otp.Phone = phone;
-            otp.OtpCode = otpCode;
-            otp.CreatedAt = DateTime.Now;
-            otp.JWToken = jwt;
-            _myDB.Otps.Add(otp);
-            _myDB.SaveChanges();
+               Account account = new Account();
+               User user = new User();
+               account.PhoneNumber = phone;
+               account.Password = pass;
+               await Task.FromResult(_myDB.Accounts.Add(account));
+               _myDB.SaveChanges();
+               user.UserName = name;
+               user.FBlink = fb;
+               user.BankInfo = bank;
+               user.Account = account;
+               _myDB.Users.Add(user);
+               _myDB.SaveChanges();
         }
 
-        public string Encrypt(string password)
+        public async Task SaveOTPAsync(string phone, string otpCode, string jwt)
         {
-            string key = _configuration["KeyEncrypt"];
-            bool useHashing = true;
-            byte[] keyArray;
-            byte[] toEncryptArray = UTF8Encoding.UTF8.GetBytes(password);
-
-            if (useHashing)
-            {
-                MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
-                keyArray = hashmd5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
-            }
-            else
-                keyArray = UTF8Encoding.UTF8.GetBytes(key);
-
-            TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
-            tdes.Key = keyArray;
-            tdes.Mode = CipherMode.ECB;
-            tdes.Padding = PaddingMode.PKCS7;
-
-            ICryptoTransform cTransform = tdes.CreateEncryptor();
-            byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
-
-            return Convert.ToBase64String(resultArray, 0, resultArray.Length);
+                Otp otp = new Otp();
+                otp.Phone = phone;
+                otp.OtpCode = otpCode;
+                otp.CreatedAt = DateTime.Now;
+                otp.JWToken = jwt;
+                await Task.FromResult(_myDB.Otps.Add(otp));
+                _myDB.SaveChanges();
         }
 
-        public string Decrypt(string password)
+        public async Task<string> EncryptAsync(string password)
         {
-            string key = _configuration["KeyEncrypt"];
-            bool useHashing = true;
-            byte[] keyArray;
-            byte[] toEncryptArray = Convert.FromBase64String(password);
+                string key = _configuration["KeyEncrypt"];
+                bool useHashing = true;
+                byte[] keyArray;
+                byte[] toEncryptArray = UTF8Encoding.UTF8.GetBytes(password);
 
-            if (useHashing)
-            {
-                MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
-                keyArray = hashmd5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
-            }
-            else
-                keyArray = UTF8Encoding.UTF8.GetBytes(key);
+                if (useHashing)
+                {
+                    MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
+                    keyArray = hashmd5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+                }
+                else
+                    keyArray = UTF8Encoding.UTF8.GetBytes(key);
 
-            TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
-            tdes.Key = keyArray;
-            tdes.Mode = CipherMode.ECB;
-            tdes.Padding = PaddingMode.PKCS7;
+                TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
+                tdes.Key = keyArray;
+                tdes.Mode = CipherMode.ECB;
+                tdes.Padding = PaddingMode.PKCS7;
 
-            ICryptoTransform cTransform = tdes.CreateDecryptor();
-            byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
+                ICryptoTransform cTransform = tdes.CreateEncryptor();
+                byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
 
-            return UTF8Encoding.UTF8.GetString(resultArray);
+                return await Task.FromResult(Convert.ToBase64String(resultArray, 0, resultArray.Length));
+        }
+
+        public async Task<string> DecryptAsync(string password)
+        {
+                string key = _configuration["KeyEncrypt"];
+                bool useHashing = true;
+                byte[] keyArray;
+                byte[] toEncryptArray = Convert.FromBase64String(password);
+
+                if (useHashing)
+                {
+                    MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
+                    keyArray = hashmd5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+                }
+                else
+                    keyArray = UTF8Encoding.UTF8.GetBytes(key);
+
+                TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
+                tdes.Key = keyArray;
+                tdes.Mode = CipherMode.ECB;
+                tdes.Padding = PaddingMode.PKCS7;
+
+                ICryptoTransform cTransform = tdes.CreateDecryptor();
+                byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
+
+                return await Task.FromResult(UTF8Encoding.UTF8.GetString(resultArray));
+
         }
     }
 }
