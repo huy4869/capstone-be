@@ -37,6 +37,7 @@ namespace Capstone_API
                 ServerVersion.AutoDetect(mySqlConnectionStr)));
             services.AddControllers();
             services.AddScoped<IAccessRepository, AccessRepository>();
+            services.AddScoped<IEventRepository, EventRepository>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(option => {
                 option.RequireHttpsMetadata = false;
                 option.SaveToken = true;

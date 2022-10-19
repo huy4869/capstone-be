@@ -1,6 +1,7 @@
 ﻿using Capstone_API.DBContexts;
 using Capstone_API.Models;
 using Capstone_API.Repository.Interface;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -20,18 +21,18 @@ namespace Capstone_API.Repository
 {
     public class AccessRepository : IAccessRepository
     {
-        private readonly MyDBContext _myDB;
+        private readonly MyDBContext myDB;
         private readonly IConfiguration _configuration;
 
         public AccessRepository(MyDBContext myDB, IConfiguration configuration)
         {
-            _myDB = myDB;
+            this.myDB = myDB;
             _configuration = configuration;
         }
 
         public async Task<Account> GetAccountAsync(string phone, string password)
         {
-            List<Account> list = await Task.FromResult(_myDB.Accounts.ToList());
+            List<Account> list = await myDB.Accounts.ToListAsync();
             Account account2 = list.Find(a =>
                 a.PhoneNumber.Equals(phone) &&
                  a.Password.Equals(password)
@@ -41,7 +42,7 @@ namespace Capstone_API.Repository
 
         public async Task<bool> CheckPhoneNumberExistAsync(string phone)
         {
-            List<Account> list = await Task.FromResult(_myDB.Accounts.ToList());
+            List<Account> list = await myDB.Accounts.ToListAsync();
             Account account2 = list.Find(a =>
                 a.PhoneNumber.Equals(phone)
             );
@@ -81,7 +82,7 @@ namespace Capstone_API.Repository
             TwilioClient.Init(accountSid, authToken);
             try
             {
-                var message = MessageResource.Create(
+                var message = await MessageResource.CreateAsync(
                                body: "Welcome to B-Wallet, Your OTP is: " + otp,
                                from: new Twilio.Types.PhoneNumber(_configuration["Twilio:from"]),
                                to: new Twilio.Types.PhoneNumber(phone)
@@ -112,82 +113,95 @@ namespace Capstone_API.Repository
         public async Task RegisterNewUserAsync(string phone, string pass, string name,
            string fb, string bank)
         {
-               Account account = new Account();
-               User user = new User();
-               account.PhoneNumber = phone;
-               account.Password = pass;
-               await Task.FromResult(_myDB.Accounts.Add(account));
-               _myDB.SaveChanges();
-               user.UserName = name;
-               user.FBlink = fb;
-               user.BankInfo = bank;
-               user.Account = account;
-               _myDB.Users.Add(user);
-               _myDB.SaveChanges();
+            Account account = new Account();
+            User user = new User();
+            account.PhoneNumber = phone;
+            account.Password = pass;
+            await myDB.Accounts.AddAsync(account);
+            myDB.SaveChanges();
+            user.UserName = name;
+            user.FBlink = fb;
+            user.BankInfo = bank;
+            user.Account = account;
+            await myDB.Users.AddAsync(user);
+            myDB.SaveChanges();
         }
 
         public async Task SaveOTPAsync(string phone, string otpCode, string jwt)
         {
-                Otp otp = new Otp();
-                otp.Phone = phone;
-                otp.OtpCode = otpCode;
-                otp.CreatedAt = DateTime.Now;
-                otp.JWToken = jwt;
-                await Task.FromResult(_myDB.Otps.Add(otp));
-                _myDB.SaveChanges();
+            Otp otp = new Otp();
+            otp.Phone = phone;
+            otp.OtpCode = otpCode;
+            otp.CreatedAt = DateTime.Now;
+            otp.JWToken = jwt;
+            await myDB.Otps.AddAsync(otp);
+            myDB.SaveChanges();
         }
 
         public async Task<string> EncryptAsync(string password)
         {
-                string key = _configuration["KeyEncrypt"];
-                bool useHashing = true;
-                byte[] keyArray;
-                byte[] toEncryptArray = UTF8Encoding.UTF8.GetBytes(password);
+            string key = _configuration["KeyEncrypt"];
+            bool useHashing = true;
+            byte[] keyArray;
+            byte[] toEncryptArray = UTF8Encoding.UTF8.GetBytes(password);
 
-                if (useHashing)
-                {
-                    MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
-                    keyArray = hashmd5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
-                }
-                else
-                    keyArray = UTF8Encoding.UTF8.GetBytes(key);
+            if (useHashing)
+            {
+                MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
+                keyArray = hashmd5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+            }
+            else
+                keyArray = UTF8Encoding.UTF8.GetBytes(key);
 
-                TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
-                tdes.Key = keyArray;
-                tdes.Mode = CipherMode.ECB;
-                tdes.Padding = PaddingMode.PKCS7;
+            TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
+            tdes.Key = keyArray;
+            tdes.Mode = CipherMode.ECB;
+            tdes.Padding = PaddingMode.PKCS7;
 
-                ICryptoTransform cTransform = tdes.CreateEncryptor();
-                byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
+            ICryptoTransform cTransform = tdes.CreateEncryptor();
+            byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
 
-                return await Task.FromResult(Convert.ToBase64String(resultArray, 0, resultArray.Length));
+            return await Task.FromResult(Convert.ToBase64String(resultArray, 0, resultArray.Length));
         }
 
         public async Task<string> DecryptAsync(string password)
         {
-                string key = _configuration["KeyEncrypt"];
-                bool useHashing = true;
-                byte[] keyArray;
-                byte[] toEncryptArray = Convert.FromBase64String(password);
+            string key = _configuration["KeyEncrypt"];
+            bool useHashing = true;
+            byte[] keyArray;
+            byte[] toEncryptArray = Convert.FromBase64String(password);
 
-                if (useHashing)
-                {
-                    MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
-                    keyArray = hashmd5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
-                }
-                else
-                    keyArray = UTF8Encoding.UTF8.GetBytes(key);
+            if (useHashing)
+            {
+                MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
+                keyArray = hashmd5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+            }
+            else
+                keyArray = UTF8Encoding.UTF8.GetBytes(key);
 
-                TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
-                tdes.Key = keyArray;
-                tdes.Mode = CipherMode.ECB;
-                tdes.Padding = PaddingMode.PKCS7;
+            TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
+            tdes.Key = keyArray;
+            tdes.Mode = CipherMode.ECB;
+            tdes.Padding = PaddingMode.PKCS7;
 
-                ICryptoTransform cTransform = tdes.CreateDecryptor();
-                byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
+            ICryptoTransform cTransform = tdes.CreateDecryptor();
+            byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
 
-                return await Task.FromResult(UTF8Encoding.UTF8.GetString(resultArray));
+            return await Task.FromResult(UTF8Encoding.UTF8.GetString(resultArray));
 
+        }
+
+        public async Task ChangePassword(string phone, string newPassword)
+        {
+            Account account = await myDB.Accounts.FirstOrDefaultAsync(a =>
+                a.PhoneNumber.Equals(phone));
+            account.Password = newPassword;
+            await myDB.SaveChangesAsync();
+        }
+
+        public async Task<User> GetUserAsync(Account account)
+        {
+            return await myDB.Users.FirstOrDefaultAsync(u => u.Account == account);
         }
     }
 }

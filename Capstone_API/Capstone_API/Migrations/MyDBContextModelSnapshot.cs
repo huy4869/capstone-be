@@ -45,6 +45,66 @@ namespace Capstone_API.Migrations
                     b.ToTable("Account");
                 });
 
+            modelBuilder.Entity("Capstone_API.Models.Event", b =>
+                {
+                    b.Property<int>("EventID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("EventDescript")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EventLink")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EventLogo")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EventName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("EventStatus")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("EventID");
+
+                    b.ToTable("Event");
+                });
+
+            modelBuilder.Entity("Capstone_API.Models.EventUser", b =>
+                {
+                    b.Property<int>("EventUserID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int?>("EventID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserRole")
+                        .HasColumnType("int");
+
+                    b.HasKey("EventUserID");
+
+                    b.HasIndex("EventID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("EventUser");
+                });
+
             modelBuilder.Entity("Capstone_API.Models.Otp", b =>
                 {
                     b.Property<int>("OtpID")
@@ -101,6 +161,21 @@ namespace Capstone_API.Migrations
                     b.HasIndex("AccountID");
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("Capstone_API.Models.EventUser", b =>
+                {
+                    b.HasOne("Capstone_API.Models.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventID");
+
+                    b.HasOne("Capstone_API.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID");
+
+                    b.Navigation("Event");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Capstone_API.Models.User", b =>
