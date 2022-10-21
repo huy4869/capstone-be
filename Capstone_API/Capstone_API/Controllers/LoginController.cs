@@ -23,13 +23,19 @@ namespace Capstone_API.Controllers
         {
             this.repo = repo;
         }
+        [HttpGet]
+        public IActionResult Get()
+        {
+            return Ok("Login page");    
+        }
 
         // GET api/<LoginController>/5
         [HttpPost]
         public async Task<Respond<ArrayList>> Login([FromForm] string phone, [FromForm] string password)
         {
             var checkPhone = repo.CheckPhoneNumberExistAsync(phone);
-            var encrypt = repo.EncryptAsync(password);
+            //var encrypt = repo.EncryptAsync(password);
+            var encrypt = password;
             if (await checkPhone == false)
                 return new Respond<ArrayList>()
                 {
@@ -38,7 +44,7 @@ namespace Capstone_API.Controllers
                     Message = "This phone number is not registed!",
                     Data = null
                 };
-            var account = repo.GetAccountAsync(phone, await encrypt);
+            var account = repo.GetAccountAsync(phone,  encrypt);
             var user = repo.GetUserAsync(await account);
             if (await account == null)
                 return new Respond<ArrayList>()
@@ -48,7 +54,7 @@ namespace Capstone_API.Controllers
                     Message = "This password is wrong!",
                     Data = null
                 };
-            var jwt = repo.JWTGenerateAsync(phone, await encrypt);
+            var jwt = repo.JWTGenerateAsync(phone,  encrypt);
             return new Respond<ArrayList>()
             {
                 StatusCode = HttpStatusCode.Accepted,

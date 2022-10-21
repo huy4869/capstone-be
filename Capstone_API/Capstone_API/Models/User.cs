@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,17 +11,19 @@ namespace Capstone_API.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int UserID { get; set; }
+        public int ID { get; set; }
         [Required]
         public string UserName { get; set; }
         public string FBlink { get; set; }
         public string BankInfo { get; set; }
-        [ForeignKey("AccountID")]
-        public Account Account { get; set; }
+        [ForeignKey("Account")]
+        public int AccountID { get; set; }
         [Required]
         public DateTime CreatedAt { get; set; }
         [Required]
         public DateTime UpdatedAt { get; set; }
 
+        public Account Account { get; set; }
+        public ICollection<Friend> Friends { get; set; }
     }
 }

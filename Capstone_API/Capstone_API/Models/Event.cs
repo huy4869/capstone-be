@@ -8,7 +8,8 @@ namespace Capstone_API.Models
     public class Event
     {
         [Key]
-        public int EventID { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ID { get; set; }
         [Required]
         public string EventName { get; set; }
         [Required]

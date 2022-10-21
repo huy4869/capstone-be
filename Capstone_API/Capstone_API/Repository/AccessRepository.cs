@@ -98,8 +98,7 @@ namespace Capstone_API.Repository
 
         public async Task<string> OTPGenerateAsync()
         {
-            const string valid = "abcdefghijklmnopqrstuvwxyzABCDEF" +
-            "GHIJKLMNOPQRSTUVWXYZ1234567890";
+            const string valid = "1234567890";
             int length = 6;
             StringBuilder res = new StringBuilder();
             Random rnd = new Random();

@@ -7,13 +7,12 @@ namespace Capstone_API.Models
     [Table("EventUser")]
     public class EventUser
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int EventUserID { get; set; }
-        [ForeignKey("UserID")]
-        public User User { get; set; }
-        [ForeignKey("EventID")]
-        public Event Event { get; set; }
+        [Column(Order = 1)]
+        [ForeignKey("User")]
+        public int UserID { get; set; }
+        [Column(Order = 2)]
+        [ForeignKey("Event")]
+        public int EventID { get; set; }
         [Required]
         public int UserRole { get; set; }
     }

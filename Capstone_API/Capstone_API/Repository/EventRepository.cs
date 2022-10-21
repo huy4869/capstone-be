@@ -22,11 +22,11 @@ namespace Capstone_API.Repository
         {
             List<Event> events = await myDB.Events.ToListAsync();
             List<EventUser> eventUsers = await myDB.EventUsers.
-                Where(e => e.User.UserID == user.UserID).ToListAsync();
+                Where(e => e.UserID == user.ID).ToListAsync();
 
             var query =
             from e in events 
-            join eu in eventUsers on e.EventID equals eu.Event.EventID
+            join eu in eventUsers on e.ID equals eu.EventID
             select e;
             return query.ToList();
         }
