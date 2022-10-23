@@ -3,6 +3,7 @@ using Capstone_API.Repository;
 using Capstone_API.Repository.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,6 @@ namespace Capstone_API
 {
     public class Startup
     {
-        string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -56,13 +56,12 @@ namespace Capstone_API
             
             services.AddCors(options =>
             {
-                options.AddPolicy(name: MyAllowSpecificOrigins,
-                                  policy =>
+                options.AddPolicy("CorsPolicy",
+                                  builder =>
                                   {
-                                      policy.WithOrigins("https://localhost:44300/api/",
-                                                          "http://localhost:3000/")
-                                      .AllowAnyHeader()
-                                      .AllowAnyMethod();
+                                      builder.AllowAnyOrigin()
+                                      .AllowAnyMethod()
+                                      .AllowAnyHeader();
                                   });
             });
         }
@@ -79,7 +78,7 @@ namespace Capstone_API
 
             app.UseRouting();
 
-            app.UseCors(MyAllowSpecificOrigins);
+            app.UseCors("CorsPolicy");
 
             app.UseAuthorization();
 
