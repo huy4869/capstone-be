@@ -6,7 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Capstone_API
+namespace Capstone_API.Models.ObjectType
 {
     public class Respond<T>
     {

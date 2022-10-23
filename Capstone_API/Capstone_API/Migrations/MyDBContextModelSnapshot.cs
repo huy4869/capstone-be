@@ -19,7 +19,7 @@ namespace Capstone_API.Migrations
 
             modelBuilder.Entity("Capstone_API.Models.Account", b =>
                 {
-                    b.Property<int>("AccountID")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
@@ -40,9 +40,77 @@ namespace Capstone_API.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.HasKey("AccountID");
+                    b.HasKey("ID");
 
                     b.ToTable("Account");
+                });
+
+            modelBuilder.Entity("Capstone_API.Models.Event", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("EventDescript")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EventLink")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EventLogo")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EventName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("EventStatus")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Event");
+                });
+
+            modelBuilder.Entity("Capstone_API.Models.EventUser", b =>
+                {
+                    b.Property<int>("EventID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserRole")
+                        .HasColumnType("int");
+
+                    b.HasKey("EventID", "UserID");
+
+                    b.ToTable("EventUser");
+                });
+
+            modelBuilder.Entity("Capstone_API.Models.Friend", b =>
+                {
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserFriendID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("UserID", "UserFriendID");
+
+                    b.ToTable("Friend");
                 });
 
             modelBuilder.Entity("Capstone_API.Models.Otp", b =>
@@ -73,11 +141,11 @@ namespace Capstone_API.Migrations
 
             modelBuilder.Entity("Capstone_API.Models.User", b =>
                 {
-                    b.Property<int>("UserID")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int?>("AccountID")
+                    b.Property<int>("AccountID")
                         .HasColumnType("int");
 
                     b.Property<string>("BankInfo")
@@ -96,20 +164,47 @@ namespace Capstone_API.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("UserID");
+                    b.HasKey("ID");
 
                     b.HasIndex("AccountID");
 
                     b.ToTable("User");
                 });
 
+            modelBuilder.Entity("Capstone_API.Models.EventUser", b =>
+                {
+                    b.HasOne("Capstone_API.Models.Event", "Events")
+                        .WithMany()
+                        .HasForeignKey("EventID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Events");
+                });
+
+            modelBuilder.Entity("Capstone_API.Models.Friend", b =>
+                {
+                    b.HasOne("Capstone_API.Models.User", null)
+                        .WithMany("Friends")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Capstone_API.Models.User", b =>
                 {
                     b.HasOne("Capstone_API.Models.Account", "Account")
                         .WithMany()
-                        .HasForeignKey("AccountID");
+                        .HasForeignKey("AccountID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("Capstone_API.Models.User", b =>
+                {
+                    b.Navigation("Friends");
                 });
 #pragma warning restore 612, 618
         }

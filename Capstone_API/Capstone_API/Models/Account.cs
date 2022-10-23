@@ -9,7 +9,7 @@ namespace Capstone_API.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int AccountID { get; set; }
+        public int ID { get; set; }
         [Required]
         public string PhoneNumber  { get; set; }
         [Required]

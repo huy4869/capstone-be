@@ -3,6 +3,7 @@ using Capstone_API.Repository;
 using Capstone_API.Repository.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
@@ -37,13 +38,13 @@ namespace Capstone_API
                 ServerVersion.AutoDetect(mySqlConnectionStr)));
             services.AddControllers();
             services.AddScoped<IAccessRepository, AccessRepository>();
-<<<<<<< Updated upstream
-=======
+
             services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IFriendRepository, FriendRepository>();
             services.AddScoped<IReceiptRepository, ReceiptRepository>();
             services.AddScoped<IUserDeptRepository, UserDeptRepository>();
 
->>>>>>> Stashed changes
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(option => {
                 option.RequireHttpsMetadata = false;
                 option.SaveToken = true;
@@ -55,6 +56,18 @@ namespace Capstone_API
                     ValidIssuer = Configuration["Jwt:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
                 };
+            });
+
+            
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                                  builder =>
+                                  {
+                                      builder.AllowAnyOrigin()
+                                      .AllowAnyMethod()
+                                      .AllowAnyHeader();
+                                  });
             });
         }
 
@@ -69,6 +82,8 @@ namespace Capstone_API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors("CorsPolicy");
 
             app.UseAuthorization();
 
