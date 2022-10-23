@@ -33,13 +33,16 @@ namespace G24_BWallet_Backend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            string mySqlConnectionStr = Configuration.GetConnectionString("DefaultConnection");
+            string mySqlConnectionStr = Configuration.GetConnectionString("LongLocalConnection");
             services.AddDbContextPool<MyDBContext>(options => options.UseMySql(mySqlConnectionStr,
                 ServerVersion.AutoDetect(mySqlConnectionStr)));
             services.AddControllers();
             services.AddScoped<IAccessRepository, AccessRepository>();
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IFriendRepository, FriendRepository>();
+            services.AddScoped<IReceiptRepository, ReceiptRepository>();
+            services.AddScoped<IUserDeptRepository, UserDeptRepository>();
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(option => {
                 option.RequireHttpsMetadata = false;
                 option.SaveToken = true;
