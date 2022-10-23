@@ -32,11 +32,18 @@ namespace Capstone_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            string mySqlConnectionStr = Configuration.GetConnectionString("DefaultConnection");
+            string mySqlConnectionStr = Configuration.GetConnectionString("LongLocalConnection");
             services.AddDbContextPool<MyDBContext>(options => options.UseMySql(mySqlConnectionStr,
                 ServerVersion.AutoDetect(mySqlConnectionStr)));
             services.AddControllers();
             services.AddScoped<IAccessRepository, AccessRepository>();
+<<<<<<< Updated upstream
+=======
+            services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IReceiptRepository, ReceiptRepository>();
+            services.AddScoped<IUserDeptRepository, UserDeptRepository>();
+
+>>>>>>> Stashed changes
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(option => {
                 option.RequireHttpsMetadata = false;
                 option.SaveToken = true;
