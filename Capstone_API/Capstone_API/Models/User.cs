@@ -23,7 +23,7 @@ namespace Capstone_API.Models
         [Required]
         public DateTime UpdatedAt { get; set; }
 
-        public Account Account { get; set; }
+        //public virtual Account Account { get; set; }
         public ICollection<Friend> Friends { get; set; }
     }
 }

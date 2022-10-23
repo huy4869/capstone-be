@@ -1,4 +1,5 @@
 ﻿using Capstone_API.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Capstone_API.Repository.Interface
@@ -18,5 +19,6 @@ namespace Capstone_API.Repository.Interface
         Task<string> DecryptAsync(string password);
         Task ChangePassword(string phone, string newPassword);
         Task<User> GetUserAsync(Account account);
+        Task<List<User>> GetAllUserAsync();
     }
 }

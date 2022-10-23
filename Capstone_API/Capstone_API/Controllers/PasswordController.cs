@@ -1,4 +1,5 @@
-﻿using Capstone_API.Repository.Interface;
+﻿using Capstone_API.Models.ObjectType;
+using Capstone_API.Repository.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -8,11 +9,11 @@ namespace Capstone_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ForgetPassword : ControllerBase
+    public class PasswordController : ControllerBase
     {
         private readonly IAccessRepository repo;
 
-        public ForgetPassword(IAccessRepository repository)
+        public PasswordController(IAccessRepository repository)
         {
             repo = repository;
         }

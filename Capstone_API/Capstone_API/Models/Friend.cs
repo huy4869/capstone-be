@@ -14,8 +14,7 @@ namespace Capstone_API.Models
         [Column(Order = 2)]
         public int UserFriendID { get; set; }
         [Required]
-        public int EventStatus { get; set; }
-        [Required]
         public DateTime CreatedAt { get; set; }
+        
     }
 }

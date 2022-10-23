@@ -38,6 +38,7 @@ namespace Capstone_API
             services.AddControllers();
             services.AddScoped<IAccessRepository, AccessRepository>();
             services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IFriendRepository, FriendRepository>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(option => {
                 option.RequireHttpsMetadata = false;
                 option.SaveToken = true;

@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,5 +17,6 @@ namespace Capstone_API.Models
         public int EventID { get; set; }
         [Required]
         public int UserRole { get; set; }
+        public virtual Event Events { get; set; }
     }
 }

@@ -21,18 +21,18 @@ namespace Capstone_API.Repository
 {
     public class AccessRepository : IAccessRepository
     {
-        private readonly MyDBContext myDB;
+        private readonly MyDBContext context;
         private readonly IConfiguration _configuration;
 
         public AccessRepository(MyDBContext myDB, IConfiguration configuration)
         {
-            this.myDB = myDB;
+            this.context = myDB;
             _configuration = configuration;
         }
 
         public async Task<Account> GetAccountAsync(string phone, string password)
         {
-            List<Account> list = await myDB.Accounts.ToListAsync();
+            List<Account> list = await context.Accounts.ToListAsync();
             Account account2 = list.Find(a =>
                 a.PhoneNumber.Equals(phone) &&
                  a.Password.Equals(password)
@@ -42,7 +42,7 @@ namespace Capstone_API.Repository
 
         public async Task<bool> CheckPhoneNumberExistAsync(string phone)
         {
-            List<Account> list = await myDB.Accounts.ToListAsync();
+            List<Account> list = await context.Accounts.ToListAsync();
             Account account2 = list.Find(a =>
                 a.PhoneNumber.Equals(phone)
             );
@@ -116,14 +116,14 @@ namespace Capstone_API.Repository
             User user = new User();
             account.PhoneNumber = phone;
             account.Password = pass;
-            await myDB.Accounts.AddAsync(account);
-            myDB.SaveChanges();
+            await context.Accounts.AddAsync(account);
+            context.SaveChanges();
             user.UserName = name;
             user.FBlink = fb;
             user.BankInfo = bank;
-            user.Account = account;
-            await myDB.Users.AddAsync(user);
-            myDB.SaveChanges();
+            user.AccountID = account.ID;
+            await context.Users.AddAsync(user);
+            context.SaveChanges();
         }
 
         public async Task SaveOTPAsync(string phone, string otpCode, string jwt)
@@ -133,8 +133,8 @@ namespace Capstone_API.Repository
             otp.OtpCode = otpCode;
             otp.CreatedAt = DateTime.Now;
             otp.JWToken = jwt;
-            await myDB.Otps.AddAsync(otp);
-            myDB.SaveChanges();
+            await context.Otps.AddAsync(otp);
+            context.SaveChanges();
         }
 
         public async Task<string> EncryptAsync(string password)
@@ -192,15 +192,20 @@ namespace Capstone_API.Repository
 
         public async Task ChangePassword(string phone, string newPassword)
         {
-            Account account = await myDB.Accounts.FirstOrDefaultAsync(a =>
+            Account account = await context.Accounts.FirstOrDefaultAsync(a =>
                 a.PhoneNumber.Equals(phone));
             account.Password = newPassword;
-            await myDB.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         public async Task<User> GetUserAsync(Account account)
         {
-            return await myDB.Users.FirstOrDefaultAsync(u => u.Account == account);
+            return await context.Users.FirstOrDefaultAsync(u => u.AccountID == account.ID);
+        }
+
+        public async Task<List<User>> GetAllUserAsync()
+        {
+            return await context.Users.ToListAsync();
         }
     }
 }

@@ -3,14 +3,16 @@ using System;
 using Capstone_API.DBContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Capstone_API.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    partial class MyDBContextModelSnapshot : ModelSnapshot
+    [Migration("20221022072116_DeleteColumnFriend")]
+    partial class DeleteColumnFriend
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -154,6 +156,12 @@ namespace Capstone_API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("EventUserEventID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("EventUserUserID")
+                        .HasColumnType("int");
+
                     b.Property<string>("FBlink")
                         .HasColumnType("longtext");
 
@@ -167,6 +175,8 @@ namespace Capstone_API.Migrations
                     b.HasKey("ID");
 
                     b.HasIndex("AccountID");
+
+                    b.HasIndex("EventUserEventID", "EventUserUserID");
 
                     b.ToTable("User");
                 });
@@ -199,7 +209,16 @@ namespace Capstone_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Capstone_API.Models.EventUser", null)
+                        .WithMany("Users")
+                        .HasForeignKey("EventUserEventID", "EventUserUserID");
+
                     b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("Capstone_API.Models.EventUser", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Capstone_API.Models.User", b =>

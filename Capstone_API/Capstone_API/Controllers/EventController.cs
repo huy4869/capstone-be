@@ -1,7 +1,9 @@
 ﻿using Capstone_API.Models;
+using Capstone_API.Models.ObjectType;
 using Capstone_API.Repository.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -21,9 +23,9 @@ namespace Capstone_API.Controllers
         }
 
         [HttpGet]
-        public async Task<Respond<IEnumerable<Event>>> GetAllEvent([FromBody] User user)
+        public async Task<Respond<IEnumerable<Event>>> GetAllEvent([FromForm] int userID)
         {
-            var events =  repo.GetAllEventsAsync(user);
+            var events =  repo.GetAllEventsAsync(userID);
             return new Respond<IEnumerable<Event>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -33,10 +35,18 @@ namespace Capstone_API.Controllers
             };
         }
 
-        [HttpGet("user")]
-        public async Task<IActionResult> GetAllUser()
+        [HttpPost]
+        public async Task<Respond<int>> AddEvent([FromBody] NewEvent newEvent)
         {
-            return Ok(await repo.GetAllUsersAsync());
+            int eventID = await repo.AddEventAsync(newEvent.EventName, newEvent.EventDescript);
+            await repo.AddEventMember(eventID, newEvent.Members);
+            return new Respond<int>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Add event success",
+                Data = eventID
+            };
         }
 
     }

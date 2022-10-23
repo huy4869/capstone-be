@@ -6,7 +6,8 @@ namespace Capstone_API.Repository.Interface
 {
     public interface IEventRepository
     {
-        Task<List<Event>> GetAllEventsAsync(User user);
-        Task<List<User>> GetAllUsersAsync();
+        Task<List<Event>> GetAllEventsAsync(int userID);
+        Task<int> AddEventAsync(string eventName, string eventDes);
+        Task AddEventMember(int eventID, List<User> memebers);
     }
 }
