@@ -61,7 +61,7 @@ namespace BWallet.Controllers
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
                 Message = "Login success!",
-                Data = new ArrayList { "JWT Token: " + await jwt,await user}
+                Data = new ArrayList { await jwt,await user}
             };
 
         }
