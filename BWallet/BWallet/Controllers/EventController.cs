@@ -22,8 +22,8 @@ namespace BWallet.Controllers
             repo = eventRepository;
         }
 
-        [HttpGet]
-        public async Task<Respond<IEnumerable<Event>>> GetAllEvent([FromForm] int userID)
+        [HttpGet("{userID}")]
+        public async Task<Respond<IEnumerable<Event>>> GetAllEvent(int userID)
         {
             var events =  repo.GetAllEventsAsync(userID);
             return new Respond<IEnumerable<Event>>()
