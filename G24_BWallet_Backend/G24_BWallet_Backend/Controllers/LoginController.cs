@@ -32,11 +32,11 @@ namespace G24_BWallet_Backend.Controllers
 
         // GET api/<LoginController>/5
         [HttpPost]
-        public async Task<Respond<ArrayList>> Login([FromForm] string phone, [FromForm] string password)
+        public async Task<Respond<ArrayList>> Login([FromBody] Account acc)
         {
-            var checkPhone = repo.CheckPhoneNumberExistAsync(phone);
+            var checkPhone = repo.CheckPhoneNumberExistAsync(acc.PhoneNumber);
             //var encrypt = repo.EncryptAsync(password);
-            var encrypt = password;
+            var encrypt = acc.Password;
             if (await checkPhone == false)
                 return new Respond<ArrayList>()
                 {
@@ -45,7 +45,7 @@ namespace G24_BWallet_Backend.Controllers
                     Message = "This phone number is not registed!",
                     Data = null
                 };
-            var account = repo.GetAccountAsync(phone,  encrypt);
+            var account = repo.GetAccountAsync(acc.PhoneNumber,  encrypt);
             var user = repo.GetUserAsync(await account);
             if (await account == null)
                 return new Respond<ArrayList>()
@@ -55,7 +55,7 @@ namespace G24_BWallet_Backend.Controllers
                     Message = "This password is wrong!",
                     Data = null
                 };
-            var jwt = repo.JWTGenerateAsync(phone,  encrypt);
+            var jwt = repo.JWTGenerateAsync(acc.PhoneNumber,  encrypt);
             return new Respond<ArrayList>()
             {
                 StatusCode = HttpStatusCode.Accepted,

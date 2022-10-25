@@ -19,13 +19,8 @@ namespace G24_BWallet_Backend.Repository
             this.context = myDB;
         }
 
-        public async Task<int> AddEventAsync(string eventName, string eventDes)
+        public async Task<int> AddEventAsync(Event e)
         {
-            Event e = new Event();
-            e.EventName = eventName;
-            e.EventDescript = eventDes;
-            e.EventLogo = "event.logo";
-            e.EventLink = "event.link";
             e.EventStatus = 1;
             e.CreatedAt = System.DateTime.Now;
             e.UpdatedAt = System.DateTime.Now;

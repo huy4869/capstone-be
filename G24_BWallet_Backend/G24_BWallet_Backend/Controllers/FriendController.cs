@@ -20,8 +20,8 @@ namespace G24_BWallet_Backend.Controllers
             repo = friendRepository;
         }
 
-        [HttpGet]
-        public async Task<Respond<IEnumerable<User>>> GetFriends([FromForm] int userID)
+        [HttpGet("{userID}")]
+        public async Task<Respond<IEnumerable<User>>> GetFriends(int userID)
         {
             var friends = repo.GetFriendsAsync(userID);
             return new Respond<IEnumerable<User>>()
