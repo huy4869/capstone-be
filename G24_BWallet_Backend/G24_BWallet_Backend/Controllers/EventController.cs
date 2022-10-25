@@ -38,7 +38,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost]
         public async Task<Respond<int>> AddEvent([FromBody] NewEvent newEvent)
         {
-            int eventID = await repo.AddEventAsync(newEvent.EventName, newEvent.EventDescript);
+            int eventID = await repo.AddEventAsync(newEvent.Event);
             await repo.AddEventMember(eventID, newEvent.Members);
             return new Respond<int>()
             {
