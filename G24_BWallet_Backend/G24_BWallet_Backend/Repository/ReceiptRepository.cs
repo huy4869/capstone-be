@@ -24,18 +24,19 @@ namespace G24_BWallet_Backend.Repository
             return true;
         }
 
-        public async Task<List<Receipt>> GetReceiptByIDAsync (int ReceiptID)//
+        public async Task<Receipt> GetReceiptByIDAsync (int ReceiptID)//
         {
             Receipt r = myDB.Receipts.Include(r => r.User).FirstOrDefault(x => x.ReceiptID == ReceiptID);
-            List<Receipt> receiptList = new List<Receipt>();
-            receiptList.Add(r);
-            return receiptList;
+            return r;
         }
 
-        public Receipt GetReceiptByIDAsync2(int ReceiptID)//
+        public async Task<List<Receipt>> GetReceiptByEventIDUserIDAsync(int EventID, int UserID)//
         {
-            Receipt r = myDB.Receipts.Find(ReceiptID);
-            return r;
+            List<Receipt> receiptList = myDB.Receipts//.Include(u => u.User).Include(u => u.User)
+                .Where(e => e.Event.ID == EventID)
+                .Where(u => u.User.ID == UserID)
+                .ToList();
+            return receiptList;
         }
     }
 }
