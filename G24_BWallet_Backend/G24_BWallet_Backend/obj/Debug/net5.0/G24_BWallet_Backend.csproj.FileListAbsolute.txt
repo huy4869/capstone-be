@@ -82,8 +82,6 @@ D:\GIT clone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.
 D:\GIT clone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.pdb
 D:\GIT clone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.genruntimeconfig.cache
 D:\GIT clone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\ref\G24_BWallet_Backend.dll
-<<<<<<< HEAD
-=======
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.csproj.AssemblyReference.cache
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.AssemblyInfoInputs.cache
@@ -93,7 +91,6 @@ C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Back
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.dll
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\refint\G24_BWallet_Backend.dll
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.pdb
->>>>>>> a2ffe19 (Init get receipt)
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\appsettings.Development.json
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\appsettings.json
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\G24_BWallet_Backend.exe
@@ -121,24 +118,9 @@ C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Back
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\System.Diagnostics.DiagnosticSource.dll
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Twilio.dll
-<<<<<<< HEAD
-C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.csproj.AssemblyReference.cache
-C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.AssemblyInfoInputs.cache
-C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.AssemblyInfo.cs
-C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.csproj.CoreCompileInputs.cache
-C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.MvcApplicationPartsAssemblyInfo.cache
-=======
->>>>>>> a2ffe19 (Init get receipt)
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\scopedcss\bundle\G24_BWallet_Backend.styles.css
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\staticwebassets\G24_BWallet_Backend.StaticWebAssets.Manifest.cache
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.RazorTargetAssemblyInfo.cache
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.csproj.CopyComplete
-<<<<<<< HEAD
-C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.dll
-C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\refint\G24_BWallet_Backend.dll
-C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.pdb
-=======
->>>>>>> a2ffe19 (Init get receipt)
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.genruntimeconfig.cache
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\ref\G24_BWallet_Backend.dll
