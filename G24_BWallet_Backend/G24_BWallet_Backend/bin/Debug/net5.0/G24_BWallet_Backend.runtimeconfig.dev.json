@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\lelon\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\lelon\\.nuget\\packages"
+    ]
+  }
+}
