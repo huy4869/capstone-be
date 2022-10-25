@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace G24_BWallet_Backend.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    [Migration("20221016112821_UpdatePrimaryKeyEvenUserTable")]
-    partial class UpdatePrimaryKeyEvenUserTable
+    [Migration("20221022124922_Add_Receipts_UserDepts")]
+    partial class Add_Receipts_UserDepts
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

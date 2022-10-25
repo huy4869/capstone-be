@@ -82,3 +82,45 @@ D:\GIT clone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.
 D:\GIT clone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.pdb
 D:\GIT clone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.genruntimeconfig.cache
 D:\GIT clone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\ref\G24_BWallet_Backend.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.csproj.AssemblyReference.cache
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.AssemblyInfoInputs.cache
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.AssemblyInfo.cs
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.csproj.CoreCompileInputs.cache
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\refint\G24_BWallet_Backend.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.pdb
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\appsettings.Development.json
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\appsettings.json
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\G24_BWallet_Backend.exe
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\G24_BWallet_Backend.deps.json
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\G24_BWallet_Backend.runtimeconfig.json
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\G24_BWallet_Backend.runtimeconfig.dev.json
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\G24_BWallet_Backend.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\G24_BWallet_Backend.pdb
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Humanizer.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Microsoft.EntityFrameworkCore.Design.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\MySqlConnector.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Newtonsoft.Json.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Pomelo.EntityFrameworkCore.MySql.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\System.Diagnostics.DiagnosticSource.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\Twilio.dll
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\scopedcss\bundle\G24_BWallet_Backend.styles.css
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\staticwebassets\G24_BWallet_Backend.StaticWebAssets.Manifest.cache
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.RazorTargetAssemblyInfo.cache
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.csproj.CopyComplete
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.genruntimeconfig.cache
+C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\ref\G24_BWallet_Backend.dll

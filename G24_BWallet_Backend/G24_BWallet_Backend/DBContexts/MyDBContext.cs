@@ -11,6 +11,10 @@ namespace G24_BWallet_Backend.DBContexts
         public DbSet<Event> Events { get; set; }
         public DbSet<EventUser> EventUsers { get; set; }
         public DbSet<Friend> Friends { get; set; }
+
+        public DbSet<Receipt> Receipts { get; set; }
+
+        public DbSet<UserDept> UserDepts { get; set; }
         public MyDBContext(DbContextOptions<MyDBContext> o) : base(o) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

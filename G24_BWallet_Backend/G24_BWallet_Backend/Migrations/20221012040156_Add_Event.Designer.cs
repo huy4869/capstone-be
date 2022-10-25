@@ -19,7 +19,7 @@ namespace G24_BWallet_Backend.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64)
                 .HasAnnotation("ProductVersion", "5.0.10");
 
-            modelBuilder.Entity("Capstone_API.Models.Account", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Account", b =>
                 {
                     b.Property<int>("AccountID")
                         .ValueGeneratedOnAdd()
@@ -47,7 +47,7 @@ namespace G24_BWallet_Backend.Migrations
                     b.ToTable("Account");
                 });
 
-            modelBuilder.Entity("Capstone_API.Models.Event", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Event", b =>
                 {
                     b.Property<int>("EventID")
                         .ValueGeneratedOnAdd()
@@ -83,7 +83,7 @@ namespace G24_BWallet_Backend.Migrations
                     b.ToTable("Event");
                 });
 
-            modelBuilder.Entity("Capstone_API.Models.Otp", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Otp", b =>
                 {
                     b.Property<int>("OtpID")
                         .ValueGeneratedOnAdd()
@@ -109,7 +109,7 @@ namespace G24_BWallet_Backend.Migrations
                     b.ToTable("OtpCode");
                 });
 
-            modelBuilder.Entity("Capstone_API.Models.User", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
                 {
                     b.Property<int>("UserID")
                         .ValueGeneratedOnAdd()
@@ -141,9 +141,9 @@ namespace G24_BWallet_Backend.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("Capstone_API.Models.User", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
                 {
-                    b.HasOne("Capstone_API.Models.Account", "Account")
+                    b.HasOne("G24_BWallet_Backend.Models.Account", "Account")
                         .WithMany()
                         .HasForeignKey("AccountID");
 

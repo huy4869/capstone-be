@@ -19,7 +19,7 @@ namespace G24_BWallet_Backend.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64)
                 .HasAnnotation("ProductVersion", "5.0.10");
 
-            modelBuilder.Entity("Capstone_API.Models.Account", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Account", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -47,7 +47,7 @@ namespace G24_BWallet_Backend.Migrations
                     b.ToTable("Account");
                 });
 
-            modelBuilder.Entity("Capstone_API.Models.Event", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Event", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -83,7 +83,7 @@ namespace G24_BWallet_Backend.Migrations
                     b.ToTable("Event");
                 });
 
-            modelBuilder.Entity("Capstone_API.Models.EventUser", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.EventUser", b =>
                 {
                     b.Property<int>("EventID")
                         .HasColumnType("int");
@@ -99,7 +99,7 @@ namespace G24_BWallet_Backend.Migrations
                     b.ToTable("EventUser");
                 });
 
-            modelBuilder.Entity("Capstone_API.Models.Friend", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Friend", b =>
                 {
                     b.Property<int>("UserID")
                         .HasColumnType("int");
@@ -118,7 +118,7 @@ namespace G24_BWallet_Backend.Migrations
                     b.ToTable("Friend");
                 });
 
-            modelBuilder.Entity("Capstone_API.Models.Otp", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Otp", b =>
                 {
                     b.Property<int>("OtpID")
                         .ValueGeneratedOnAdd()
@@ -144,7 +144,7 @@ namespace G24_BWallet_Backend.Migrations
                     b.ToTable("OtpCode");
                 });
 
-            modelBuilder.Entity("Capstone_API.Models.User", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -176,18 +176,18 @@ namespace G24_BWallet_Backend.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("Capstone_API.Models.Friend", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Friend", b =>
                 {
-                    b.HasOne("Capstone_API.Models.User", null)
+                    b.HasOne("G24_BWallet_Backend.Models.User", null)
                         .WithMany("Friends")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Capstone_API.Models.User", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
                 {
-                    b.HasOne("Capstone_API.Models.Account", "Account")
+                    b.HasOne("G24_BWallet_Backend.Models.Account", "Account")
                         .WithMany()
                         .HasForeignKey("AccountID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -196,7 +196,7 @@ namespace G24_BWallet_Backend.Migrations
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("Capstone_API.Models.User", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
                 {
                     b.Navigation("Friends");
                 });
