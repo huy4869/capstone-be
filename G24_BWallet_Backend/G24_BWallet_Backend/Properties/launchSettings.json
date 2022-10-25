@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Capstone_API": {
+    "G24_BWallet_Backend": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
       "launchBrowser": true,
