@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Bah3e/3onCwW4MsRfcomLlNgPYwwXpi47dzGJvngno+BYRecDvKUXqJr04FKhUTTdbRBNesm6GmkxcsLQpvgjw==",
+  "dgSpecHash": "adXC8uBhDvn4Eoq0CRwrRH+EHKXORNge1qD6ljwzGGdhEftVhmWuMW8pQgBOWd5AZgGHnqaf/G/C30a1kL0Ivg==",
   "success": true,
-  "projectFilePath": "D:\\GIT clone\\capstone-be\\BWallet\\BWallet\\G24_BWallet_Backend.csproj",
+  "projectFilePath": "D:\\GIT clone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\5.0.10\\microsoft.aspnetcore.authentication.jwtbearer.5.0.10.nupkg.sha512",

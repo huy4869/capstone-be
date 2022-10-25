@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\GIT clone\\capstone-be\\BWallet\\BWallet\\G24_BWallet_Backend.csproj": {}
+    "D:\\GIT clone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj": {}
   },
   "projects": {
-    "D:\\GIT clone\\capstone-be\\BWallet\\BWallet\\G24_BWallet_Backend.csproj": {
+    "D:\\GIT clone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\GIT clone\\capstone-be\\BWallet\\BWallet\\G24_BWallet_Backend.csproj",
+        "projectUniqueName": "D:\\GIT clone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj",
         "projectName": "G24_BWallet_Backend",
-        "projectPath": "D:\\GIT clone\\capstone-be\\BWallet\\BWallet\\G24_BWallet_Backend.csproj",
+        "projectPath": "D:\\GIT clone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "D:\\GIT clone\\capstone-be\\BWallet\\BWallet\\obj\\",
+        "outputPath": "D:\\GIT clone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
