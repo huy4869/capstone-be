@@ -1,5 +1,6 @@
-﻿using Capstone_API.Models;
-using Capstone_API.Repository.Interface;
+﻿using G24_BWallet_Backend.Models;
+using G24_BWallet_Backend.Models.ObjectType;
+using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace Capstone_API.Controllers
+namespace G24_BWallet_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -24,42 +25,41 @@ namespace Capstone_API.Controllers
             deptRepo = InitUserDeptRepo;
         }
 
-        //get all
-        // GET: api/<ReceiptController>
-        public async Task<Respond<IEnumerable<Receipt>>> GetAllReceipt()//NOT DONE
+        [HttpGet()]
+        public async Task<Respond<IEnumerable<Receipt>>> GetReceiptByEventIDUserID([FromQuery(Name = "eventid")] int eventid, [FromQuery(Name = "userid")] int userid)
         {
-            var r = receiptRepo.GetReceiptByIDAsync(1);
-             
+            var receipts = receiptRepo.GetReceiptByEventIDUserIDAsync(eventid, userid) ;
+            
             return new Respond<IEnumerable<Receipt>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Get event success",
-                Data = await r
+                Message = "lấy danh sách thành công",
+                Data = await receipts
             };
         }
 
 
-        [HttpGet("get_first")]
-        public async Task<Respond<Receipt>> GetReceipt()//NOT DONE
+        [HttpGet("{id}")]
+        public async Task<Respond<Receipt>> GetReceipt(int id)//NOT DONE
         {
-            var r = receiptRepo.GetReceiptByIDAsync2(1);
+            var r = receiptRepo.GetReceiptByIDAsync(id);
 
             return new Respond<Receipt>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Get event success",
-                Data = r
+                Message = "Get receipt success",
+                Data = r.Result
             };
         }
-
+        /*
         // GET api/<ReceiptController>/5
         [HttpGet("{id}")]
         public string Get(int id)//NOT DONE
         {
             return "value";
-        }
+        }*/
 
         //create receipt
         // POST api/<ReceiptController>
@@ -77,7 +77,7 @@ namespace Capstone_API.Controllers
                 StatusCode = HttpStatusCode.Created,
                 Error = "",
                 Message = "Testing",
-                Data = new ArrayList { "name: " + receipt.ReceiptName + ",receiptUserID: " + receipt.User.UserID}
+                Data = new ArrayList { "name: " + receipt.ReceiptName + ",receiptUserID: " + receipt.User.ID}
             };
         }
 
