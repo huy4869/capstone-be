@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace G24_BWallet_Backend.Models
 {
-    [Table("receipt")]
+    [Table("Receipt")]
     public class Receipt
     {
         [Key]
@@ -12,10 +12,10 @@ namespace G24_BWallet_Backend.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ReceiptID { get; set; }
 
-        [ForeignKey("UserID")]
-        public User User { get; set; }
-        [ForeignKey("EventID")]
-        public Event Event { get; set; }
+        [ForeignKey("User")]
+        public int UserID { get; set; }
+        [ForeignKey("Event")]
+        public int EventID { get; set; }
 
 
         public string ReceiptName { get; set; }

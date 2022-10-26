@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace G24_BWallet_Backend.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    [Migration("20221025180820_DeleteRequiredInEvent2")]
-    partial class DeleteRequiredInEvent2
+    [Migration("20221026081152_CreateReceipt")]
+    partial class CreateReceipt
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -57,12 +57,15 @@ namespace G24_BWallet_Backend.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("EventDescript")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("EventLink")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("EventLogo")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("EventName")
@@ -173,7 +176,7 @@ namespace G24_BWallet_Backend.Migrations
 
                     b.HasKey("ReceiptID");
 
-                    b.ToTable("receipt");
+                    b.ToTable("Receipt");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>

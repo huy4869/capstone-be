@@ -28,7 +28,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet()]
         public async Task<Respond<IEnumerable<Receipt>>> GetReceiptByEventIDUserID([FromQuery(Name = "eventid")] int eventid, [FromQuery(Name = "userid")] int userid)
         {
-            var receipts = receiptRepo.GetReceiptByEventIDUserIDAsync(eventid, userid) ;
+            var receipts = receiptRepo.GetReceiptByEventIDAsync(eventid) ;
             
             return new Respond<IEnumerable<Receipt>>()
             {
@@ -40,17 +40,17 @@ namespace G24_BWallet_Backend.Controllers
         }
 
 
-        [HttpGet("{id}")]
-        public async Task<Respond<Receipt>> GetReceipt(int id)//NOT DONE
+        [HttpGet("{eventId}")]
+        public async Task<Respond<List<Receipt>>> GetReceipt(int eventId)//NOT DONE
         {
-            var r = receiptRepo.GetReceiptByIDAsync(id);
+            var r = receiptRepo.GetReceiptByEventIDAsync(eventId);
 
-            return new Respond<Receipt>()
+            return new Respond<List<Receipt>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
                 Message = "Get receipt success",
-                Data = r.Result
+                Data = await r
             };
         }
         /*
@@ -77,7 +77,7 @@ namespace G24_BWallet_Backend.Controllers
                 StatusCode = HttpStatusCode.Created,
                 Error = "",
                 Message = "Testing",
-                Data = new ArrayList { "name: " + receipt.ReceiptName + ",receiptUserID: " + receipt.User.ID}
+                Data = new ArrayList { "name: " + receipt.ReceiptName + ",receiptUserID: " + receipt.UserID}
             };
         }
 

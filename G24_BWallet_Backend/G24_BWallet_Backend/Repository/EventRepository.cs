@@ -29,14 +29,14 @@ namespace G24_BWallet_Backend.Repository
             return e.ID;
         }
 
-        public async Task AddEventMember(int eventID, List<User> memebers)
+        public async Task AddEventMember(int eventID, List<int> memebers)
         {
             int count = 0;
             foreach (var item in memebers)
             {
                 EventUser eu = new EventUser();
                 eu.EventID = eventID;
-                eu.UserID = item.ID;
+                eu.UserID = item;
                 eu.UserRole = (count == 0) ? 1 : 2;
                 count = 1;
                 await context.EventUsers.AddAsync(eu);

@@ -14,16 +14,26 @@ namespace G24_BWallet_Backend.Models
         public int ID { get; set; }
         [Required]
         public string UserName { get; set; }
+        public string Avatar { get; set; }
         public string FBlink { get; set; }
         public string BankInfo { get; set; }
         [ForeignKey("Account")]
         public int AccountID { get; set; }
-        [Required]
         public DateTime CreatedAt { get; set; }
-        [Required]
         public DateTime UpdatedAt { get; set; }
+        public virtual Account Account { get; set; }
 
-        //public virtual Account Account { get; set; }
-        public ICollection<Friend> Friends { get; set; }
+        public User()
+        {
+        }
+
+        public User(int iD, string userName, string avatar, string phone)
+        {
+            ID = iD;
+            UserName = userName;
+            Avatar = avatar;
+            Account = new Account();
+            Account.PhoneNumber = phone;
+        }
     }
 }

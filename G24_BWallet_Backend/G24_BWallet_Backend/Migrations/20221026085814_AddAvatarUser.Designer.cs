@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace G24_BWallet_Backend.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    [Migration("20221025182310_DeleteRequiredInEvent7")]
-    partial class DeleteRequiredInEvent7
+    [Migration("20221026085814_AddAvatarUser")]
+    partial class AddAvatarUser
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -57,12 +57,15 @@ namespace G24_BWallet_Backend.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("EventDescript")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("EventLink")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("EventLogo")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("EventName")
@@ -140,7 +143,7 @@ namespace G24_BWallet_Backend.Migrations
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.Receipt", b =>
                 {
-                    b.Property<int>("ID")
+                    b.Property<int>("ReceiptID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
@@ -171,9 +174,9 @@ namespace G24_BWallet_Backend.Migrations
                     b.Property<int>("UserID")
                         .HasColumnType("int");
 
-                    b.HasKey("ID");
+                    b.HasKey("ReceiptID");
 
-                    b.ToTable("receipt");
+                    b.ToTable("Receipt");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
@@ -184,6 +187,9 @@ namespace G24_BWallet_Backend.Migrations
 
                     b.Property<int>("AccountID")
                         .HasColumnType("int");
+
+                    b.Property<string>("Avatar")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("BankInfo")
                         .HasColumnType("longtext");
@@ -202,6 +208,8 @@ namespace G24_BWallet_Backend.Migrations
                         .HasColumnType("longtext");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("AccountID");
 
                     b.ToTable("User");
                 });
@@ -244,13 +252,15 @@ namespace G24_BWallet_Backend.Migrations
                     b.Navigation("Events");
                 });
 
-            modelBuilder.Entity("G24_BWallet_Backend.Models.Friend", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
                 {
-                    b.HasOne("G24_BWallet_Backend.Models.User", null)
-                        .WithMany("Friends")
-                        .HasForeignKey("UserID")
+                    b.HasOne("G24_BWallet_Backend.Models.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.UserDept", b =>
@@ -266,11 +276,6 @@ namespace G24_BWallet_Backend.Migrations
                     b.Navigation("Receipt");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
-                {
-                    b.Navigation("Friends");
                 });
 #pragma warning restore 612, 618
         }
