@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "jBHyxJNdyOIazq5V+uS9XIW2EjQgp/Oswwba6+1G3rIQHHLzb9aaeYYFRZNSWaDsDJ/El8RGYK4YI1lYR3MxXw==",
+  "dgSpecHash": "iU65lh4DEjRrKnbJTOkzlz1mJezAqRg39tgkRMMEAGSVVPaSmowe/swaN76bWhoHIyysUJbqiky9mB1RKX8Y7A==",
   "success": true,
   "projectFilePath": "C:\\Users\\lelon\\Desktop\\capstone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj",
   "expectedPackageFiles": [
@@ -57,5 +57,12 @@
     "C:\\Users\\lelon\\.nuget\\packages\\system.threading.tasks\\4.3.0\\system.threading.tasks.4.3.0.nupkg.sha512",
     "C:\\Users\\lelon\\.nuget\\packages\\twilio\\5.80.0\\twilio.5.80.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problem reading the cache file C:\\Users\\lelon\\Desktop\\capstone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
+    }
+  ]
 }
