@@ -124,7 +124,7 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<Respond<ArrayList>> PostCreateReceipt([FromBody] Receipt receipt, List<UserDept> involve_members = null)
+        public async Task<Respond<ArrayList>> PostCreateReceipt([FromBody] Receipt receipt)
         {//note all create will have status not approve
 
             //repo.createReceipt
