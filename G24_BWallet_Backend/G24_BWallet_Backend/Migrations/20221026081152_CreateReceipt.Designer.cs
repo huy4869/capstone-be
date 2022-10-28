@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace G24_BWallet_Backend.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    [Migration("20221016112821_UpdatePrimaryKeyEvenUserTable")]
-    partial class UpdatePrimaryKeyEvenUserTable
+    [Migration("20221026081152_CreateReceipt")]
+    partial class CreateReceipt
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,7 +21,7 @@ namespace G24_BWallet_Backend.Migrations
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.Account", b =>
                 {
-                    b.Property<int>("AccountID")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
@@ -42,14 +42,14 @@ namespace G24_BWallet_Backend.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.HasKey("AccountID");
+                    b.HasKey("ID");
 
                     b.ToTable("Account");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.Event", b =>
                 {
-                    b.Property<int>("EventID")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
@@ -78,33 +78,41 @@ namespace G24_BWallet_Backend.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.HasKey("EventID");
+                    b.HasKey("ID");
 
                     b.ToTable("Event");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.EventUser", b =>
                 {
-                    b.Property<int>("EventUserID")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("EventID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("EventID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("UserID")
+                    b.Property<int>("UserID")
                         .HasColumnType("int");
 
                     b.Property<int>("UserRole")
                         .HasColumnType("int");
 
-                    b.HasKey("EventUserID");
-
-                    b.HasIndex("EventID");
-
-                    b.HasIndex("UserID");
+                    b.HasKey("EventID", "UserID");
 
                     b.ToTable("EventUser");
+                });
+
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Friend", b =>
+                {
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserFriendID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("UserID", "UserFriendID");
+
+                    b.ToTable("Friend");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.Otp", b =>
@@ -133,13 +141,51 @@ namespace G24_BWallet_Backend.Migrations
                     b.ToTable("OtpCode");
                 });
 
-            modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Receipt", b =>
                 {
-                    b.Property<int>("UserID")
+                    b.Property<int>("ReceiptID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int?>("AccountID")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DivideType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EventID")
+                        .HasColumnType("int");
+
+                    b.Property<double>("ReceiptAmount")
+                        .HasColumnType("double");
+
+                    b.Property<string>("ReceiptName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ReceiptPicture")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("ReceiptStatus")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ReceiptID");
+
+                    b.ToTable("Receipt");
+                });
+
+            modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("AccountID")
                         .HasColumnType("int");
 
                     b.Property<string>("BankInfo")
@@ -158,35 +204,76 @@ namespace G24_BWallet_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.HasKey("UserID");
-
-                    b.HasIndex("AccountID");
+                    b.HasKey("ID");
 
                     b.ToTable("User");
                 });
 
+            modelBuilder.Entity("G24_BWallet_Backend.Models.UserDept", b =>
+                {
+                    b.Property<int>("DeptId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<double>("Debit")
+                        .HasColumnType("double");
+
+                    b.Property<int>("DeptStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ReceiptID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("DeptId");
+
+                    b.HasIndex("ReceiptID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("user_dept");
+                });
+
             modelBuilder.Entity("G24_BWallet_Backend.Models.EventUser", b =>
                 {
-                    b.HasOne("G24_BWallet_Backend.Models.Event", "Event")
+                    b.HasOne("G24_BWallet_Backend.Models.Event", "Events")
                         .WithMany()
-                        .HasForeignKey("EventID");
+                        .HasForeignKey("EventID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Events");
+                });
+
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Friend", b =>
+                {
+                    b.HasOne("G24_BWallet_Backend.Models.User", null)
+                        .WithMany("Friends")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("G24_BWallet_Backend.Models.UserDept", b =>
+                {
+                    b.HasOne("G24_BWallet_Backend.Models.Receipt", "Receipt")
+                        .WithMany()
+                        .HasForeignKey("ReceiptID");
 
                     b.HasOne("G24_BWallet_Backend.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserID");
 
-                    b.Navigation("Event");
+                    b.Navigation("Receipt");
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
                 {
-                    b.HasOne("G24_BWallet_Backend.Models.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("AccountID");
-
-                    b.Navigation("Account");
+                    b.Navigation("Friends");
                 });
 #pragma warning restore 612, 618
         }

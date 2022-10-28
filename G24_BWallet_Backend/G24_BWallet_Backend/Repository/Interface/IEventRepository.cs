@@ -8,6 +8,6 @@ namespace G24_BWallet_Backend.Repository.Interface
     {
         Task<List<Event>> GetAllEventsAsync(int userID);
         Task<int> AddEventAsync(Event e);
-        Task AddEventMember(int eventID, List<User> memebers);
+        Task AddEventMember(int eventID, List<int> memebers);
     }
 }

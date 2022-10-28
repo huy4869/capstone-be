@@ -139,6 +139,44 @@ namespace G24_BWallet_Backend.Migrations
                     b.ToTable("OtpCode");
                 });
 
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Receipt", b =>
+                {
+                    b.Property<int>("ReceiptID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DivideType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EventID")
+                        .HasColumnType("int");
+
+                    b.Property<double>("ReceiptAmount")
+                        .HasColumnType("double");
+
+                    b.Property<string>("ReceiptName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ReceiptPicture")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("ReceiptStatus")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ReceiptID");
+
+                    b.ToTable("Receipt");
+                });
+
             modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
                 {
                     b.Property<int>("ID")
@@ -147,6 +185,9 @@ namespace G24_BWallet_Backend.Migrations
 
                     b.Property<int>("AccountID")
                         .HasColumnType("int");
+
+                    b.Property<string>("Avatar")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("BankInfo")
                         .HasColumnType("longtext");
@@ -171,6 +212,33 @@ namespace G24_BWallet_Backend.Migrations
                     b.ToTable("User");
                 });
 
+            modelBuilder.Entity("G24_BWallet_Backend.Models.UserDept", b =>
+                {
+                    b.Property<int>("DeptId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<double>("Debit")
+                        .HasColumnType("double");
+
+                    b.Property<int>("DeptStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ReceiptID")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("DeptId");
+
+                    b.HasIndex("ReceiptID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("user_dept");
+                });
+
             modelBuilder.Entity("G24_BWallet_Backend.Models.EventUser", b =>
                 {
                     b.HasOne("G24_BWallet_Backend.Models.Event", "Events")
@@ -180,15 +248,6 @@ namespace G24_BWallet_Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Events");
-                });
-
-            modelBuilder.Entity("G24_BWallet_Backend.Models.Friend", b =>
-                {
-                    b.HasOne("G24_BWallet_Backend.Models.User", null)
-                        .WithMany("Friends")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
@@ -202,9 +261,19 @@ namespace G24_BWallet_Backend.Migrations
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
+            modelBuilder.Entity("G24_BWallet_Backend.Models.UserDept", b =>
                 {
-                    b.Navigation("Friends");
+                    b.HasOne("G24_BWallet_Backend.Models.Receipt", "Receipt")
+                        .WithMany()
+                        .HasForeignKey("ReceiptID");
+
+                    b.HasOne("G24_BWallet_Backend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID");
+
+                    b.Navigation("Receipt");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

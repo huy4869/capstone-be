@@ -39,7 +39,7 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<int>> AddEvent([FromBody] NewEvent newEvent)
         {
             int eventID = await repo.AddEventAsync(newEvent.Event);
-            await repo.AddEventMember(eventID, newEvent.Members);
+            await repo.AddEventMember(eventID, newEvent.MemberIDs);
             return new Respond<int>()
             {
                 StatusCode = HttpStatusCode.Accepted,

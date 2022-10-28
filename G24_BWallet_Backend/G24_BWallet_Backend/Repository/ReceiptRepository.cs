@@ -26,16 +26,15 @@ namespace G24_BWallet_Backend.Repository
 
         public async Task<Receipt> GetReceiptByIDAsync (int ReceiptID)//
         {
-            Receipt r = myDB.Receipts.Include(r => r.User).FirstOrDefault(x => x.ReceiptID == ReceiptID);
+            Receipt r = myDB.Receipts.Include(r => r.UserID).FirstOrDefault(x => x.ReceiptID == ReceiptID);
             return r;
         }
 
-        public async Task<List<Receipt>> GetReceiptByEventIDUserIDAsync(int EventID, int UserID)//
+        public async Task<List<Receipt>> GetReceiptByEventIDAsync(int EventID)//
         {
-            List<Receipt> receiptList = myDB.Receipts//.Include(u => u.User).Include(u => u.User)
-                .Where(e => e.Event.ID == EventID)
-                .Where(u => u.User.ID == UserID)
-                .ToList();
+            List<Receipt> receiptList = await myDB.Receipts//.Include(u => u.User).Include(u => u.User)
+                .Where(e => e.EventID == EventID)
+                .ToListAsync();
             return receiptList;
         }
     }

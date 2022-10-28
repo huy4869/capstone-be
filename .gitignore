@@ -1,11 +1,7 @@
 
 *.vsidx
-G24_BWallet_Backend/G24_BWallet_Backend/obj/Debug/net5.0/G24_BWallet_Backend.assets.cache
-G24_BWallet_Backend/G24_BWallet_Backend/obj/Debug/net5.0/G24_BWallet_Backend.assets.cache
-G24_BWallet_Backend/G24_BWallet_Backend/obj/Debug/net5.0/G24_BWallet_Backend.csproj.AssemblyReference.cache
-G24_BWallet_Backend/G24_BWallet_Backend/obj/Debug/net5.0/G24_BWallet_Backend.GeneratedMSBuildEditorConfig.editorconfig
-G24_BWallet_Backend/G24_BWallet_Backend/obj/Debug/net5.0/G24_BWallet_Backend.assets.cache
-G24_BWallet_Backend/G24_BWallet_Backend/obj/Debug/net5.0/G24_BWallet_Backend.csproj.AssemblyReference.cache
-G24_BWallet_Backend/G24_BWallet_Backend/obj/Debug/net5.0/G24_BWallet_Backend.GeneratedMSBuildEditorConfig.editorconfig
-D:\GIT clone\capstone-be\G24_BWallet_Backend\.vs
-D:\GIT clone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug
+
+G24_BWallet_Backend/G24_BWallet_Backend/obj/Debug
+G24_BWallet_Backend/.vs
+
+
