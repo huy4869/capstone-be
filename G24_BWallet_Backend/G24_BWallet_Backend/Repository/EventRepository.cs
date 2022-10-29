@@ -44,6 +44,24 @@ namespace G24_BWallet_Backend.Repository
             await context.SaveChangesAsync();
         }
 
+        public async Task<bool> CheckUserJoinEvent(EventUser eu)
+        {
+            EventUser eventUser =await context.EventUsers.FirstOrDefaultAsync(e =>
+            e.EventID == eu.EventID && e.UserID == eu.UserID);
+            if(eventUser == null)
+                return false;
+            return true;
+        }
+
+        public async Task<string> CreateEventUrl(int eventID)
+        {
+            string eventUrl = "/EventId=" + eventID;
+            Event e = await context.Events.FirstOrDefaultAsync(e => e.ID == eventID);
+            e.EventLink = eventUrl;
+            await context.SaveChangesAsync();
+            return eventUrl;
+        }
+
         public async Task<List<Event>> GetAllEventsAsync([FromBody] int userID)
         {
             //List<Event> events = await myDB.Events.ToListAsync();
