@@ -27,41 +27,47 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok("Login page");    
+            return Ok("Login page");
         }
 
         // GET api/<LoginController>/5
         [HttpPost]
-        public async Task<Respond<ArrayList>> Login([FromBody] Account acc)
+        public async Task<Respond<IDictionary>> Login([FromBody] Account acc)
         {
             var checkPhone = repo.CheckPhoneNumberExistAsync(acc.PhoneNumber);
             //var encrypt = repo.EncryptAsync(password);
             var encrypt = acc.Password;
             if (await checkPhone == false)
-                return new Respond<ArrayList>()
+                return new Respond<IDictionary>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
                     Error = "Login fail!",
                     Message = "This phone number is not registed!",
                     Data = null
                 };
-            var account = repo.GetAccountAsync(acc.PhoneNumber,  encrypt);
-            var user = repo.GetUserAsync(await account);
+            var account = repo.GetAccountAsync(acc.PhoneNumber, encrypt);
+            var user = await repo.GetUserAsync(await account);
             if (await account == null)
-                return new Respond<ArrayList>()
+                return new Respond<IDictionary>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
                     Error = "Login fail!",
                     Message = "This password is wrong!",
                     Data = null
                 };
-            var jwt = repo.JWTGenerateAsync(acc.PhoneNumber,  encrypt);
-            return new Respond<ArrayList>()
+            var jwt = await repo.JWTGenerateAsync(acc.PhoneNumber, encrypt);
+            return new Respond<IDictionary>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
                 Message = "Login success!",
-                Data = new ArrayList { new JWT(await jwt),await user}
+                //Data = new ArrayList { new JWT(await jwt),await user}
+                Data = new Dictionary<object, object>()
+            {
+                {"Jwt" ,  jwt },
+                {nameof(user.ID), user.ID},
+                {nameof(user.UserName), user.UserName}
+            }
             };
 
         }

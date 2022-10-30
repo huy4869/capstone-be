@@ -19,9 +19,10 @@ namespace G24_BWallet_Backend.Models
         public string BankInfo { get; set; }
         [ForeignKey("Account")]
         public int AccountID { get; set; }
+        public virtual Account? Account { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public virtual Account Account { get; set; }
+        
 
         public User()
         {
