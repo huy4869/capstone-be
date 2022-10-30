@@ -15,7 +15,6 @@ namespace G24_BWallet_Backend.Models
         [Column(Order = 2)]
         [ForeignKey("Event")]
         public int EventID { get; set; }
-        [Required]
         public int UserRole { get; set; }
         public virtual Event Events { get; set; }
     }

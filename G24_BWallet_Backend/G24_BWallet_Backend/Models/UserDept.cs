@@ -14,9 +14,7 @@ namespace G24_BWallet_Backend.Models
         public User User { get; set; }
         [ForeignKey("ReceiptID")]
         public Receipt Receipt { get; set; }
-        [Required]
         public int DeptStatus { get; set; }
-        [Required]
         public double Debit { get; set; }
     }
 }

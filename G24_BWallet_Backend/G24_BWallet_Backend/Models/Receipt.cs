@@ -23,10 +23,7 @@ namespace G24_BWallet_Backend.Models
         public int DivideType { get; set; }
         public int ReceiptStatus { get; set; }
         public double ReceiptAmount { get; set; }
-
-        [Required]
         public DateTime CreatedAt { get; set; }
-        [Required]
         public DateTime UpdatedAt { get; set; }
 
     }

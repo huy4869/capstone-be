@@ -58,16 +58,16 @@ namespace G24_BWallet_Backend.Controllers
             return Ok(list.Count);
         }
 
-        [HttpGet("testint")]
-        public IActionResult List()
-        {
-            Event e = new Event();
-            List<int> list = new List<int> { 1, 2, 3, 22, 9999, 213 };
-            NewEvent ne = new NewEvent();
-            ne.Event = e;
-            ne.MemberIDs = list;
-            return Ok(ne);
-        }
+        //[HttpGet("testint")]
+        //public IActionResult List()
+        //{
+        //    Event e = new Event();
+        //    List<int> list = new List<int> { 1, 2, 3, 22, 9999, 213 };
+        //    NewEvent ne = new NewEvent();
+        //    ne.Event = e;
+        //    ne.MemberIDs = list;
+        //    return Ok(ne);
+        //}
 
         [HttpGet("ListFriend")]
         public IActionResult FriendPhone()
