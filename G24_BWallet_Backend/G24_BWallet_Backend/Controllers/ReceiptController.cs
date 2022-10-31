@@ -22,13 +22,13 @@ namespace G24_BWallet_Backend.Controllers
     public class ReceiptController : ControllerBase
     {
         private readonly IReceiptRepository receiptRepo;
-        private readonly IUserDeptRepository deptRepo;
+        private readonly IUserDeptRepository userDeptRepo;
         private readonly IEventUserRepository eventUserRepo;
 
         public ReceiptController(IReceiptRepository InitReceiptRepo, IUserDeptRepository InitUserDeptRepo, IEventUserRepository InitEventUserRepo)
         {
             receiptRepo = InitReceiptRepo;
-            deptRepo = InitUserDeptRepo;
+            userDeptRepo = InitUserDeptRepo;
             eventUserRepo = InitEventUserRepo;
         }
 
@@ -124,20 +124,26 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<Respond<ArrayList>> PostCreateReceipt([FromBody] Receipt receipt)
+        public async Task<Respond<int>> PostCreateReceipt([FromBody] Receipt receipt)
         {//note all create will have status not approve
-
             //repo.createReceipt
+            var createReceiptTask = receiptRepo.AddReceiptAsync(receipt);
+            int createReceiptId = await createReceiptTask;
             //
             //foreach(users)
             //deptRepo.createDept
             //end for
-            return new Respond<ArrayList>()
+            foreach (UserDept ud in receipt.listUserDept)
+            {
+                await userDeptRepo.AddUserDeptToReceiptAsync(ud, createReceiptId);
+            }
+
+            return new Respond<int>()
             {
                 StatusCode = HttpStatusCode.Created,
                 Error = "",
-                Message = "create receipt not done",
-                Data = new ArrayList { "name: " + receipt.ReceiptName + ",receiptUserID: " + receipt.UserID}
+                Message = "tạo hóa đơn xong chờ chấp thuận",
+                Data = await createReceiptTask
             };
         }
 
