@@ -23,7 +23,7 @@ namespace G24_BWallet_Backend.Models
         public int ReceiptStatus { get; set; }
         public double ReceiptAmount { get; set; }
 
-        public List<UserDept> listUserDept { get; set; }
+        public virtual List<UserDept> listUserDept { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }

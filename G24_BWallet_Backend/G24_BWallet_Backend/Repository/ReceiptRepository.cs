@@ -19,7 +19,7 @@ namespace G24_BWallet_Backend.Repository
             this.myDB = myDB;
         }
 
-        public async Task<int> AddReceiptAsync(Receipt addReceipt)//
+        public async Task<Receipt> AddReceiptAsync(Receipt addReceipt)//
         {
             Receipt storeReceipt = new Receipt();
             storeReceipt.EventID = addReceipt.EventID;
@@ -33,7 +33,7 @@ namespace G24_BWallet_Backend.Repository
             await myDB.Receipts.AddAsync(storeReceipt);
             await myDB.SaveChangesAsync();
 
-            return storeReceipt.ReceiptID;
+            return storeReceipt;
         }
 
         public async Task<Receipt> GetReceiptByIDAsync (int ReceiptID)//

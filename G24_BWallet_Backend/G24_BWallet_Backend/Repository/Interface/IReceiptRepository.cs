@@ -10,6 +10,6 @@ namespace G24_BWallet_Backend.Repository.Interface
 
         Task<List<Receipt>> GetReceiptByEventIDAsync(int EventID);
 
-        Task<int> AddReceiptAsync(Receipt addReceipt);
+        Task<Receipt> AddReceiptAsync(Receipt addReceipt);
     }
 }

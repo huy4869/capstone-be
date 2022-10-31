@@ -124,26 +124,24 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<Respond<int>> PostCreateReceipt([FromBody] Receipt receipt)
-        {//note all create will have status not approve
-            //repo.createReceipt
+        public async Task<Respond<Receipt>> PostCreateReceipt([FromBody] Receipt receipt)
+        {
             var createReceiptTask = receiptRepo.AddReceiptAsync(receipt);
-            int createReceiptId = await createReceiptTask;
-            //
-            //foreach(users)
-            //deptRepo.createDept
-            //end for
+            Receipt createdReceipt = await createReceiptTask;
+
+
             foreach (UserDept ud in receipt.listUserDept)
             {
-                await userDeptRepo.AddUserDeptToReceiptAsync(ud, createReceiptId);
+                await userDeptRepo.AddUserDeptToReceiptAsync(ud, createdReceipt.ReceiptID);
             }
 
-            return new Respond<int>()
+            createdReceipt.listUserDept = null;
+            return new Respond<Receipt>()
             {
                 StatusCode = HttpStatusCode.Created,
                 Error = "",
                 Message = "tạo hóa đơn xong chờ chấp thuận",
-                Data = await createReceiptTask
+                Data = createdReceipt
             };
         }
 
