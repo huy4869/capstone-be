@@ -17,10 +17,8 @@ namespace G24_BWallet_Backend.Models
         [ForeignKey("Event")]
         public int EventID { get; set; }
 
-
         public string ReceiptName { get; set; }
         public string ReceiptPicture { get; set; }
-        public int DivideType { get; set; }
         public int ReceiptStatus { get; set; }
         public double ReceiptAmount { get; set; }
         public DateTime CreatedAt { get; set; }
