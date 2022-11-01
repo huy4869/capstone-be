@@ -12,17 +12,11 @@ namespace G24_BWallet_Backend.Models
         public int ID { get; set; }
         [Required]
         public string EventName { get; set; }
-        [Required]
         public string EventLogo { get; set; }
-        [Required]
         public string EventDescript { get; set; }
-        [Required]
         public string EventLink { get; set; }
-        [Required]
         public int EventStatus { get; set; }
-        [Required]
         public DateTime CreatedAt { get; set; }
-        [Required]
         public DateTime UpdatedAt { get; set; }
 
     }

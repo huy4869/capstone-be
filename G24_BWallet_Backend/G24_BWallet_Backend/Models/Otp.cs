@@ -10,13 +10,9 @@ namespace G24_BWallet_Backend.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OtpID { get; set; }
-        [Required]
         public string Phone { get; set; }
-        [Required]
         public string JWToken { get; set; }
-        [Required]
         public string OtpCode { get; set; }
-        [Required]
         public DateTime CreatedAt { get; set; }
     }
 }

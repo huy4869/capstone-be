@@ -5,6 +5,7 @@ using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,16 +58,16 @@ namespace G24_BWallet_Backend.Controllers
             return Ok(list.Count);
         }
 
-        [HttpGet("testint")]
-        public IActionResult List()
-        {
-            Event e = new Event();
-            List<int> list = new List<int> { 1, 2, 3, 22, 9999, 213 };
-            NewEvent ne = new NewEvent();
-            ne.Event = e;
-            ne.MemberIDs = list;
-            return Ok(ne);
-        }
+        //[HttpGet("testint")]
+        //public IActionResult List()
+        //{
+        //    Event e = new Event();
+        //    List<int> list = new List<int> { 1, 2, 3, 22, 9999, 213 };
+        //    NewEvent ne = new NewEvent();
+        //    ne.Event = e;
+        //    ne.MemberIDs = list;
+        //    return Ok(ne);
+        //}
 
         [HttpGet("ListFriend")]
         public IActionResult FriendPhone()
@@ -79,7 +80,7 @@ namespace G24_BWallet_Backend.Controllers
             var list2 = from u in context.Users.Include(u => u.Account)
                         join l in list
                         on u.ID equals l.UserFriendID
-                        select (new {u.ID,u.Avatar,u.UserName,u.Account.PhoneNumber} );
+                        select (new { u.ID, u.Avatar, u.UserName, u.Account.PhoneNumber });
             //var list3 = new List<UserPhone>();
             //foreach (var item in list2)
             //{
@@ -95,9 +96,23 @@ namespace G24_BWallet_Backend.Controllers
         public IActionResult GetPhoneByUserID()
         {
             var userid = 4;
-            string phone = context.Users.Include(x => x.Account).FirstOrDefault(u=> u.ID == userid).Account.PhoneNumber;
+            string phone = context.Users.Include(x => x.Account).FirstOrDefault(u => u.ID == userid).Account.PhoneNumber;
             //var listFriend = context.Users.
             return Ok(phone);
+        }
+
+        [HttpGet("dic")]
+        public IActionResult Dictionary()
+        {
+
+            var s1 = new { StudentName = "duy", Age = 22 };
+            var s2 = new { StudentName = "quang", Age = 18 };
+            var list = new Dictionary<Object, Object>()
+            {
+                {nameof(s1.StudentName),s1.StudentName },
+                {nameof(s1.Age),s1.Age }
+            };
+            return Ok(list);
         }
     }
 }

@@ -10,13 +10,16 @@ namespace G24_BWallet_Backend.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int DeptId { get; set; }
-        [ForeignKey("UserID")]
-        public User User { get; set; }
-        [ForeignKey("ReceiptID")]
-        public Receipt Receipt { get; set; }
+        [ForeignKey("User")]
+        public int UserID { get; set; }
+        [ForeignKey("Receipt")]
+        public int ReceiptID { get; set; }
         [Required]
         public int DeptStatus { get; set; }
-        [Required]
         public double Debit { get; set; }
+
+        public virtual User User { get; set; }
+
+        public virtual Receipt Receipt { get; set; }
     }
 }
