@@ -26,7 +26,7 @@ namespace G24_BWallet_Backend.Repository
 
         public async Task<Receipt> GetReceiptByIDAsync (int ReceiptID)//
         {
-            Receipt r = myDB.Receipts.Include(r => r.UserID).FirstOrDefault(x => x.ReceiptID == ReceiptID);
+            Receipt r = myDB.Receipts.Include(r => r.UserID).FirstOrDefault(x => x.Id == ReceiptID);
             return r;
         }
 
