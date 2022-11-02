@@ -182,8 +182,26 @@ namespace G24_BWallet_Backend.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("DivideType")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PaidDept");
+                });
+
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Receipt", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("EventID")
                         .HasColumnType("int");
@@ -207,6 +225,8 @@ namespace G24_BWallet_Backend.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserID");
 
                     b.ToTable("Receipt");
                 });
@@ -270,9 +290,9 @@ namespace G24_BWallet_Backend.Migrations
 
                     b.HasIndex("ReceiptId");
 
-                    b.ToTable("UserDept");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("user_dept");
+                    b.ToTable("UserDept");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.EventUser", b =>
@@ -313,6 +333,8 @@ namespace G24_BWallet_Backend.Migrations
                     b.Navigation("UserDept");
                 });
 
+            modelBuilder.Entity("G24_BWallet_Backend.Models.PaidDept", b =>
+                {
                     b.HasOne("G24_BWallet_Backend.Models.Event", "Event")
                         .WithMany()
                         .HasForeignKey("EventId")
@@ -326,18 +348,19 @@ namespace G24_BWallet_Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Event");
-                    b.HasOne("G24_BWallet_Backend.Models.Receipt", null)
-                        .WithMany("listUserDept")
-                        .HasForeignKey("ReceiptID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
 
-                    b.Navigation("Receipt");
+                    b.Navigation("User");
+                });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.Receipt", b =>
                 {
-                    b.Navigation("listUserDept");
+                    b.HasOne("G24_BWallet_Backend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
@@ -353,11 +376,21 @@ namespace G24_BWallet_Backend.Migrations
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.UserDept", b =>
                 {
-                    b.HasOne("G24_BWallet_Backend.Models.Receipt", null)
+                    b.HasOne("G24_BWallet_Backend.Models.Receipt", "Receipt")
                         .WithMany("UserDepts")
                         .HasForeignKey("ReceiptId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("G24_BWallet_Backend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Receipt");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.Receipt", b =>

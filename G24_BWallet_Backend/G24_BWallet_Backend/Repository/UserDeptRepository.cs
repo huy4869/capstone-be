@@ -20,14 +20,14 @@ namespace G24_BWallet_Backend.Repository
         public async Task<List<UserDept>> GeUserDeptByReceiptIDAsync(int ReceiptID)//NOTDONE
         {
             List<UserDept> listUserDept = await myDB.UserDepts//.Include(u => u.User)
-                .Where(ud => ud.ReceiptID == ReceiptID)
+                .Where(ud => ud.ReceiptId == ReceiptID)
                 .ToListAsync();
             return listUserDept;
         }
         public async Task<List<UserDept>> GetReceiptByUserIDAsync(int UserID)//NOTDONE
         {
             List<UserDept> listUserDept = await myDB.UserDepts//.Include(u => u.User)
-                .Where(e => e.UserID == UserID)
+                .Where(e => e.UserId == UserID)
                 .ToListAsync();
             return listUserDept;
         }
@@ -36,15 +36,15 @@ namespace G24_BWallet_Backend.Repository
         {
             UserDept storeUserDept = new UserDept();
 
-            storeUserDept.ReceiptID = receiptID;
-            storeUserDept.UserID = addUserDept.UserID;
+            storeUserDept.ReceiptId = receiptID;
+            storeUserDept.UserId = addUserDept.UserId;
             storeUserDept.DeptStatus = 2;
-            storeUserDept.Debit = addUserDept.Debit;
+            storeUserDept.Debt = addUserDept.Debt;
 
             await myDB.UserDepts.AddAsync(storeUserDept);
             await myDB.SaveChangesAsync();
 
-            return storeUserDept.DeptId;
+            return storeUserDept.Id;
         }
 
 

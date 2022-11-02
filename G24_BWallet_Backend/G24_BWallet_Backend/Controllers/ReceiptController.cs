@@ -130,12 +130,12 @@ namespace G24_BWallet_Backend.Controllers
             Receipt createdReceipt = await createReceiptTask;
 
 
-            foreach (UserDept ud in receipt.listUserDept)
+            foreach (UserDept ud in receipt.UserDepts)
             {
-                await userDeptRepo.AddUserDeptToReceiptAsync(ud, createdReceipt.ReceiptID);
+                await userDeptRepo.AddUserDeptToReceiptAsync(ud, createdReceipt.Id);
             }
 
-            createdReceipt.listUserDept = null;
+            createdReceipt.UserDepts = null;
             return new Respond<Receipt>()
             {
                 StatusCode = HttpStatusCode.Created,
