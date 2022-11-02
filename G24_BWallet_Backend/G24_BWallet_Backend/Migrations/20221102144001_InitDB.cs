@@ -59,15 +59,13 @@ namespace G24_BWallet_Backend.Migrations
                 name: "Friend",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserID = table.Column<int>(type: "int", nullable: false),
                     UserFriendID = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Friend", x => x.Id);
+                    table.PrimaryKey("PK_Friend", x => new { x.UserID, x.UserFriendID });
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -125,15 +123,13 @@ namespace G24_BWallet_Backend.Migrations
                 name: "EventUser",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserID = table.Column<int>(type: "int", nullable: false),
                     EventID = table.Column<int>(type: "int", nullable: false),
                     UserRole = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EventUser", x => x.Id);
+                    table.PrimaryKey("PK_EventUser", x => new { x.EventID, x.UserID });
                     table.ForeignKey(
                         name: "FK_EventUser_Event_EventID",
                         column: x => x.EventID,
@@ -268,11 +264,6 @@ namespace G24_BWallet_Backend.Migrations
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EventUser_EventID",
-                table: "EventUser",
-                column: "EventID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EventUser_UserID",
