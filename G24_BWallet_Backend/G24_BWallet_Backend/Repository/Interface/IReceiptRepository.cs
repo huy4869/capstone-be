@@ -6,7 +6,7 @@ namespace G24_BWallet_Backend.Repository.Interface
 {
     public interface IReceiptRepository
     {
-        Task<Receipt> GetReceiptByIDAsync(int ReceiptID);
+        Task<List<Receipt>> GetReceiptByIDAsync(int ReceiptID);
 
         Task<List<Receipt>> GetReceiptByEventIDAsync(int EventID);
 
