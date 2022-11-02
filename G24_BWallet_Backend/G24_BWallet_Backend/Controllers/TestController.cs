@@ -114,5 +114,12 @@ namespace G24_BWallet_Backend.Controllers
             };
             return Ok(list);
         }
+
+        [HttpGet("testparam")]
+        public IActionResult TestParamPass(int age, string name)
+        {
+            string a = "Hello " + name + " Age: " + age;
+            return Ok(a);
+        }
     }
 }

@@ -11,7 +11,7 @@ namespace G24_BWallet_Backend.Models
         [Key]
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ReceiptID { get; set; }
+        public int Id { get; set; }
 
         [ForeignKey("User")]
         public int UserID { get; set; }
@@ -29,5 +29,7 @@ namespace G24_BWallet_Backend.Models
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
+        public virtual ICollection<UserDept> UserDepts { get; set; }
+        public virtual User User { get; set; }
     }
 }
