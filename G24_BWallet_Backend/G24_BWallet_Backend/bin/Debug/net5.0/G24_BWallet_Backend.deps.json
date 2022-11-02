@@ -35,7 +35,6 @@
         "dependencies": {
           "Microsoft.AspNetCore.Authentication.JwtBearer": "5.0.10",
           "Microsoft.EntityFrameworkCore": "5.0.10",
-          "Microsoft.EntityFrameworkCore.Analyzers": "5.0.10",
           "Microsoft.EntityFrameworkCore.Tools": "5.0.10",
           "Pomelo.EntityFrameworkCore.MySql": "5.0.4",
           "System.IdentityModel.Tokens.Jwt": "6.23.1",

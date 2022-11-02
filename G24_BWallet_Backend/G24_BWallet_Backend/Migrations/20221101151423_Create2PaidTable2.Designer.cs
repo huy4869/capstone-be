@@ -3,14 +3,16 @@ using System;
 using G24_BWallet_Backend.DBContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace G24_BWallet_Backend.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    partial class MyDBContextModelSnapshot : ModelSnapshot
+    [Migration("20221101151423_Create2PaidTable2")]
+    partial class Create2PaidTable2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,8 +91,6 @@ namespace G24_BWallet_Backend.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("EventID", "UserID");
-
-                    b.HasIndex("UserID");
 
                     b.ToTable("EventUser");
                 });
@@ -182,8 +182,26 @@ namespace G24_BWallet_Backend.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("DivideType")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PaidDept");
+                });
+
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Receipt", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("EventID")
                         .HasColumnType("int");
@@ -271,27 +289,17 @@ namespace G24_BWallet_Backend.Migrations
                     b.HasIndex("ReceiptId");
 
                     b.ToTable("UserDept");
-
-                    b.ToTable("user_dept");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.EventUser", b =>
                 {
-                    b.HasOne("G24_BWallet_Backend.Models.Event", "Event")
+                    b.HasOne("G24_BWallet_Backend.Models.Event", "Events")
                         .WithMany()
                         .HasForeignKey("EventID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("G24_BWallet_Backend.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("User");
+                    b.Navigation("Events");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.PaidDebtList", b =>
@@ -313,6 +321,8 @@ namespace G24_BWallet_Backend.Migrations
                     b.Navigation("UserDept");
                 });
 
+            modelBuilder.Entity("G24_BWallet_Backend.Models.PaidDept", b =>
+                {
                     b.HasOne("G24_BWallet_Backend.Models.Event", "Event")
                         .WithMany()
                         .HasForeignKey("EventId")
@@ -326,18 +336,8 @@ namespace G24_BWallet_Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Event");
-                    b.HasOne("G24_BWallet_Backend.Models.Receipt", null)
-                        .WithMany("listUserDept")
-                        .HasForeignKey("ReceiptID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
 
-                    b.Navigation("Receipt");
-
-            modelBuilder.Entity("G24_BWallet_Backend.Models.Receipt", b =>
-                {
-                    b.Navigation("listUserDept");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>

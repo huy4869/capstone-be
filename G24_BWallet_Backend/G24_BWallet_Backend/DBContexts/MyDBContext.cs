@@ -15,6 +15,8 @@ namespace G24_BWallet_Backend.DBContexts
         public DbSet<Receipt> Receipts { get; set; }
 
         public DbSet<UserDept> UserDepts { get; set; }
+        public DbSet<PaidDebtList> PaidDebtLists { get; set; }
+        public DbSet<PaidDept> PaidDepts { get; set; }
         public MyDBContext(DbContextOptions<MyDBContext> o) : base(o) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
