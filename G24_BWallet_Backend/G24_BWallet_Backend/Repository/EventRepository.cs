@@ -74,7 +74,7 @@ namespace G24_BWallet_Backend.Repository
             //select e;
             var query = await context.EventUsers
                 .Where(eu => eu.UserID == userID)
-                .Select(eu => eu.Events).ToListAsync();
+                .Select(eu => eu.Event).ToListAsync();
             return query;
         }
 

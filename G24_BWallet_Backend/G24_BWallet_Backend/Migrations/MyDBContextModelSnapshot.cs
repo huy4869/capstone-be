@@ -90,6 +90,8 @@ namespace G24_BWallet_Backend.Migrations
 
                     b.HasKey("EventID", "UserID");
 
+                    b.HasIndex("UserID");
+
                     b.ToTable("EventUser");
                 });
 
@@ -213,30 +215,36 @@ namespace G24_BWallet_Backend.Migrations
                     b.Property<int>("DeptStatus")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ReceiptID")
+                    b.Property<int>("ReceiptID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserID")
+                    b.Property<int>("UserID")
                         .HasColumnType("int");
 
                     b.HasKey("DeptId");
 
                     b.HasIndex("ReceiptID");
 
-                    b.HasIndex("UserID");
-
                     b.ToTable("user_dept");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.EventUser", b =>
                 {
-                    b.HasOne("G24_BWallet_Backend.Models.Event", "Events")
+                    b.HasOne("G24_BWallet_Backend.Models.Event", "Event")
                         .WithMany()
                         .HasForeignKey("EventID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Events");
+                    b.HasOne("G24_BWallet_Backend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
@@ -252,17 +260,16 @@ namespace G24_BWallet_Backend.Migrations
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.UserDept", b =>
                 {
-                    b.HasOne("G24_BWallet_Backend.Models.Receipt", "Receipt")
-                        .WithMany()
-                        .HasForeignKey("ReceiptID");
+                    b.HasOne("G24_BWallet_Backend.Models.Receipt", null)
+                        .WithMany("listUserDept")
+                        .HasForeignKey("ReceiptID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 
-                    b.HasOne("G24_BWallet_Backend.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID");
-
-                    b.Navigation("Receipt");
-
-                    b.Navigation("User");
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Receipt", b =>
+                {
+                    b.Navigation("listUserDept");
                 });
 #pragma warning restore 612, 618
         }

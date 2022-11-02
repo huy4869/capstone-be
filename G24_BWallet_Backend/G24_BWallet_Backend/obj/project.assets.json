@@ -2715,6 +2715,7 @@
     "net5.0": [
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 5.0.10",
       "Microsoft.EntityFrameworkCore >= 5.0.10",
+      "Microsoft.EntityFrameworkCore.Analyzers >= 5.0.10",
       "Microsoft.EntityFrameworkCore.Tools >= 5.0.10",
       "Pomelo.EntityFrameworkCore.MySql >= 5.0.4",
       "System.IdentityModel.Tokens.Jwt >= 6.23.1",
@@ -2722,19 +2723,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Admin\\.nuget\\packages\\": {}
+    "C:\\Users\\lelon\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\GIT clone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj",
+      "projectUniqueName": "C:\\Users\\lelon\\Desktop\\capstone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj",
       "projectName": "G24_BWallet_Backend",
-      "projectPath": "D:\\GIT clone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj",
-      "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "D:\\GIT clone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\obj\\",
+      "projectPath": "C:\\Users\\lelon\\Desktop\\capstone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj",
+      "packagesPath": "C:\\Users\\lelon\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\lelon\\Desktop\\capstone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\lelon\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -2765,6 +2766,10 @@
             "version": "[5.0.10, )"
           },
           "Microsoft.EntityFrameworkCore": {
+            "target": "Package",
+            "version": "[5.0.10, )"
+          },
+          "Microsoft.EntityFrameworkCore.Analyzers": {
             "target": "Package",
             "version": "[5.0.10, )"
           },
@@ -2809,5 +2814,13 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problem reading the cache file C:\\Users\\lelon\\Desktop\\capstone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
+    }
+  ]
 }

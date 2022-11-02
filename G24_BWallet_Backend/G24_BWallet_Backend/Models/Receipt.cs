@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace G24_BWallet_Backend.Models
 {
@@ -21,6 +22,10 @@ namespace G24_BWallet_Backend.Models
         public string ReceiptPicture { get; set; }
         public int ReceiptStatus { get; set; }
         public double ReceiptAmount { get; set; }
+
+        public virtual List<UserDept> listUserDept { get; set; }
+
+        [Required]
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
