@@ -3,6 +3,7 @@ using G24_BWallet_Backend.Models;
 using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,10 +19,21 @@ namespace G24_BWallet_Backend.Repository
             this.myDB = myDB;
         }
 
-        public async Task<bool> AddReceiptAsync(Receipt addReceipt)//
+        public async Task<Receipt> AddReceiptAsync(Receipt addReceipt)//
         {
-            myDB.Receipts.Add(addReceipt);
-            return true;
+            Receipt storeReceipt = new Receipt();
+            storeReceipt.EventID = addReceipt.EventID;
+            storeReceipt.UserID = addReceipt.UserID;
+            storeReceipt.ReceiptName = addReceipt.ReceiptName;
+            storeReceipt.ReceiptAmount = addReceipt.ReceiptAmount;
+            storeReceipt.ReceiptStatus = 2;
+            storeReceipt.CreatedAt = DateTime.Now;
+            storeReceipt.UpdatedAt = DateTime.Now;
+
+            await myDB.Receipts.AddAsync(storeReceipt);
+            await myDB.SaveChangesAsync();
+
+            return storeReceipt;
         }
 
         public async Task<Receipt> GetReceiptByIDAsync (int ReceiptID)//

@@ -17,5 +17,9 @@ namespace G24_BWallet_Backend.Models
         public int DeptStatus { get; set; }
         public double Debt { get; set; }
         public double DebtLeft { get; set; }
+
+        public virtual User User { get; set; }
+
+        public virtual Receipt Receipt { get; set; }
     }
 }

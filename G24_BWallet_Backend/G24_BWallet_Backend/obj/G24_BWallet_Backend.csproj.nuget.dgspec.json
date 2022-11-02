@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\GIT clone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj": {}
+    "C:\\Users\\lelon\\Desktop\\capstone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj": {}
   },
   "projects": {
-    "D:\\GIT clone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj": {
+    "C:\\Users\\lelon\\Desktop\\capstone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\GIT clone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj",
+        "projectUniqueName": "C:\\Users\\lelon\\Desktop\\capstone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj",
         "projectName": "G24_BWallet_Backend",
-        "projectPath": "D:\\GIT clone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj",
-        "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "D:\\GIT clone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\obj\\",
+        "projectPath": "C:\\Users\\lelon\\Desktop\\capstone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj",
+        "packagesPath": "C:\\Users\\lelon\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\lelon\\Desktop\\capstone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\lelon\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -45,6 +45,10 @@
               "version": "[5.0.10, )"
             },
             "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[5.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Analyzers": {
               "target": "Package",
               "version": "[5.0.10, )"
             },
