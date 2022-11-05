@@ -89,6 +89,7 @@ namespace G24_BWallet_Backend.Repository
             {
                 eventInfo.TotalReceiptsAmount += r.ReceiptAmount;
             }
+            eventInfo.listReceipt = listReceipt;
 
             return eventInfo;
         }

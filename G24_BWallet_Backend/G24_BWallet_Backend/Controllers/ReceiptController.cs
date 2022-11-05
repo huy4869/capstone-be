@@ -93,7 +93,7 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<List<Member>>> PrepareCreateReceipt([FromBody] Receipt receipt)
         {
             var eventUsers = eventUserRepo.GetAllEventUsersAsync(receipt.EventID);
-             
+            
             return new Respond<List<Member>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -108,7 +108,6 @@ namespace G24_BWallet_Backend.Controllers
         {
             var createReceiptTask = receiptRepo.AddReceiptAsync(receipt);
             Receipt createdReceipt = await createReceiptTask;
-
 
             foreach (UserDept ud in receipt.UserDepts)
             {
