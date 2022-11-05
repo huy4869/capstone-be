@@ -26,42 +26,40 @@ namespace G24_BWallet_Backend.Controllers
         private readonly IReceiptRepository receiptRepo;
         private readonly IUserDeptRepository userDeptRepo;
         private readonly IEventUserRepository eventUserRepo;
+        private readonly IEventRepository eventRepo;
 
-        public ReceiptController(IReceiptRepository InitReceiptRepo, IUserDeptRepository InitUserDeptRepo, IEventUserRepository InitEventUserRepo)
+        public ReceiptController(IReceiptRepository InitReceiptRepo, IUserDeptRepository InitUserDeptRepo, IEventUserRepository InitEventUserRepo, IEventRepository InitEventRepo)
         {
             receiptRepo = InitReceiptRepo;
             userDeptRepo = InitUserDeptRepo;
             eventUserRepo = InitEventUserRepo;
+            eventRepo = InitEventRepo;
         }
 
         [HttpGet]
-        public async Task<Respond<IEnumerable<Receipt>>> GetReceiptByEventID([FromBody] Receipt receipt)
+        public async Task<Respond<EventReceiptsInfo>> GetReceiptsByEventID([FromBody] Receipt receipt)
         {
-            var receipts = receiptRepo.GetReceiptByEventIDAsync(receipt.EventID);
+            EventReceiptsInfo eventReceiptsInfo = await receiptRepo.GetEventReceiptsInfoAsync(receipt.EventID);
 
-                if (receipts.Result.IsNullOrEmpty())
+            if (eventReceiptsInfo == null)
+            {
+                return new Respond<EventReceiptsInfo>()
                 {
-                    return new Respond<IEnumerable<Receipt>>()
-                    {
-                        StatusCode = HttpStatusCode.NotFound,
-                        Error = "không tìm thấy các hóa đơn sự kiện",
-                        Message = "",
-                        Data = await receipts
-                    };
+                    StatusCode = HttpStatusCode.NotFound,
+                    Error = "lỗi không tìm thấy event",
+                    Message = "",
+                    Data = eventReceiptsInfo
+                };
+            }
 
-                }
-                else
-                {
-
-                    return new Respond<IEnumerable<Receipt>>()
-                    {
-                        StatusCode = HttpStatusCode.OK,
-                        Error = "",
-                        Message = "lấy danh sách hóa đơn thành công",
-                        Data = await receipts
-
-                    };
-                }
+            return new Respond<EventReceiptsInfo>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "lấy thông tin event và chính từ thành công",
+                Data = eventReceiptsInfo
+            };
+                
         }
 
 
@@ -81,7 +79,7 @@ namespace G24_BWallet_Backend.Controllers
             } else {
                 return new Respond<List<Receipt>>()
                 {
-                    StatusCode = HttpStatusCode.OK,
+                    StatusCode = HttpStatusCode.Accepted,
                     Error = "",
                     Message = "tìm thấy hóa đơn",
                     Data = await r
@@ -95,10 +93,10 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<List<Member>>> PrepareCreateReceipt([FromBody] Receipt receipt)
         {
             var eventUsers = eventUserRepo.GetAllEventUsersAsync(receipt.EventID);
-
+             
             return new Respond<List<Member>>()
             {
-                StatusCode = HttpStatusCode.OK,
+                StatusCode = HttpStatusCode.Accepted,
                 Error = "",
                 Message = "lấy danh sách thành viên trong event thành công",
                 Data = await eventUsers
@@ -120,7 +118,7 @@ namespace G24_BWallet_Backend.Controllers
             createdReceipt.UserDepts = null;
             return new Respond<Receipt>()
             {
-                StatusCode = HttpStatusCode.Created,
+                StatusCode = HttpStatusCode.Accepted,
                 Error = "",
                 Message = "tạo hóa đơn xong chờ chấp thuận",
                 Data = createdReceipt
