@@ -6,12 +6,14 @@ using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using Twilio.TwiML.Voice;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -33,49 +35,42 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<Respond<IEnumerable<Receipt>>> GetReceiptByEventID([FromQuery] int eventid)
+        public async Task<Respond<IEnumerable<Receipt>>> GetReceiptByEventID([FromBody] Receipt receipt)
         {
-            //nếu nhập link "api/receipt" báo thiếu trường tìm kiếm
-            if (String.IsNullOrEmpty(eventid.ToString()))
-                return new Respond<IEnumerable<Receipt>>()
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Error = "thiếu trường tìm kiếm",
-                    Message = "",
-                    Data = null
-                };
+            var receipts = receiptRepo.GetReceiptByEventIDAsync(receipt.EventID);
 
-            //thực hiện tìm kiếm theo event id
-            var receipts = receiptRepo.GetReceiptByEventIDAsync(eventid) ;
-            if (receipts.Result.IsNullOrEmpty()) {
-                return new Respond<IEnumerable<Receipt>>()
+                if (receipts.Result.IsNullOrEmpty())
                 {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Error = "không tìm thấy các hóa đơn sự kiện",
-                    Message = "",
-                    Data = await receipts
-                };
-            }
-            else
-            {
-                return new Respond<IEnumerable<Receipt>>()
+                    return new Respond<IEnumerable<Receipt>>()
+                    {
+                        StatusCode = HttpStatusCode.NotFound,
+                        Error = "không tìm thấy các hóa đơn sự kiện",
+                        Message = "",
+                        Data = await receipts
+                    };
+
+                }
+                else
                 {
-                    StatusCode = HttpStatusCode.OK,
-                    Error = "",
-                    Message = "lấy danh sách hóa đơn thành công",
-                    Data = await receipts
-                };
-            }
+
+                    return new Respond<IEnumerable<Receipt>>()
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Error = "",
+                        Message = "lấy danh sách hóa đơn thành công",
+                        Data = await receipts
+
+                    };
+                }
         }
 
 
-        [HttpGet("{eventId}")]
-        public async Task<Respond<List<Receipt>>> GetReceipt(int eventId)
+        [HttpGet("{receiptId}")]
+        public async Task<Respond<List<Receipt>>> GetReceipt(int receiptId)
         {
+            var r = receiptRepo.GetReceiptByIDAsync(receiptId);
 
-            var r = receiptRepo.GetReceiptByEventIDAsync(1);
-
-            if(r == null){
+            if (r == null){
                 return new Respond<List<Receipt>>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
@@ -97,22 +92,9 @@ namespace G24_BWallet_Backend.Controllers
 
         //create receipt
         [HttpGet("create")]
-        public async Task<Respond<List<Member>>> PrepareCreateReceipt([FromQuery] string eventid)
+        public async Task<Respond<List<Member>>> PrepareCreateReceipt([FromBody] Receipt receipt)
         {
-            int CheckEventID;
-            bool isNumeric = int.TryParse(eventid, out CheckEventID);
-            if (!isNumeric)
-            {
-                return new Respond<List<Member>>()
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Error = "sai event id",
-                    Message = "",
-                    Data = null
-                };
-            }
-
-            var eventUsers = eventUserRepo.GetAllEventUsersAsync(CheckEventID);
+            var eventUsers = eventUserRepo.GetAllEventUsersAsync(receipt.EventID);
 
             return new Respond<List<Member>>()
             {
