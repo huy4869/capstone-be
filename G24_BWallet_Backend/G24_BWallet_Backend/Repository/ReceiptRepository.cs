@@ -1,8 +1,10 @@
 ﻿using G24_BWallet_Backend.DBContexts;
 using G24_BWallet_Backend.Models;
+using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace G24_BWallet_Backend.Repository
 {
-    public class ReceiptRepository :IReceiptRepository
+    public class ReceiptRepository : IReceiptRepository
     {
         private readonly MyDBContext myDB;
 
@@ -42,12 +44,54 @@ namespace G24_BWallet_Backend.Repository
             return await r;
         }
 
-        public async Task<List<Receipt>> GetReceiptByEventIDAsync(int EventID)
+        public async Task<EventReceiptsInfo> GetEventReceiptsInfoAsync(int EventID)
         {
-            List<Receipt> receiptList = await myDB.Receipts
+            /*   Warning Dont attempt // if you do try, try get event that have no receipt
+            EventReceiptsInfo eventReceiptInfo = myDB.Events
+                .SelectMany(r => r.Receipts, (e, r) => new { e, r })
+                .Where(er => er.e.ID == EventID)
+                .Where(er => er.r.ReceiptStatus == 2)
+                .GroupBy(er => new
+                {
+                    er.e.ID,//eventID
+                    er.e.EventName//EventName
+                })
+                .Select(er => new EventReceiptsInfo
+                {
+                    Id = er.Key.ID,//eventID
+                    EventName = er.Key.EventName,
+                    TotalReceipt = er.Sum(x => x.r.ReceiptAmount)//x là cái new ở chỗ selectMany
+                }).FirstOrDefault();
+            */
+            EventReceiptsInfo eventInfo = myDB.Events
+                .Where(e => e.ID == EventID)
+                .Select(e => new EventReceiptsInfo { 
+                    Id = e.ID,
+                    EventName = e.EventName,
+                    TotalReceiptsAmount = 0
+                })
+                .FirstOrDefault();
+            if (eventInfo == null) return null;
+
+
+            List<ReceiptMainInfo> listReceipt = myDB.Receipts
                 .Where(r => r.EventID == EventID)
-                .ToListAsync();
-            return receiptList;
+                .Where(r => r.ReceiptStatus == 2)
+                .Select(r => new ReceiptMainInfo
+                {
+                    Id = r.Id,
+                    ReceiptName = r.ReceiptName,
+                    ReceiptAmount = r.ReceiptAmount,
+                    CreatedAt = r.CreatedAt
+                })
+                .ToList();
+            foreach (ReceiptMainInfo r in listReceipt)
+            {
+                eventInfo.TotalReceiptsAmount += r.ReceiptAmount;
+            }
+            eventInfo.listReceipt = listReceipt;
+
+            return eventInfo;
         }
     }
 }
