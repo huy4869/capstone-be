@@ -21,7 +21,7 @@ namespace G24_BWallet_Backend.Controllers
             this.repo = repo;
         }
 
-        [HttpGet]
+        [HttpPost("listDebt")]
         public async Task<Respond<List<UserDebtReturn>>> GetListUserDebt([FromBody]EvenUserID e)
         {
             int status = 2;
@@ -38,7 +38,7 @@ namespace G24_BWallet_Backend.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPost("paidDebt")]
         public async Task<Respond<string>> PaidDebt(PaidDebtParam p)
         {
             var paid = await repo.PaidDebtInEvent(p);
