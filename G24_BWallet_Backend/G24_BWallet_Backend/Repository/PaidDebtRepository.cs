@@ -35,7 +35,7 @@ namespace G24_BWallet_Backend.Repository
                 if (ud != null)
                 {
                     UserDebtReturn udr = new UserDebtReturn();
-                    udr.UserId = userId;
+                    udr.UserDeptId = ud.Id;
                     udr.ReceiptName = item.ReceiptName;
                     udr.Date = item.CreatedAt + "";
                     udr.OwnerName = item.User.UserName;
