@@ -37,9 +37,9 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<Respond<EventReceiptsInfo>> GetReceiptsByEventID([FromBody] Receipt receipt)
+        public async Task<Respond<EventReceiptsInfo>> GetReceiptsByEventID([FromQuery] int eventid)
         {
-            EventReceiptsInfo eventReceiptsInfo = await receiptRepo.GetEventReceiptsInfoAsync(receipt.EventID);
+            EventReceiptsInfo eventReceiptsInfo = await receiptRepo.GetEventReceiptsInfoAsync(eventid);
 
             if (eventReceiptsInfo == null)
             {
@@ -90,9 +90,9 @@ namespace G24_BWallet_Backend.Controllers
 
         //create receipt
         [HttpGet("create")]
-        public async Task<Respond<List<Member>>> PrepareCreateReceipt([FromBody] Receipt receipt)
+        public async Task<Respond<List<Member>>> PrepareCreateReceipt([FromQuery] int EventID)
         {
-            var eventUsers = eventUserRepo.GetAllEventUsersAsync(receipt.EventID);
+            var eventUsers = eventUserRepo.GetAllEventUsersAsync(EventID);
             
             return new Respond<List<Member>>()
             {
