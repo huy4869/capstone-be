@@ -2,7 +2,7 @@
 {
     public class UserDebtReturn
     {
-        public int UserId { get; set; }
+        public int UserDeptId { get; set; } 
         public string ReceiptName { get; set; }
         public string Date { get; set; }
         public string OwnerName { get; set; }   
