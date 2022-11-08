@@ -28,7 +28,9 @@ namespace G24_BWallet_Backend.Models
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
-        public virtual ICollection<UserDept> UserDepts { get; set; }
+        public virtual List<UserDept> UserDepts { get; set; }
         public virtual User User { get; set; }
+
+        public virtual Event Event { get; set; }
     }
 }
