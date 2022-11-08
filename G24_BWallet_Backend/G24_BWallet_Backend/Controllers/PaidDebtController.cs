@@ -38,5 +38,19 @@ namespace G24_BWallet_Backend.Controllers
 
         }
 
+        [HttpPost]
+        public async Task<Respond<string>> PaidDebt(PaidDebtParam p)
+        {
+            var paid = await repo.PaidDebtInEvent(p);
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Danh sách các hoá đơn mình còn nợ trong event này",
+                Data = paid
+            };
+
+        }
+
     }
 }

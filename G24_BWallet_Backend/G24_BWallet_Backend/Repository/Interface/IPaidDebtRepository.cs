@@ -9,5 +9,6 @@ namespace G24_BWallet_Backend.Repository.Interface
     {
         Task<List<Receipt>> GetReceipts(int eventId, int status);
         Task<List<UserDebtReturn>> GetUserDepts(List<Receipt> receipt, int userId);
+        Task<string> PaidDebtInEvent(PaidDebtParam p);
     }
 }
