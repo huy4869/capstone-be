@@ -27,7 +27,7 @@ namespace G24_BWallet_Backend.Repository
         public async Task<List<UserDept>> GetReceiptByUserIDAsync(int UserID)//NOTDONE
         {
             List<UserDept> listUserDept = await myDB.UserDepts//.Include(u => u.User)
-                .Where(ud => ud.UserId == UserID)
+                .Where(e => e.UserId == UserID)
                 .ToListAsync();
             return listUserDept;
         }
@@ -37,10 +37,9 @@ namespace G24_BWallet_Backend.Repository
             UserDept storeUserDept = new UserDept();
 
             storeUserDept.ReceiptId = receiptID;
-            storeUserDept.UserId = addUserDept.Id;
+            storeUserDept.UserId = addUserDept.UserId;
             storeUserDept.DeptStatus = 2;
             storeUserDept.Debt = addUserDept.Debt;
-            storeUserDept.DebtLeft = addUserDept.Debt;
 
             await myDB.UserDepts.AddAsync(storeUserDept);
             await myDB.SaveChangesAsync();
