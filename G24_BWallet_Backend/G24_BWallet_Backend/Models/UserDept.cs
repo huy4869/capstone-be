@@ -4,15 +4,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace G24_BWallet_Backend.Models
 {
-    [Table("UserDept")]
+    [Table("userdept")]
     public class UserDept
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [ForeignKey("User")]
+        [ForeignKey("user")]
         public int UserId { get; set; }
-        [ForeignKey("Receipt")]
+        [ForeignKey("receipt")]
         public int ReceiptId { get; set; }
         public int DeptStatus { get; set; }
         public double Debt { get; set; }

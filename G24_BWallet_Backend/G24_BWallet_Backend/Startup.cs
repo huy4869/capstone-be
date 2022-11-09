@@ -33,7 +33,7 @@ namespace G24_BWallet_Backend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            string mySqlConnectionStr = Configuration.GetConnectionString("DefaultConnection");
+            string mySqlConnectionStr = Configuration.GetConnectionString("BWalletRDSConnection");
             services.AddDbContextPool<MyDBContext>(options => options.UseMySql(mySqlConnectionStr,
                 ServerVersion.AutoDetect(mySqlConnectionStr)));
             services.AddControllers();

@@ -4,19 +4,19 @@ using System;
 
 namespace G24_BWallet_Backend.Models
 {
-    [Table("PaidDebtList")]
+    [Table("paiddebtlist")]
     public class PaidDebtList
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [ForeignKey("PaidDept")]
+        [ForeignKey("paiddept")]
         public int PaidId { get; set; }
-        [ForeignKey("UserDept")]
+        [ForeignKey("userdept")]
         public int DebtId { get; set; }
         public double PaidAmount { get; set; }
 
-        public virtual PaidDept PaidDept { get; set; }
-        public virtual UserDept UserDept { get; set; }
+        public virtual PaidDept paiddept { get; set; }
+        public virtual UserDept userdept { get; set; }
     }
 }

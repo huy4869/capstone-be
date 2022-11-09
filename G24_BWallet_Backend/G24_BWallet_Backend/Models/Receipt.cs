@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace G24_BWallet_Backend.Models
 {
-    [Table("Receipt")]
+    [Table("receipt")]
     public class Receipt
     {
         [Key]
@@ -13,9 +13,9 @@ namespace G24_BWallet_Backend.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [ForeignKey("User")]
+        [ForeignKey("user")]
         public int UserID { get; set; }
-        [ForeignKey("Event")]
+        [ForeignKey("event")]
         public int EventID { get; set; }
 
         public string ReceiptName { get; set; }
