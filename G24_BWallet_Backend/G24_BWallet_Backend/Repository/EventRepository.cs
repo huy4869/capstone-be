@@ -1,8 +1,11 @@
 ﻿using G24_BWallet_Backend.DBContexts;
 using G24_BWallet_Backend.Models;
+using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -46,9 +49,9 @@ namespace G24_BWallet_Backend.Repository
 
         public async Task<bool> CheckUserJoinEvent(EventUser eu)
         {
-            EventUser eventUser =await context.EventUsers.FirstOrDefaultAsync(e =>
+            EventUser eventUser = await context.EventUsers.FirstOrDefaultAsync(e =>
             e.EventID == eu.EventID && e.UserID == eu.UserID);
-            if(eventUser == null)
+            if (eventUser == null)
                 return false;
             return true;
         }
@@ -62,21 +65,168 @@ namespace G24_BWallet_Backend.Repository
             return eventUrl;
         }
 
-        public async Task<List<Event>> GetAllEventsAsync([FromBody] int userID)
+        public async Task<List<EventHome>> GetAllEventsAsync([FromBody] int userID)
         {
-            //List<Event> events = await myDB.Events.ToListAsync();
-            //List<EventUser> eventUsers = await myDB.EventUsers.
-            //    Where(e => e.UserID == userID).ToListAsync();
-
-            //var query =
-            //from e in events 
-            //join eu in eventUsers on e.ID equals eu.EventID
-            //select e;
-            var query = await context.EventUsers
+            List<EventHome> events = new List<EventHome>();
+            // lấy tất cả các event mà mình tham gia
+            var listEvent = await context.EventUsers
                 .Where(eu => eu.UserID == userID)
                 .Select(eu => eu.Event).ToListAsync();
-            return query;
+            foreach (var eventt in listEvent)
+            {
+                EventHome eh = new EventHome();
+                eh.EventId = eventt.ID;
+                eh.EventLogo = eventt.EventLogo;
+                eh.EventName = eventt.EventName;
+                eh.ListUser = await GetUserHome(eventt, userID);
+                eh.TotalMoney = GetTotalMoneyEachEvent(eh.ListUser);
+                events.Add(eh);
+            }
+            return events;
         }
 
+        private double GetTotalMoneyEachEvent(List<UserHome> userHomes)
+        {
+            double totalDeptor = 0;
+            double totalOwner = 0;
+            foreach (var item in userHomes)
+            {
+                if (item.MoneyColor.Equals("Red"))
+                {
+                    totalDeptor += item.Money;
+                }
+                else
+                {
+                    totalOwner += item.Money;
+                }
+            }
+            return (totalDeptor > totalOwner) ? (totalDeptor - totalOwner)
+                : (totalOwner - totalDeptor);
+        }
+
+        private async Task<List<UserHome>> GetUserHome(Event eventt, int userID)
+        {
+            List<UserHome> userHomes = new List<UserHome>();
+            // lấy tất cả receipt chưa thanh toán trong event này
+            var listReceipt = await context.Receipts.Where(r => r.EventID == eventt.ID
+                && r.ReceiptStatus != 0).ToListAsync();
+            //danh sách người mình nợ trong event
+            List<UserDept> deptors = await GetDeptors(listReceipt, userID);
+            //danh sách người nợ mình trong event
+            List<UserDept> owener = await GetOwerners(listReceipt, userID);
+            double totalDeptor = 0;
+            double totalOwner = 0;
+            if (deptors.Count != 0)
+                foreach (var item in deptors)
+                {
+                    totalDeptor += item.DebtLeft;
+                }
+            if (owener.Count != 0)
+                foreach (var item in owener)
+                {
+                    totalOwner += item.DebtLeft;
+                }
+            if (deptors.Count != 0 && owener.Count != 0)
+            {
+                UserHome uh1 = new UserHome();
+                uh1.Avatar = deptors[0].User.Avatar;
+                uh1.UserName = await GetUserNameByReceipt(deptors[0].Receipt);
+                uh1.Money = deptors[0].DebtLeft;
+                uh1.MoneyColor = "Red";
+                userHomes.Add(uh1);
+                totalDeptor -= uh1.Money;
+
+                UserHome uh2 = new UserHome();
+                uh2.Avatar = owener[0].User.Avatar;
+                uh2.UserName = owener[0].User.UserName;
+                uh2.Money = owener[0].DebtLeft;
+                uh2.MoneyColor = "Green";
+                userHomes.Add(uh2);
+                totalOwner -= uh2.Money;
+            }
+            if (deptors.Count != 0 && owener.Count == 0)
+            {
+                for (int i = 0; i < deptors.Count; i++)
+                {
+                    UserHome uh1 = new UserHome();
+                    uh1.Avatar = deptors[i].User.Avatar;
+                    uh1.UserName = await GetUserNameByReceipt(deptors[0].Receipt);
+                    uh1.Money = deptors[i].DebtLeft;
+                    uh1.MoneyColor = "Red";
+                    userHomes.Add(uh1);
+                    totalDeptor -= uh1.Money;
+                    if (i == 1) break;
+                }
+            }
+            if (deptors.Count == 0 && owener.Count != 0)
+            {
+                for (int i = 0; i < owener.Count; i++)
+                {
+                    UserHome uh2 = new UserHome();
+                    uh2.Avatar = owener[i].User.Avatar;
+                    uh2.UserName = owener[i].User.UserName;
+                    uh2.Money = owener[i].DebtLeft;
+                    uh2.MoneyColor = "Green";
+                    userHomes.Add(uh2);
+                    totalOwner -= uh2.Money;
+                    if (i == 1) break;
+                }
+            }
+            if (userHomes.Count == 2 && (deptors.Count + owener.Count > 2))
+            {
+                UserHome uh3 = new UserHome();
+                uh3.UserName = "Và " + (deptors.Count + owener.Count - 2) + " người khác";
+                if (totalDeptor > totalOwner)
+                {
+                    uh3.Money = totalDeptor - totalOwner;
+                    uh3.MoneyColor = "Red";
+                }
+                else
+                {
+                    uh3.Money = totalOwner - totalDeptor;
+                    uh3.MoneyColor = "Green";
+                }
+                userHomes.Add(uh3);
+            }
+            return await Task.FromResult(userHomes);
+        }
+
+        private async Task<string> GetUserNameByReceipt(Receipt receipt)
+        {
+            Receipt receiptt = await context.Receipts.Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.Id == receipt.Id);
+            return receipt.User.UserName;
+        }
+
+        private async Task<List<UserDept>> GetOwerners(List<Receipt> listReceipt, int userID)
+        {
+            List<Receipt> receipts = listReceipt.Where(x => x.UserID == userID).ToList();
+            List<UserDept> list = new List<UserDept>();
+            foreach (var item in receipts)
+            {
+                UserDept ud = await context.UserDepts.Include(u => u.User).FirstOrDefaultAsync(u =>
+                u.ReceiptId == item.Id);
+                if (ud != null)
+                    list.Add(ud);
+            }
+            list.Reverse();
+            return list;
+        }
+
+        private async Task<List<UserDept>> GetDeptors(List<Receipt> listReceipt, int userID)
+        {
+            List<UserDept> list = new List<UserDept>();
+            foreach (var item in listReceipt)
+            {
+                UserDept ud = await context.UserDepts.Include(u => u.User)
+                    .Include(u=> u.Receipt)
+                    .FirstOrDefaultAsync(u =>
+                u.ReceiptId == item.Id && u.UserId == userID);
+                if (ud != null)
+                    list.Add(ud);
+            }
+            list.Reverse();
+            return list;
+        }
     }
 }
