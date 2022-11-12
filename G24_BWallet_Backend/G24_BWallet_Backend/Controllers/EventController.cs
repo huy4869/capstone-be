@@ -23,10 +23,10 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpGet("{userID}")]
-        public async Task<Respond<IEnumerable<Event>>> GetAllEvent(int userID)
+        public async Task<Respond<IEnumerable<EventHome>>> GetAllEvent(int userID)
         {
             var events = repo.GetAllEventsAsync(userID);
-            return new Respond<IEnumerable<Event>>()
+            return new Respond<IEnumerable<EventHome>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
