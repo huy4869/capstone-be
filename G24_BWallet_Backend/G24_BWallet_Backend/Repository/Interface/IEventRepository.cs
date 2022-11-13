@@ -12,6 +12,7 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<int> AddEventAsync(Event e);
         Task AddEventMember(int eventID, List<int> memebers);
         Task<string> CreateEventUrl(int eventID);
-        Task<bool> CheckUserJoinEvent(EventUser eu);
+        Task<bool> CheckUserJoinEvent(EventUserID eu);
+        Task<string> GetEventUrl(int eventId);
     }
 }
