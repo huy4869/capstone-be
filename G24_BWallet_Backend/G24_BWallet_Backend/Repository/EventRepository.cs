@@ -47,10 +47,10 @@ namespace G24_BWallet_Backend.Repository
             await context.SaveChangesAsync();
         }
 
-        public async Task<bool> CheckUserJoinEvent(EventUser eu)
+        public async Task<bool> CheckUserJoinEvent(EventUserID eu)
         {
             EventUser eventUser = await context.EventUsers.FirstOrDefaultAsync(e =>
-            e.EventID == eu.EventID && e.UserID == eu.UserID);
+            e.EventID == eu.EventId && e.UserID == eu.UserId);
             if (eventUser == null)
                 return false;
             return true;
@@ -58,7 +58,7 @@ namespace G24_BWallet_Backend.Repository
 
         public async Task<string> CreateEventUrl(int eventID)
         {
-            string eventUrl = "/EventId=" + eventID;
+            string eventUrl = "/event/join/eventId=" + eventID;
             Event e = await context.Events.FirstOrDefaultAsync(e => e.ID == eventID);
             e.EventLink = eventUrl;
             await context.SaveChangesAsync();
@@ -219,7 +219,7 @@ namespace G24_BWallet_Backend.Repository
             foreach (var item in listReceipt)
             {
                 UserDept ud = await context.UserDepts.Include(u => u.User)
-                    .Include(u=> u.Receipt)
+                    .Include(u => u.Receipt)
                     .FirstOrDefaultAsync(u =>
                 u.ReceiptId == item.Id && u.UserId == userID);
                 if (ud != null)
@@ -227,6 +227,12 @@ namespace G24_BWallet_Backend.Repository
             }
             list.Reverse();
             return list;
+        }
+
+        public async Task<string> GetEventUrl(int eventId)
+        {
+            var eventt = await context.Events.FirstOrDefaultAsync(e => e.ID == eventId);
+            return eventt.EventLink;
         }
     }
 }

@@ -38,7 +38,9 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost]
         public async Task<Respond<string>> AddEvent([FromBody] NewEvent newEvent)
         {
-            Event e = new Event { EventName = newEvent.EventName,
+            Event e = new Event
+            {
+                EventName = newEvent.EventName,
                 EventDescript = newEvent.EventDescript,
                 EventLogo = newEvent.EventLogo
             };
@@ -54,24 +56,38 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
-        [HttpPost("check-join")]
-        public async Task<Respond<string>> CheckJoin(EventUser eu)
+        [HttpPost("join/eventId={eventId}")]
+        public async Task<Respond<string>> CheckJoinByUrl([FromBody]UserID userId, int eventId)
         {
+            EventUserID eu = new EventUserID { EventId = eventId, UserId = userId.UserId };
             bool isJoin = await repo.CheckUserJoinEvent(eu);
             if (isJoin == false)
                 return new Respond<string>()
                 {
-                    StatusCode = HttpStatusCode.Accepted,
+                    StatusCode = HttpStatusCode.NotAcceptable,
                     Error = "",
-                    Message = "You have NOT participated in the event",
+                    Message = "User chưa tham gia event",
                     Data = null
                 };
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "You have participated in the event",
+                Message = "User đã tham gia event",
                 Data = null
+            };
+        }
+
+        [HttpGet("ShareableLink/EventId={eventId}")]
+        public async Task<Respond<string>> GetEventLink(int eventId)
+        {
+            string link = await repo.GetEventUrl(eventId);
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Lấy link event đã tạo để share",
+                Data = link
             };
         }
     }

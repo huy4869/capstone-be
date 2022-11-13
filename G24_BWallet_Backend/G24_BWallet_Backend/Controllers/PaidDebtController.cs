@@ -22,7 +22,7 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost("listDebt")]
-        public async Task<Respond<List<UserDebtReturn>>> GetListUserDebt([FromBody]EvenUserID e)
+        public async Task<Respond<List<UserDebtReturn>>> GetListUserDebt([FromBody]EventUserID e)
         {
             int status = 2;
             List<Receipt> receipt = await repo.GetReceipts(e.EventId, status);
