@@ -14,5 +14,8 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<string> CreateEventUrl(int eventID);
         Task<bool> CheckUserJoinEvent(EventUserID eu);
         Task<string> GetEventUrl(int eventId);
+        Task<Event> GetEventIntroduce(int eventId);
+        Task<List<UserAvatarName>> GetListUserInEvent(int eventId);
+        Task<bool> SendJoinRequest(EventUserID eventUserID);
     }
 }

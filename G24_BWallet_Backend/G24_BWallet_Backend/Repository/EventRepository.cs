@@ -234,5 +234,37 @@ namespace G24_BWallet_Backend.Repository
             var eventt = await context.Events.FirstOrDefaultAsync(e => e.ID == eventId);
             return eventt.EventLink;
         }
+
+        public async Task<Event> GetEventIntroduce(int eventId)
+        {
+            return await context.Events.FirstOrDefaultAsync(e => e.ID == eventId);
+        }
+
+        public async Task<List<UserAvatarName>> GetListUserInEvent(int eventId)
+        {
+            List<UserAvatarName> result = new List<UserAvatarName>();
+            List<EventUser> eu = await context.EventUsers.Include(e => e.User)
+                .Where(e => e.EventID == eventId).ToListAsync();
+            eu.ForEach(item => result.Add(
+                new UserAvatarName { Avatar = item.User.Avatar, Name = item.User.UserName }));
+            return result;
+        }
+
+        public async Task<bool> SendJoinRequest(EventUserID eventUserID)
+        {
+            EventUser eu = await context.EventUsers
+                .FirstOrDefaultAsync(e => e.UserID == eventUserID.UserId
+                && e.EventID == eventUserID.EventId);
+            if (eu != null) return false;
+            Request r = new Request();
+            r.UserID = eventUserID.UserId;
+            r.EventID = eventUserID.EventId;
+            r.Status = 3;
+            r.CreatedAt = DateTime.Now;
+            r.UpdatedAt = DateTime.Now;
+            await context.Requests.AddAsync(r);
+            await context.SaveChangesAsync();
+            return true;
+        }
     }
 }
