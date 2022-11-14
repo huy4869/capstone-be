@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace G24_BWallet_Backend.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    [Migration("20221102144001_InitDB")]
-    partial class InitDB
+    [Migration("20221114073451_AddRequest")]
+    partial class AddRequest
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -228,9 +228,41 @@ namespace G24_BWallet_Backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("EventID");
+
                     b.HasIndex("UserID");
 
                     b.ToTable("Receipt");
+                });
+
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Request", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("EventID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("Request");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.User", b =>
@@ -356,11 +388,38 @@ namespace G24_BWallet_Backend.Migrations
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.Receipt", b =>
                 {
+                    b.HasOne("G24_BWallet_Backend.Models.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("G24_BWallet_Backend.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Request", b =>
+                {
+                    b.HasOne("G24_BWallet_Backend.Models.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("G24_BWallet_Backend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
 
                     b.Navigation("User");
                 });

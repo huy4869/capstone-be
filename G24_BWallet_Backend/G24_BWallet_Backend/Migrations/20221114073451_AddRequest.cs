@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace G24_BWallet_Backend.Migrations
 {
-    public partial class InitDB : Migration
+    public partial class AddRequest : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -199,7 +199,43 @@ namespace G24_BWallet_Backend.Migrations
                 {
                     table.PrimaryKey("PK_Receipt", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Receipt_Event_EventID",
+                        column: x => x.EventID,
+                        principalTable: "Event",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Receipt_User_UserID",
+                        column: x => x.UserID,
+                        principalTable: "User",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Request",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    UserID = table.Column<int>(type: "int", nullable: false),
+                    EventID = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Request", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Request_Event_EventID",
+                        column: x => x.EventID,
+                        principalTable: "Event",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Request_User_UserID",
                         column: x => x.UserID,
                         principalTable: "User",
                         principalColumn: "ID",
@@ -291,8 +327,23 @@ namespace G24_BWallet_Backend.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Receipt_EventID",
+                table: "Receipt",
+                column: "EventID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Receipt_UserID",
                 table: "Receipt",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Request_EventID",
+                table: "Request",
+                column: "EventID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Request_UserID",
+                table: "Request",
                 column: "UserID");
 
             migrationBuilder.CreateIndex(
@@ -326,16 +377,19 @@ namespace G24_BWallet_Backend.Migrations
                 name: "PaidDebtList");
 
             migrationBuilder.DropTable(
+                name: "Request");
+
+            migrationBuilder.DropTable(
                 name: "PaidDept");
 
             migrationBuilder.DropTable(
                 name: "UserDept");
 
             migrationBuilder.DropTable(
-                name: "Event");
+                name: "Receipt");
 
             migrationBuilder.DropTable(
-                name: "Receipt");
+                name: "Event");
 
             migrationBuilder.DropTable(
                 name: "User");
