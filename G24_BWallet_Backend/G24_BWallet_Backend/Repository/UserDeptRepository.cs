@@ -40,6 +40,7 @@ namespace G24_BWallet_Backend.Repository
             storeUserDept.UserId = addUserDept.UserId;
             storeUserDept.DeptStatus = 2;
             storeUserDept.Debt = addUserDept.Debt;
+            storeUserDept.DebtLeft = addUserDept.Debt;
 
             await myDB.UserDepts.AddAsync(storeUserDept);
             await myDB.SaveChangesAsync();
