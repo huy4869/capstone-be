@@ -1,14 +1,21 @@
-﻿using G24_BWallet_Backend.DBContexts;
+﻿using Amazon;
+using Amazon.S3;
+using Amazon.S3.Transfer;
+using G24_BWallet_Backend.DBContexts;
 using G24_BWallet_Backend.Models;
 using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
+using Twilio.Http;
 using Twilio.Rest.Chat.V2.Service.User;
 
 namespace G24_BWallet_Backend.Controllers
@@ -20,13 +27,16 @@ namespace G24_BWallet_Backend.Controllers
         private readonly IAccessRepository accessRepository;
         private readonly IFriendRepository friendRepository;
         private readonly MyDBContext context;
+        private readonly IConfiguration _configuration;
 
         public TestController(IAccessRepository accessRepository,
-            IFriendRepository friendRepository, MyDBContext context1)
+            IFriendRepository friendRepository, MyDBContext context1,
+            IConfiguration _configuration)
         {
             this.accessRepository = accessRepository;
             this.friendRepository = friendRepository;
             this.context = context1;
+            this._configuration = _configuration;
         }
 
         [HttpGet]
@@ -121,5 +131,32 @@ namespace G24_BWallet_Backend.Controllers
             string a = "Hello " + name + " Age: " + age;
             return Ok(a);
         }
+
+        [HttpPost("testimg")]
+        public async Task<string> TestIMG([FromForm] IFormFile imgFile, [FromForm] Receipt receipt)
+        {
+            string AWSS3AccessKeyId = _configuration["AWSS3:AccessKeyId"];
+            string AWSS3SecretAccessKey = _configuration["AWSS3:SecretAccessKey"];
+            using (var client = new AmazonS3Client(AWSS3AccessKeyId, AWSS3SecretAccessKey, RegionEndpoint.APSoutheast1))
+            {
+                using (var newMemoryStream = new MemoryStream())
+                {
+                    imgFile.CopyTo(newMemoryStream);
+
+                    var uploadRequest = new TransferUtilityUploadRequest
+                    {
+                        InputStream = newMemoryStream,
+                        Key = imgFile.FileName,
+                        BucketName = "bwallets3bucket/users"
+                    };
+
+                    var fileTransferUtility = new TransferUtility(client);
+                    await fileTransferUtility.UploadAsync(uploadRequest);
+                }
+            }
+            return "receipt name: " +receipt.ReceiptName+"//"+receipt.User.UserName+" is who make it";
+        }
+
+
     }
 }

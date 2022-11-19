@@ -1,27 +1,36 @@
-﻿using G24_BWallet_Backend.DBContexts;
+﻿using Amazon.S3.Transfer;
+using Amazon.S3;
+using G24_BWallet_Backend.DBContexts;
 using G24_BWallet_Backend.Models;
 using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository.Interface;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Amazon;
 
 namespace G24_BWallet_Backend.Repository
 {
     public class ReceiptRepository : IReceiptRepository
     {
         private readonly MyDBContext myDB;
+        private readonly IConfiguration _configuration;
 
-        public ReceiptRepository(MyDBContext myDB)
+        public ReceiptRepository(MyDBContext myDB, IConfiguration _configuration)
         {
             this.myDB = myDB;
+            this._configuration = _configuration;
+
         }
 
-        public async Task<Receipt> AddReceiptAsync(Receipt addReceipt)//
+        public async Task<Receipt> AddReceiptAsync(Receipt addReceipt, IFormFile imgFile)//
         {
             Receipt storeReceipt = new Receipt();
             storeReceipt.EventID = addReceipt.EventID;
@@ -35,34 +44,53 @@ namespace G24_BWallet_Backend.Repository
             await myDB.Receipts.AddAsync(storeReceipt);
             await myDB.SaveChangesAsync();
 
+            //lưu ảnh với để ID của receipt đầu ảnh để  tránh ghi đè file trên s3 
+            if (imgFile == null || 
+                (!string.Equals(imgFile.ContentType, "image/jpg", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(imgFile.ContentType, "image/jpeg", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(imgFile.ContentType, "image/gif", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(imgFile.ContentType, "image/png", StringComparison.OrdinalIgnoreCase)))
+            {
+                return storeReceipt;
+            }
+
+            string AWSS3AccessKeyId = _configuration["AWSS3:AccessKeyId"];
+            string AWSS3SecretAccessKey = _configuration["AWSS3:SecretAccessKey"];
+            string fileName = storeReceipt.Id + imgFile.FileName;
+
+            using (var client = new AmazonS3Client(AWSS3AccessKeyId, AWSS3SecretAccessKey, RegionEndpoint.APSoutheast1))
+            {
+                using (var newMemoryStream = new MemoryStream())
+                {
+                    imgFile.CopyTo(newMemoryStream);
+                    var uploadRequest = new TransferUtilityUploadRequest
+                    {
+                        InputStream = newMemoryStream,
+                        Key = fileName,
+                        BucketName = "bwallets3bucket/receipts"
+                    };
+                    var fileTransferUtility = new TransferUtility(client);
+                    await fileTransferUtility.UploadAsync(uploadRequest);
+                }
+            }
+
+            storeReceipt.ReceiptPicture = _configuration["AWSS3:ReceiptsImgLink"] + fileName.Replace("+", "%2B").Replace(' ', '+');//aws link file nó thay dấu cách bằng dấu + và + thì thành %2B
+            myDB.Receipts.Update(storeReceipt);
+            await myDB.SaveChangesAsync();
+
             return storeReceipt;
         }
 
-        public async Task<List<Receipt>> GetReceiptByIDAsync (int ReceiptID)
+        public async Task<Receipt> GetReceiptByIDAsync (int ReceiptID)
         {
-            var r = myDB.Receipts.Where(r => r.Id == ReceiptID).ToListAsync();
+            var r = myDB.Receipts.Where(r => r.Id == ReceiptID).FirstAsync();//.Include(r => r.UserDepts).FirstOrDefault();
+            //var listUD = myDB.UserDepts.Where(ud => ud.ReceiptId == ReceiptID).ToListAsync();
+            //r.UserDepts = await listUD;
             return await r;
         }
 
         public async Task<EventReceiptsInfo> GetEventReceiptsInfoAsync(int EventID)
         {
-            /*   Warning Dont attempt // if you do try, try get event that have no receipt
-            EventReceiptsInfo eventReceiptInfo = myDB.Events
-                .SelectMany(r => r.Receipts, (e, r) => new { e, r })
-                .Where(er => er.e.ID == EventID)
-                .Where(er => er.r.ReceiptStatus == 2)
-                .GroupBy(er => new
-                {
-                    er.e.ID,//eventID
-                    er.e.EventName//EventName
-                })
-                .Select(er => new EventReceiptsInfo
-                {
-                    Id = er.Key.ID,//eventID
-                    EventName = er.Key.EventName,
-                    TotalReceipt = er.Sum(x => x.r.ReceiptAmount)//x là cái new ở chỗ selectMany
-                }).FirstOrDefault();
-            */
             EventReceiptsInfo eventInfo = myDB.Events
                 .Where(e => e.ID == EventID)
                 .Select(e => new EventReceiptsInfo { 

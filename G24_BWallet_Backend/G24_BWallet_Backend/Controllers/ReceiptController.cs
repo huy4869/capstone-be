@@ -3,13 +3,16 @@ using G24_BWallet_Backend.Models;
 using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository;
 using G24_BWallet_Backend.Repository.Interface;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Security.Principal;
 using System.Threading.Tasks;
@@ -27,6 +30,7 @@ namespace G24_BWallet_Backend.Controllers
         private readonly IUserDeptRepository userDeptRepo;
         private readonly IEventUserRepository eventUserRepo;
         private readonly IEventRepository eventRepo;
+        private readonly IConfiguration _configuration;
 
         public ReceiptController(IReceiptRepository InitReceiptRepo, IUserDeptRepository InitUserDeptRepo, IEventUserRepository InitEventUserRepo, IEventRepository InitEventRepo)
         {
@@ -64,12 +68,12 @@ namespace G24_BWallet_Backend.Controllers
 
 
         [HttpGet("{receiptId}")]
-        public async Task<Respond<List<Receipt>>> GetReceipt(int receiptId)
+        public async Task<Respond<Receipt>> GetReceipt(int receiptId)
         {
             var r = receiptRepo.GetReceiptByIDAsync(receiptId);
 
             if (r == null){
-                return new Respond<List<Receipt>>()
+                return new Respond<Receipt>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
                     Error = "không tìm thấy hóa đơn",
@@ -77,7 +81,7 @@ namespace G24_BWallet_Backend.Controllers
                     Data = await r
                 };
             } else {
-                return new Respond<List<Receipt>>()
+                return new Respond<Receipt>()
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
@@ -93,7 +97,7 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<List<Member>>> PrepareCreateReceipt([FromQuery] int EventID)
         {
             var eventUsers = eventUserRepo.GetAllEventUsersAsync(EventID);
-            
+
             return new Respond<List<Member>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -104,9 +108,20 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<Respond<Receipt>> PostCreateReceipt([FromBody] Receipt receipt)
+        public async Task<Respond<Receipt>> PostCreateReceipt([FromForm] Receipt receipt, [FromForm] IFormFile imgFile = null)
         {
-            var createReceiptTask = receiptRepo.AddReceiptAsync(receipt);
+            if (receipt.ReceiptAmount != receipt.UserDepts.Sum(ud => ud.Debt))
+            {
+                return new Respond<Receipt>()
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Error = "hóa đơn không chia đúng với tổng",
+                    Message = "",
+                    Data = null
+                };
+            }
+
+            var createReceiptTask = receiptRepo.AddReceiptAsync(receipt,imgFile);
             Receipt createdReceipt = await createReceiptTask;
 
             foreach (UserDept ud in receipt.UserDepts)
