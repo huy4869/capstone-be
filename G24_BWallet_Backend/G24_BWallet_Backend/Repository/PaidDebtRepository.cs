@@ -65,8 +65,8 @@ namespace G24_BWallet_Backend.Repository
             {
                 PaidDebtList paid = new PaidDebtList {
                 PaidId = paidDept.Id,
-                DebtId = item.DebtId,
-                PaidAmount = item.PaidAmount
+                DebtId = item.userDeptId,
+                PaidAmount = item.debtLeft
                 };
                 await context.PaidDebtLists.AddAsync(paid);
                 await context.SaveChangesAsync();
@@ -75,10 +75,14 @@ namespace G24_BWallet_Backend.Repository
             return "Đã cập nhật các khoản nợ và trạng thái";
         }
 
-        private async Task ChangeDebtLeft(PaidDebtList item)
+        private async Task ChangeDebtLeft(RenamePaidDebtList item)
         {
-            var userDebt = await context.UserDepts.FirstOrDefaultAsync(u=>u.Id == item.DebtId);
-            userDebt.DebtLeft -= item.PaidAmount;
+            var paiddlist = new PaidDebtList { 
+                DebtId = item.userDeptId,
+                PaidAmount = item.debtLeft
+            };
+            var userDebt = await context.UserDepts.FirstOrDefaultAsync(u=>u.Id == paiddlist.DebtId);
+            userDebt.DebtLeft -= paiddlist.PaidAmount;
             if(userDebt.DebtLeft <= 0)// tra het no
             {
                 userDebt.DeptStatus = 0;
