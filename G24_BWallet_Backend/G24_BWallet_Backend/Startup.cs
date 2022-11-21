@@ -44,6 +44,7 @@ namespace G24_BWallet_Backend
             services.AddScoped<IUserDeptRepository, UserDeptRepository>();
             services.AddScoped<IPaidDebtRepository, PaidDebtRepository>();
             services.AddScoped<IEventUserRepository, EventUserRepository>();
+            services.AddScoped<IProfileRepository, ProfileRepository>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(option => {
                 option.RequireHttpsMetadata = false;
