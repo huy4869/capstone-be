@@ -7,7 +7,7 @@ namespace G24_BWallet_Backend.Repository.Interface
     public interface IAccessRepository
     {
         Task<Account> GetAccountAsync(string phone, string password);
-        Task<string> JWTGenerateAsync(string phone, string pass);
+        Task<string> JWTGenerateAsync(string phone, int userId);
         Task<bool> CheckPhoneNumberExistAsync(string phone);
         Task RegisterNewUserAsync(string phone, string pass, string name,
           string fb, string bank);
@@ -20,5 +20,6 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task ChangePassword(string phone, string newPassword);
         Task<User> GetUserAsync(Account account);
         Task<List<User>> GetAllUserAsync();
+        Task<bool> CheckPhoneFormat(string phone);
     }
 }

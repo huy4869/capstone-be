@@ -23,9 +23,18 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost("send-otp")]
-        public async Task<Respond<bool>> SendOtp([FromForm] string phone)
+        public async Task<Respond<bool>> SendOtp(PhoneParam p)
         {
-            string phone2 = phone;
+            var phone = p.Phone;
+            bool checkPhoneFormat = await repo.CheckPhoneFormat(phone);
+            if (checkPhoneFormat == false)
+                return new Respond<bool>()
+                {
+                    StatusCode = HttpStatusCode.NotAcceptable,
+                    Error = "",
+                    Message = "Số điện thoại nhập sai định dạng +84....(9 chữ số đằng sau)!",
+                    Data = false
+                };
             var checkPhone = await repo.CheckPhoneNumberExistAsync(phone);
             var otp = await repo.OTPGenerateAsync();
             if (checkPhone == true)
@@ -33,7 +42,7 @@ namespace G24_BWallet_Backend.Controllers
                 {
                     StatusCode = HttpStatusCode.NotAcceptable,
                     Error = "",
-                    Message = "This phone number is registed!",
+                    Message = "Số điện thoại này đã được đăng kí(đã có trong database)",
                     Data = false
                 };
             if (await repo.SendOtpTwilioAsync(phone, otp) == false)
@@ -41,16 +50,16 @@ namespace G24_BWallet_Backend.Controllers
                 {
                     StatusCode = HttpStatusCode.NotAcceptable,
                     Error = "",
-                    Message = "This phone number is not exist!",
+                    Message = "Gửi otp thất bại (có thể là do nhập sai số điện thoại)",
                     Data = false
                 };
-            string jwt = await repo.JWTGenerateAsync(phone, "");
+            string jwt = await repo.JWTGenerateAsync(phone, 0);
             await repo.SaveOTPAsync(phone, otp, jwt);
             return new Respond<bool>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Send OTP success!",
+                Message = "Gửi otp thành công",
                 Data = true
             };
         }
@@ -86,9 +95,9 @@ namespace G24_BWallet_Backend.Controllers
         //    //};
         //}
         [HttpPost("check-otp")]
-        public async Task<Respond<bool>> CheckOtp([FromForm] string otp, [FromForm] string enter)
+        public async Task<Respond<bool>> CheckOtp(OtpParam o)
         {
-            bool check = await repo.CheckOTPAsync(otp, enter);
+            bool check = await repo.CheckOTPAsync(o.Otp, o.Enter);
             if(check)
                 return new Respond<bool>()
                 {
@@ -107,10 +116,9 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<Respond<bool>> SignUp([FromForm] string phone, [FromForm] string password,
-            [FromForm] string name, [FromForm] string fb, [FromForm] string bank)
+        public async Task<Respond<bool>> SignUp(RegisterParam r)
         {
-            await repo.RegisterNewUserAsync(phone,await repo.EncryptAsync(password), name, fb, bank);
+            await repo.RegisterNewUserAsync(r.Phone,await repo.EncryptAsync(r.Password), r.Name, null, null);
             return new Respond<bool>()
             {
                 StatusCode = HttpStatusCode.Accepted,

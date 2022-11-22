@@ -1,11 +1,13 @@
 ﻿using G24_BWallet_Backend.Models;
 using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -13,6 +15,7 @@ namespace G24_BWallet_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProfileController : ControllerBase
     {
         private readonly IProfileRepository repo;
@@ -22,9 +25,15 @@ namespace G24_BWallet_Backend.Controllers
             repo = repository;
         }
 
-        [HttpGet("{userID}")]
-        public async Task<Respond<IDictionary>> GetProfile(int userID)
+        protected int GetUserId()
         {
+            return int.Parse(this.User.Claims.First(i => i.Type == "UserId").Value);
+        }
+
+        [HttpGet]
+        public async Task<Respond<IDictionary>> GetProfile()
+        {
+            var userID = GetUserId();
             User user = await repo.GetUserById(userID);
             List<Request> requestPending = await repo.GetRequestPending(userID);
             List<Request> invitePending = await repo.GetInvitePending(userID);

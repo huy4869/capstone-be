@@ -6,8 +6,4 @@
         public int UserId { get; set; }
     }
 
-    public class UserID
-    {
-        public int UserId { get; set; }
-    }
 }

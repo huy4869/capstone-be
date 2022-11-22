@@ -32,12 +32,12 @@ namespace G24_BWallet_Backend.Controllers
 
         // GET api/<LoginController>/5
         [HttpPost]
-        public async Task<Respond<IDictionary>> Login([FromBody] Account acc)
+        public async Task<Respond<IDictionary>> Login(Account acc)
         {
-            var checkPhone = repo.CheckPhoneNumberExistAsync(acc.PhoneNumber);
-            //var encrypt = repo.EncryptAsync(password);
+            var checkPhone = await repo.CheckPhoneNumberExistAsync(acc.PhoneNumber);
+            //var encrypt = await repo.EncryptAsync(acc.Password);
             var encrypt = acc.Password;
-            if (await checkPhone == false)
+            if (checkPhone == false)
                 return new Respond<IDictionary>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
@@ -45,9 +45,9 @@ namespace G24_BWallet_Backend.Controllers
                     Message = "This phone number is not registed!",
                     Data = null
                 };
-            var account = repo.GetAccountAsync(acc.PhoneNumber, encrypt);
-            var user = await repo.GetUserAsync(await account);
-            if (await account == null)
+            var account = await repo.GetAccountAsync(acc.PhoneNumber, encrypt);
+            
+            if ( account == null)
                 return new Respond<IDictionary>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
@@ -55,7 +55,8 @@ namespace G24_BWallet_Backend.Controllers
                     Message = "This password is wrong!",
                     Data = null
                 };
-            var jwt = await repo.JWTGenerateAsync(acc.PhoneNumber, encrypt);
+            var user = await repo.GetUserAsync(account);
+            var jwt = await repo.JWTGenerateAsync(acc.PhoneNumber, user.ID);
             return new Respond<IDictionary>()
             {
                 StatusCode = HttpStatusCode.Accepted,
