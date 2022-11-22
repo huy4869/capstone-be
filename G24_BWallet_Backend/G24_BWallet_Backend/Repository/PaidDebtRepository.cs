@@ -49,41 +49,51 @@ namespace G24_BWallet_Backend.Repository
 
         public async Task<string> PaidDebtInEvent(PaidDebtParam p)
         {
-            PaidDept paidDept = new PaidDept
+            try
             {
-                UserId = p.UserId,
-                EventId = p.EventId,
-                PaidProof = p.PaidImage,
-                TotalMoney = p.TotalMoney,
-                Status = 1,
-                UpdatedAt = System.DateTime.Now,
-                CreatedAt = System.DateTime.Now
-            };
-            await context.PaidDepts.AddAsync(paidDept);
-            await context.SaveChangesAsync();
-            foreach (var item in p.ListEachPaidDebt)
-            {
-                PaidDebtList paid = new PaidDebtList {
-                PaidId = paidDept.Id,
-                DebtId = item.userDeptId,
-                PaidAmount = item.debtLeft
+                PaidDept paidDept = new PaidDept
+                {
+                    UserId = p.UserId,
+                    EventId = p.EventId,
+                    PaidProof = p.PaidImage,
+                    TotalMoney = p.TotalMoney,
+                    Status = 1,
+                    UpdatedAt = System.DateTime.Now,
+                    CreatedAt = System.DateTime.Now
                 };
-                await context.PaidDebtLists.AddAsync(paid);
+                await context.PaidDepts.AddAsync(paidDept);
                 await context.SaveChangesAsync();
-                await ChangeDebtLeft(item);
+                foreach (var item in p.ListEachPaidDebt)
+                {
+                    PaidDebtList paid = new PaidDebtList
+                    {
+                        PaidId = paidDept.Id,
+                        DebtId = item.userDeptId,
+                        PaidAmount = item.debtLeft
+                    };
+                    await context.PaidDebtLists.AddAsync(paid);
+                    await context.SaveChangesAsync();
+                    await ChangeDebtLeft(item);
+                }
+            }
+            catch (Exception e)
+            {
+
+                return e.ToString();
             }
             return "Đã cập nhật các khoản nợ và trạng thái";
         }
 
         private async Task ChangeDebtLeft(RenamePaidDebtList item)
         {
-            var paiddlist = new PaidDebtList { 
+            var paiddlist = new PaidDebtList
+            {
                 DebtId = item.userDeptId,
                 PaidAmount = item.debtLeft
             };
-            var userDebt = await context.UserDepts.FirstOrDefaultAsync(u=>u.Id == paiddlist.DebtId);
+            var userDebt = await context.UserDepts.FirstOrDefaultAsync(u => u.Id == paiddlist.DebtId);
             userDebt.DebtLeft -= paiddlist.PaidAmount;
-            if(userDebt.DebtLeft <= 0)// tra het no
+            if (userDebt.DebtLeft <= 0)// tra het no
             {
                 userDebt.DeptStatus = 0;
             }

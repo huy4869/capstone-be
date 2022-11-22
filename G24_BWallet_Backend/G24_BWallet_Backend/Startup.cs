@@ -46,7 +46,8 @@ namespace G24_BWallet_Backend
             services.AddScoped<IEventUserRepository, EventUserRepository>();
             services.AddScoped<IProfileRepository, ProfileRepository>();
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(option => {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(option =>
+            {
                 option.RequireHttpsMetadata = false;
                 option.SaveToken = true;
                 option.TokenValidationParameters = new TokenValidationParameters()
@@ -59,7 +60,7 @@ namespace G24_BWallet_Backend
                 };
             });
 
-            
+
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
@@ -85,7 +86,7 @@ namespace G24_BWallet_Backend
             app.UseRouting();
 
             app.UseCors("CorsPolicy");
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

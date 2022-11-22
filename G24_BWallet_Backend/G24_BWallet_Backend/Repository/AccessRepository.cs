@@ -12,6 +12,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
@@ -29,7 +30,6 @@ namespace G24_BWallet_Backend.Repository
             this.context = myDB;
             _configuration = configuration;
         }
-
         public async Task<Account> GetAccountAsync(string phone, string password)
         {
             List<Account> list = await context.Accounts.ToListAsync();
@@ -49,7 +49,7 @@ namespace G24_BWallet_Backend.Repository
             return account2 != null;
         }
 
-        public async Task<string> JWTGenerateAsync(string phone, string? pass)
+        public async Task<string> JWTGenerateAsync(string phone, int userId)
         {
             //create claims details based on the user information
             var claims = new[] {
@@ -57,12 +57,12 @@ namespace G24_BWallet_Backend.Repository
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
                     new Claim("PhoneNumber", phone),
-                    new Claim("Password", pass)
+                    new Claim("UserId",userId.ToString())
                        };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"],
-                claims, expires: DateTime.UtcNow.AddSeconds(60), signingCredentials: signIn);
+                claims, expires: DateTime.UtcNow.AddDays(3), signingCredentials: signIn);
             var tokenHandler = new JwtSecurityTokenHandler().WriteToken(token);
             return await Task.FromResult(tokenHandler);
         }
@@ -206,6 +206,12 @@ namespace G24_BWallet_Backend.Repository
         public async Task<List<User>> GetAllUserAsync()
         {
             return await context.Users.ToListAsync();
+        }
+
+        public Task<bool> CheckPhoneFormat(string phone)
+        {
+            var regex = new Regex("^\\+84[0-9]{9,10}$");
+            return Task.FromResult(regex.IsMatch(phone.Trim()));
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using G24_BWallet_Backend.Models;
 using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,7 @@ namespace G24_BWallet_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class EventController : ControllerBase
     {
         private readonly IEventRepository repo;
@@ -22,11 +24,15 @@ namespace G24_BWallet_Backend.Controllers
         {
             repo = eventRepository;
         }
-
-        [HttpGet("{userID}")]
-        public async Task<Respond<IEnumerable<EventHome>>> GetAllEvent(int userID)
+        protected int GetUserId()
         {
-            var events = repo.GetAllEventsAsync(userID);
+            return int.Parse(this.User.Claims.First(i => i.Type == "UserId").Value);
+        }
+
+        [HttpGet]
+        public async Task<Respond<IEnumerable<EventHome>>> GetAllEvent()
+        {
+            var events = repo.GetAllEventsAsync(GetUserId());
             return new Respond<IEnumerable<EventHome>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -36,8 +42,21 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
+        //[HttpGet("{userID}")]
+        //public async Task<Respond<IEnumerable<EventHome>>> GetAllEvent(int userID)
+        //{
+        //    var events = repo.GetAllEventsAsync(userID);
+        //    return new Respond<IEnumerable<EventHome>>()
+        //    {
+        //        StatusCode = HttpStatusCode.Accepted,
+        //        Error = "",
+        //        Message = "Get event success",
+        //        Data = await events
+        //    };
+        //}
+
         [HttpPost]
-        public async Task<Respond<string>> AddEvent([FromBody] NewEvent newEvent)
+        public async Task<Respond<string>> AddEvent( NewEvent newEvent)
         {
             Event e = new Event
             {
@@ -58,9 +77,9 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost("join/eventId={eventId}")]
-        public async Task<Respond<IDictionary>> CheckJoinByUrl([FromBody] UserID userId, int eventId)
+        public async Task<Respond<IDictionary>> CheckJoinByUrl(int eventId)
         {
-            EventUserID eu = new EventUserID { EventId = eventId, UserId = userId.UserId };
+            EventUserID eu = new EventUserID { EventId = eventId, UserId = GetUserId() };
             bool isJoin = await repo.CheckUserJoinEvent(eu);
             IDictionary<string, int> result = new Dictionary<string, int>
             {
@@ -121,6 +140,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost("JoinRequest")]
         public async Task<Respond<string>> SendJoinRequest(EventUserID eventUserID)
         {
+            eventUserID.UserId = GetUserId();
             var check = await repo.SendJoinRequest(eventUserID);
             if(check == false)
                 return new Respond<string>()

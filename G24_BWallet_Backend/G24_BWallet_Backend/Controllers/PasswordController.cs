@@ -19,8 +19,9 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost("send-otp")]
-        public async Task<Respond<bool>> SendOtp([FromForm] string phone)
+        public async Task<Respond<bool>> SendOtp(PhoneParam p)
         {
+            var phone = p.Phone.Trim();
             var checkPhone = repo.CheckPhoneNumberExistAsync(phone);
             var otp = repo.OTPGenerateAsync();
             if (await checkPhone == false)
@@ -39,7 +40,7 @@ namespace G24_BWallet_Backend.Controllers
                     Message = "This phone number is not exist!",
                     Data = false
                 };
-            string jwt = await repo.JWTGenerateAsync(phone, "");
+            string jwt = await repo.JWTGenerateAsync(phone, 0);
             await repo.SaveOTPAsync(phone, await otp, jwt);
             return new Respond<bool>()
             {
@@ -51,9 +52,9 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost("check-otp")]
-        public async Task<Respond<bool>> CheckOtp([FromForm] string otp, [FromForm] string enter)
+        public async Task<Respond<bool>> CheckOtp(OtpParam o)
         {
-            bool check = await repo.CheckOTPAsync(otp, enter);
+            bool check = await repo.CheckOTPAsync(o.Otp, o.Enter);
             if (check)
                 return new Respond<bool>()
                 {
@@ -72,9 +73,9 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost("change-password")]
-        public async Task<Respond<string>> ChangePassword([FromForm] string phone, [FromForm] string newPassword)
+        public async Task<Respond<string>> ChangePassword(PasswordChangeParam p)
         {
-            await repo.ChangePassword(phone, newPassword);
+            await repo.ChangePassword(p.Phone, await repo.EncryptAsync(p.Password));
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.Accepted,
