@@ -32,13 +32,13 @@ namespace G24_BWallet_Backend.Controllers
 
         // GET api/<LoginController>/5
         [HttpPost]
-        public async Task<Respond<IDictionary>> Login(Account acc)
+        public async Task<Respond<JwtParam>> Login(Account acc)
         {
             var checkPhone = await repo.CheckPhoneNumberExistAsync(acc.PhoneNumber);
             //var encrypt = await repo.EncryptAsync(acc.Password);
             var encrypt = acc.Password;
             if (checkPhone == false)
-                return new Respond<IDictionary>()
+                return new Respond<JwtParam>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
                     Error = "Login fail!",
@@ -46,9 +46,9 @@ namespace G24_BWallet_Backend.Controllers
                     Data = null
                 };
             var account = await repo.GetAccountAsync(acc.PhoneNumber, encrypt);
-            
-            if ( account == null)
-                return new Respond<IDictionary>()
+
+            if (account == null)
+                return new Respond<JwtParam>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
                     Error = "Login fail!",
@@ -57,18 +57,18 @@ namespace G24_BWallet_Backend.Controllers
                 };
             var user = await repo.GetUserAsync(account);
             var jwt = await repo.JWTGenerateAsync(acc.PhoneNumber, user.ID);
-            return new Respond<IDictionary>()
+            var JWTToken = new JwtParam { access_token = jwt, type_token = "Bearer" };
+            return new Respond<JwtParam>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
                 Message = "Login success!",
                 //Data = new ArrayList { new JWT(await jwt),await user}
-                Data = new Dictionary<object, object>()
-            {
-                {"Jwt" ,  jwt },
-                {nameof(user.ID), user.ID},
-                {nameof(user.UserName), user.UserName}
-            }
+                //Data = new Dictionary<object, object>()
+                Data = JWTToken
+                //{"Jwt" ,  jwt },
+                //{nameof(user.ID), user.ID},
+                //{nameof(user.UserName), user.UserName}
             };
 
         }
