@@ -11,7 +11,7 @@
 
     public class OtpParam
     {
-        public string Otp { get; set; }
+        public string Phone { get; set; }
         public string Enter { get; set; }
     }
 

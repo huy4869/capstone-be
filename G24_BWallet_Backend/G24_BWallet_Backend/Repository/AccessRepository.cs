@@ -67,9 +67,11 @@ namespace G24_BWallet_Backend.Repository
             return await Task.FromResult(tokenHandler);
         }
 
-        public async Task<bool> CheckOTPAsync(string otp, string enter)
+        public async Task<bool> CheckOTPAsync(string phone, string enter)
         {
-            return await Task.FromResult((otp.Trim().Equals(enter.Trim())));
+            var otp = await context.Otps.OrderBy(o=>o.OtpID)
+                .LastOrDefaultAsync(o => o.Phone.Equals(phone.Trim()));
+            return await Task.FromResult((otp.OtpCode.Trim().Equals(enter.Trim())));
         }
 
         public async Task<bool> SendOtpTwilioAsync(string phone, string otp)
