@@ -54,7 +54,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost("check-otp")]
         public async Task<Respond<bool>> CheckOtp(OtpParam o)
         {
-            bool check = await repo.CheckOTPAsync(o.Otp, o.Enter);
+            bool check = await repo.CheckOTPAsync(o.Phone, o.Enter);
             if (check)
                 return new Respond<bool>()
                 {
