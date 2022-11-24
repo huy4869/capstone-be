@@ -65,7 +65,7 @@ namespace G24_BWallet_Backend.Repository
             return eventUrl;
         }
 
-        public async Task<List<EventHome>> GetAllEventsAsync([FromBody] int userID)
+        public async Task<List<EventHome>> GetAllEventsAsync(int userID)
         {
             List<EventHome> events = new List<EventHome>();
             // lấy tất cả các event mà mình tham gia
@@ -250,21 +250,25 @@ namespace G24_BWallet_Backend.Repository
             return result;
         }
 
-        public async Task<bool> SendJoinRequest(EventUserID eventUserID)
+        public async Task<string> SendJoinRequest(EventUserID eventUserID)
         {
             EventUser eu = await context.EventUsers
                 .FirstOrDefaultAsync(e => e.UserID == eventUserID.UserId
                 && e.EventID == eventUserID.EventId);
-            if (eu != null) return false;
+            if (eu != null) return "Bạn đã ở trong event này rồi";
             Request r = new Request();
             r.UserID = eventUserID.UserId;
             r.EventID = eventUserID.EventId;
             r.Status = 3;
             r.CreatedAt = DateTime.Now;
             r.UpdatedAt = DateTime.Now;
+            var request = await context.Requests
+                .FirstOrDefaultAsync(request => request.UserID == r.UserID
+                && request.EventID == r.EventID);
+            if (request != null) return "Bạn đã gửi yêu cầu gia nhập nhóm này rồi(đang chờ accept)";
             await context.Requests.AddAsync(r);
             await context.SaveChangesAsync();
-            return true;
+            return "Gửi yêu cầu gia nhập nhóm thành công, đang chờ duyệt";
         }
     }
 }

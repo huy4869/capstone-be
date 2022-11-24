@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace G24_BWallet_Backend.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    [Migration("20221114073451_AddRequest")]
-    partial class AddRequest
+    [Migration("20221124103158_CreateInvite")]
+    partial class CreateInvite
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -111,6 +111,35 @@ namespace G24_BWallet_Backend.Migrations
                     b.HasKey("UserID", "UserFriendID");
 
                     b.ToTable("Friend");
+                });
+
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Invite", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("EventID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FriendId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Invite");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.Otp", b =>
