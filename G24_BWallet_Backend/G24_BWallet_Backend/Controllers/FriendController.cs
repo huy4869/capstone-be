@@ -30,6 +30,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet]
         public async Task<Respond<IEnumerable<Member>>> GetFriends()
         {
+            int userId = GetUserId();
             var friends = repo.GetFriendsAsync(GetUserId());
             return new Respond<IEnumerable<Member>>()
             {
@@ -37,6 +38,20 @@ namespace G24_BWallet_Backend.Controllers
                 Error = "",
                 Message = "Get friends success",
                 Data = await friends
+            };
+        }
+
+        [HttpPost("add-member")]
+        public async Task<Respond<string>> AddFriendToEvent(EventFriendParam e)
+        {
+            e.UserId = GetUserId();
+            await repo.AddInvite(e);
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Đã mời bạn bè vào event này, chờ họ accept",
+                Data = null
             };
         }
     }

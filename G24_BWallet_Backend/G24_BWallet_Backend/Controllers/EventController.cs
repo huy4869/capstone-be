@@ -32,6 +32,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet]
         public async Task<Respond<IEnumerable<EventHome>>> GetAllEvent()
         {
+            int userId = GetUserId();
             var events = repo.GetAllEventsAsync(GetUserId());
             return new Respond<IEnumerable<EventHome>>()
             {
@@ -41,19 +42,6 @@ namespace G24_BWallet_Backend.Controllers
                 Data = await events
             };
         }
-
-        //[HttpGet("{userID}")]
-        //public async Task<Respond<IEnumerable<EventHome>>> GetAllEvent(int userID)
-        //{
-        //    var events = repo.GetAllEventsAsync(userID);
-        //    return new Respond<IEnumerable<EventHome>>()
-        //    {
-        //        StatusCode = HttpStatusCode.Accepted,
-        //        Error = "",
-        //        Message = "Get event success",
-        //        Data = await events
-        //    };
-        //}
 
         [HttpPost]
         public async Task<Respond<string>> AddEvent( NewEvent newEvent)
@@ -142,22 +130,15 @@ namespace G24_BWallet_Backend.Controllers
         {
             eventUserID.UserId = GetUserId();
             var check = await repo.SendJoinRequest(eventUserID);
-            if(check == false)
-                return new Respond<string>()
-                {
-                    StatusCode = HttpStatusCode.NotAcceptable,
-                    Error = "",
-                    Message = "User đã ở trong event này rồi!",
-                    Data = null
-                };
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "User xin join vào Event thành công. Đang chờ duyệt!",
-                Data = null
+                Message = "",
+                Data = check
             };
         }
+
     }
 
 }

@@ -18,6 +18,7 @@ namespace G24_BWallet_Backend.DBContexts
         public DbSet<PaidDebtList> PaidDebtLists { get; set; }
         public DbSet<PaidDept> PaidDepts { get; set; }
         public DbSet<Request> Requests { get; set; }
+        public DbSet<Invite> Invites { get; set; }
         public MyDBContext(DbContextOptions<MyDBContext> o) : base(o) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -27,6 +28,8 @@ namespace G24_BWallet_Backend.DBContexts
                 .HasKey(eu => new { eu.EventID, eu.UserID });
             modelBuilder.Entity<Friend>()
                .HasKey(f => new { f.UserID, f.UserFriendID });
+            //modelBuilder.Entity<Invite>()
+            //   .HasKey(i => new { i.UserID , i.FriendId});
         }
     }
 }

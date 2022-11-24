@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace G24_BWallet_Backend.Migrations
 {
-    public partial class AddRequest : Migration
+    public partial class CreateInvite : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -66,6 +66,25 @@ namespace G24_BWallet_Backend.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Friend", x => new { x.UserID, x.UserFriendID });
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Invite",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    UserID = table.Column<int>(type: "int", nullable: false),
+                    FriendId = table.Column<int>(type: "int", nullable: false),
+                    EventID = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdateAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Invite", x => x.ID);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -369,6 +388,9 @@ namespace G24_BWallet_Backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "Friend");
+
+            migrationBuilder.DropTable(
+                name: "Invite");
 
             migrationBuilder.DropTable(
                 name: "OtpCode");

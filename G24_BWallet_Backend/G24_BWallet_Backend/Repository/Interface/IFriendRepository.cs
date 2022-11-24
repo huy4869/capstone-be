@@ -8,6 +8,7 @@ namespace G24_BWallet_Backend.Repository.Interface
 {
     public interface IFriendRepository
     {
+        Task AddInvite(EventFriendParam e);
         public Task<IQueryable<Member>> GetFriendsAsync(int userID);
     }
 }

@@ -19,12 +19,34 @@ namespace G24_BWallet_Backend.Repository
             this.context = myDB;
         }
 
+        public async Task AddInvite(EventFriendParam e)
+        {
+            foreach (int friendId in e.MemberIDs)
+            {
+                // kiểm tra xem bạn bè đã ở trong event này chưa, nếu chưa thì mới add vào
+                EventUser eu = await context.EventUsers
+                    .FirstOrDefaultAsync(er=>er.EventID == e.EventId && er.UserID == friendId);
+                if (eu == null)// bạn bè chưa ở trong event-> tạo invite
+                {
+                    Invite invite = new Invite();
+                    invite.UserID = e.UserId;
+                    invite.FriendId = friendId;
+                    invite.EventID = e.EventId;
+                    invite.Status = 0;
+                    invite.CreateAt = DateTime.Now;
+                    invite.UpdateAt = DateTime.Now;
+                    await context.Invites.AddAsync(invite);
+                    await context.SaveChangesAsync();
+                }
+            }
+        }
+
         public async Task<IQueryable<Member>> GetFriendsAsync(int userID)
         {
             var list = from u in context.Users
                        join f in context.Friends
                        on u.ID equals f.UserID
-                       where u.ID == 4
+                       where u.ID == userID
                        select f;
             var list2 = from u in context.Users.Include(u => u.Account)
                         join l in list
