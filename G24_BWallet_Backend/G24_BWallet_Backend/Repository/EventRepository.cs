@@ -235,7 +235,7 @@ namespace G24_BWallet_Backend.Repository
             return eventt.EventLink;
         }
 
-        public async Task<Event> GetEventIntroduce(int eventId)
+        public async Task<Event> GetEventById(int eventId)
         {
             return await context.Events.FirstOrDefaultAsync(e => e.ID == eventId);
         }
@@ -269,6 +269,27 @@ namespace G24_BWallet_Backend.Repository
             await context.Requests.AddAsync(r);
             await context.SaveChangesAsync();
             return "Gửi yêu cầu gia nhập nhóm thành công, đang chờ duyệt";
+        }
+
+        public async Task<List<UserJoinRequestParam>> GetJoinRequest(int eventId)
+        {
+            List<UserJoinRequestParam> request = new List<UserJoinRequestParam>();
+            List<Request> requests = await context.Requests
+                .Include(request => request.User)
+                .Where(request => request.EventID == eventId
+                && request.Status == 3).ToListAsync();
+            foreach (Request item in requests)
+            {
+                UserJoinRequestParam u = new UserJoinRequestParam();
+                u.UserId = item.UserID;
+                u.Avatar = item.User.Avatar;
+                u.UserName = item.User.UserName;
+                Account acc = item.User.Account;
+                u.Phone = acc.PhoneNumber;
+                u.Status = 3;
+                request.Add(u); 
+            }
+            return request;
         }
     }
 }

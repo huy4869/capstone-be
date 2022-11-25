@@ -106,7 +106,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet("EventIntroduce/EventId={eventId}")]
         public async Task<Respond<IDictionary>> ShowEventIntroduce(int eventId)
         {
-            Event e = await repo.GetEventIntroduce(eventId);
+            Event e = await repo.GetEventById(eventId);
             List<UserAvatarName> u = await repo.GetListUserInEvent(eventId);
             IDictionary<string, object> result = new Dictionary<string, object>
             {
@@ -139,6 +139,35 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
+        //show thông tin event khi click vào tiêu đề, tạm thời chưa có phân quyển
+        //[HttpGet("EventDetail/EventId={eventId}")]
+        //public async Task<Respond<IDictionary>> ShowEventDetail(int eventId)
+        //{
+        //    Event e = await repo.GetEventById(eventId);
+        //    List<UserAvatarName> u = await repo.GetListUserInEvent(eventId);
+        //    var listJoinRequest = await repo.GetJoinRequest(eventId);
+        //    var listReceiptPending = await repo.GetReceiptPending(eventId);
+        //    var listPaidDebtPending = await repo.GetPaidDebtPending(eventId);
+        //    IDictionary<string, object> result = new Dictionary<string, object>
+        //    {
+        //        { "EventLogo", e.EventLogo},
+        //        {"EventName", e.EventName },
+        //        {"EventDescript", e.EventDescript },
+        //        {"TotalMembers", u.Count.ToString() },
+        //        {"JoinRequest", listJoinRequest.Count},
+        //        {"ReceiptPending", listReceiptPending.Count},
+        //        {"PaidDebtPending", listPaidDebtPending.Count}
+        //    };
+        //    return new Respond<IDictionary>()
+        //    {
+        //        StatusCode = HttpStatusCode.Accepted,
+        //        Error = "",
+        //        Message = "Lấy thông tin chi tiết trong event",
+        //        Data = (IDictionary)result
+        //    };
+        //}
+
+       
     }
 
 }
