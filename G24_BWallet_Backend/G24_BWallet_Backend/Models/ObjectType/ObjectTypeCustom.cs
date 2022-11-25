@@ -51,6 +51,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string PaidImage { get; set; }
         public double TotalMoney { get; set; }
         public List<RenamePaidDebtList> ListEachPaidDebt { get; set; }
+        public List<string> IMGLinks { get; set; }
     }
 
     public class RenamePaidDebtList

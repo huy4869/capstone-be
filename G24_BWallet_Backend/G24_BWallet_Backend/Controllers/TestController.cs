@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -135,7 +136,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost("testimg")]
         public async Task<string> TestIMG([FromForm] IFormFile imgFile, [FromForm] Receipt receipt)
         {
-            string AWSS3AccessKeyId = _configuration["AWSS3:AccessKeyId"];
+            /*string AWSS3AccessKeyId = _configuration["AWSS3:AccessKeyId"];
             string AWSS3SecretAccessKey = _configuration["AWSS3:SecretAccessKey"];
             using (var client = new AmazonS3Client(AWSS3AccessKeyId, AWSS3SecretAccessKey, RegionEndpoint.APSoutheast1))
             {
@@ -153,10 +154,16 @@ namespace G24_BWallet_Backend.Controllers
                     var fileTransferUtility = new TransferUtility(client);
                     await fileTransferUtility.UploadAsync(uploadRequest);
                 }
-            }
-            return "receipt name: " +receipt.ReceiptName+"//"+receipt.User.UserName+" is who make it";
+            }*/
+            return "receipt name: " + receipt.ReceiptName + "//" + receipt.User.UserName + " is who make it";
         }
 
-
+        [HttpPost("testTimeZone")]
+        public async Task<Object> TestTimeZone()//SE Asia Standard Time
+        {
+            //var list = TimeZoneInfo.GetSystemTimeZones();
+            var VietNamTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            return new { VietNamTime };
+        }
     }
 }

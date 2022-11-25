@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using System.Collections;
+using Twilio.TwiML.Fax;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 
@@ -14,14 +15,16 @@ namespace G24_BWallet_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class PaidDebtController : ControllerBase
     {
-        private readonly IPaidDebtRepository repo;
+        private readonly IPaidDebtRepository paidDeptRepo;
+        private readonly IImageRepository imageRepo;
 
-        public PaidDebtController(IPaidDebtRepository repo)
+        public PaidDebtController(IPaidDebtRepository paidDeptRepo, IImageRepository imageRepo)
         {
-            this.repo = repo;
+            this.paidDeptRepo = paidDeptRepo;
+            this.imageRepo = imageRepo;
         }
         protected int GetUserId()
         {
@@ -32,8 +35,8 @@ namespace G24_BWallet_Backend.Controllers
         {
             e.UserId = GetUserId();
             int status = 2;
-            List<Receipt> receipt = await repo.GetReceipts(e.EventId, status);
-            List<UserDebtReturn> userDepts = await repo.GetUserDepts(receipt,e.UserId);
+            List<Receipt> receipt = await paidDeptRepo.GetReceipts(e.EventId, status);
+            List<UserDebtReturn> userDepts = await paidDeptRepo.GetUserDepts(receipt,e.UserId);
             return new Respond<List<UserDebtReturn>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -46,16 +49,29 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost("paidDebt")]
-        public async Task<Respond<string>> PaidDebt(PaidDebtParam p)
+        public async Task<Respond<PaidDept>> CreatePaidDebt(PaidDebtParam paidParam)
         {
-            p.UserId = GetUserId();
-            var paid = await repo.PaidDebtInEvent(p);
-            return new Respond<string>()
+            if (!paidParam.IMGLinks.Any())
+            {
+                return new Respond<PaidDept>()
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Error = "những khoảng trả không có ảnh chứng minh",
+                    Message = "",
+                    Data = null
+                };
+            }
+
+            var paid = await paidDeptRepo.PaidDebtInEvent(paidParam);
+
+            await imageRepo.AddIMGLinksDB("paidDept", paid.Id, paidParam.IMGLinks);
+
+            return new Respond<PaidDept>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Danh sách các hoá đơn mình còn nợ trong event này",
-                Data = paid
+                Message = "ghi chú khoảng trả, chờ xác thực",
+                Data = null
             };
 
         }

@@ -121,8 +121,8 @@ namespace G24_BWallet_Backend.Repository
             await context.Accounts.AddAsync(account);
             context.SaveChanges();
             user.UserName = name;
-            user.FBlink = fb;
-            user.BankInfo = bank;
+            /*user.FBlink = fb;
+            user.BankInfo = bank;*///Long: ê t tạm bỏ 2 cái này trong database do thiết kế lại không cần nữa
             user.AccountID = account.ID;
             await context.Users.AddAsync(user);
             context.SaveChanges();

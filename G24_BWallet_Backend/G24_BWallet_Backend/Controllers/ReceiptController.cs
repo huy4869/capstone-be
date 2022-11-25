@@ -29,15 +29,14 @@ namespace G24_BWallet_Backend.Controllers
         private readonly IReceiptRepository receiptRepo;
         private readonly IUserDeptRepository userDeptRepo;
         private readonly IEventUserRepository eventUserRepo;
-        private readonly IEventRepository eventRepo;
-        private readonly IConfiguration _configuration;
+        private readonly IImageRepository imageRepo;
 
-        public ReceiptController(IReceiptRepository InitReceiptRepo, IUserDeptRepository InitUserDeptRepo, IEventUserRepository InitEventUserRepo, IEventRepository InitEventRepo)
+        public ReceiptController(IReceiptRepository InitReceiptRepo, IUserDeptRepository InitUserDeptRepo, IEventUserRepository InitEventUserRepo, IImageRepository InitImageRepo)
         {
             receiptRepo = InitReceiptRepo;
             userDeptRepo = InitUserDeptRepo;
             eventUserRepo = InitEventUserRepo;
-            eventRepo = InitEventRepo;
+            imageRepo = InitImageRepo;
         }
 
         [HttpGet]
@@ -68,12 +67,12 @@ namespace G24_BWallet_Backend.Controllers
 
 
         [HttpGet("{receiptId}")]
-        public async Task<Respond<Receipt>> GetReceipt(int receiptId)
+        public async Task<Respond<ReceiptDetail>> GetReceipt(int receiptId)
         {
             var r = receiptRepo.GetReceiptByIDAsync(receiptId);
 
             if (r == null){
-                return new Respond<Receipt>()
+                return new Respond<ReceiptDetail>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
                     Error = "không tìm thấy hóa đơn",
@@ -81,7 +80,7 @@ namespace G24_BWallet_Backend.Controllers
                     Data = await r
                 };
             } else {
-                return new Respond<Receipt>()
+                return new Respond<ReceiptDetail>()
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
@@ -108,8 +107,18 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<Respond<Receipt>> PostCreateReceipt([FromForm] Receipt receipt, [FromForm] IFormFile imgFile = null)
+        public async Task<Respond<Receipt>> PostCreateReceipt([FromBody] ReceiptCreateParam receipt)
         {
+            if (!receipt.IMGLinks.Any())
+            {
+                return new Respond<Receipt>()
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Error = "hóa đơn không có ảnh chứng minh",
+                    Message = "",
+                    Data = null
+                };
+            } 
             if (receipt.ReceiptAmount != receipt.UserDepts.Sum(ud => ud.Debt))
             {
                 return new Respond<Receipt>()
@@ -121,8 +130,11 @@ namespace G24_BWallet_Backend.Controllers
                 };
             }
 
-            var createReceiptTask = receiptRepo.AddReceiptAsync(receipt,imgFile);
+            var createReceiptTask = receiptRepo.AddReceiptAsync(receipt);
+
             Receipt createdReceipt = await createReceiptTask;
+
+            await imageRepo.AddIMGLinksDB("receipt", createdReceipt.Id, receipt.IMGLinks);
 
             foreach (UserDept ud in receipt.UserDepts)
             {
@@ -130,6 +142,7 @@ namespace G24_BWallet_Backend.Controllers
             }
 
             createdReceipt.UserDepts = null;
+            
             return new Respond<Receipt>()
             {
                 StatusCode = HttpStatusCode.Accepted,

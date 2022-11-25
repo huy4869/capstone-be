@@ -8,10 +8,10 @@ namespace G24_BWallet_Backend.Repository.Interface
 {
     public interface IReceiptRepository
     {
-        Task<Receipt> GetReceiptByIDAsync(int ReceiptID);
+        Task<ReceiptDetail> GetReceiptByIDAsync(int ReceiptID);
 
         Task<EventReceiptsInfo> GetEventReceiptsInfoAsync(int EventID);
 
-        Task<Receipt> AddReceiptAsync(Receipt addReceipt, IFormFile imgFile);
+        Task<Receipt> AddReceiptAsync(ReceiptCreateParam addReceipt);
     }
 }

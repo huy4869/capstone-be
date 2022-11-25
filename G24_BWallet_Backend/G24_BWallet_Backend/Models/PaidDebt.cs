@@ -14,7 +14,6 @@ namespace G24_BWallet_Backend.Models
         public int UserId { get; set; }
         [ForeignKey("Event")]
         public int EventId { get; set; }
-        public string PaidProof { get; set; }
         public double TotalMoney { get; set; }
         public int Status { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -22,6 +21,5 @@ namespace G24_BWallet_Backend.Models
 
         public virtual User User { get; set; }
         public virtual Event Event { get; set; }
-
     }
 }

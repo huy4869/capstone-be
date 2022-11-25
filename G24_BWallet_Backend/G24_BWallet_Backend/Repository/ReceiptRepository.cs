@@ -30,7 +30,7 @@ namespace G24_BWallet_Backend.Repository
 
         }
 
-        public async Task<Receipt> AddReceiptAsync(Receipt addReceipt, IFormFile imgFile)//
+        public async Task<Receipt> AddReceiptAsync(ReceiptCreateParam addReceipt)//
         {
             Receipt storeReceipt = new Receipt();
             storeReceipt.EventID = addReceipt.EventID;
@@ -38,55 +38,53 @@ namespace G24_BWallet_Backend.Repository
             storeReceipt.ReceiptName = addReceipt.ReceiptName;
             storeReceipt.ReceiptAmount = addReceipt.ReceiptAmount;
             storeReceipt.ReceiptStatus = 2;
-            storeReceipt.CreatedAt = DateTime.Now;
-            storeReceipt.UpdatedAt = DateTime.Now;
+
+            DateTime VNDateTimeNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            storeReceipt.CreatedAt = VNDateTimeNow;
+            storeReceipt.UpdatedAt = VNDateTimeNow;
 
             await myDB.Receipts.AddAsync(storeReceipt);
-            await myDB.SaveChangesAsync();
-
-            //lưu ảnh với để ID của receipt đầu ảnh để  tránh ghi đè file trên s3 
-            if (imgFile == null || 
-                (!string.Equals(imgFile.ContentType, "image/jpg", StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(imgFile.ContentType, "image/jpeg", StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(imgFile.ContentType, "image/gif", StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(imgFile.ContentType, "image/png", StringComparison.OrdinalIgnoreCase)))
-            {
-                return storeReceipt;
-            }
-
-            string AWSS3AccessKeyId = _configuration["AWSS3:AccessKeyId"];
-            string AWSS3SecretAccessKey = _configuration["AWSS3:SecretAccessKey"];
-            string fileName = storeReceipt.Id + imgFile.FileName;
-
-            using (var client = new AmazonS3Client(AWSS3AccessKeyId, AWSS3SecretAccessKey, RegionEndpoint.APSoutheast1))
-            {
-                using (var newMemoryStream = new MemoryStream())
-                {
-                    imgFile.CopyTo(newMemoryStream);
-                    var uploadRequest = new TransferUtilityUploadRequest
-                    {
-                        InputStream = newMemoryStream,
-                        Key = fileName,
-                        BucketName = "bwallets3bucket/receipts"
-                    };
-                    var fileTransferUtility = new TransferUtility(client);
-                    await fileTransferUtility.UploadAsync(uploadRequest);
-                }
-            }
-
-            storeReceipt.ReceiptPicture = _configuration["AWSS3:ReceiptsImgLink"] + fileName.Replace("+", "%2B").Replace(' ', '+');//aws link file nó thay dấu cách bằng dấu + và + thì thành %2B
-            myDB.Receipts.Update(storeReceipt);
             await myDB.SaveChangesAsync();
 
             return storeReceipt;
         }
 
-        public async Task<Receipt> GetReceiptByIDAsync (int ReceiptID)
+        public async Task<ReceiptDetail> GetReceiptByIDAsync (int ReceiptID)
         {
-            var r = myDB.Receipts.Where(r => r.Id == ReceiptID).FirstAsync();//.Include(r => r.UserDepts).FirstOrDefault();
-            //var listUD = myDB.UserDepts.Where(ud => ud.ReceiptId == ReceiptID).ToListAsync();
-            //r.UserDepts = await listUD;
-            return await r;
+
+            ReceiptDetail r = myDB.Receipts.Where(r => r.Id == ReceiptID).Include(r => r.User)
+                .Select( r => new ReceiptDetail
+                {
+                    Id = r.Id,
+                    OwnerId = r.UserID,
+                    OwnerName = r.User.UserName,//tên chủ nợ
+                    ReceiptName = r.ReceiptName,
+                    ReceiptStatus = r.ReceiptStatus,
+                    ReceiptAmount = r.ReceiptAmount,
+                    CreatedAt = r.CreatedAt
+                }).FirstOrDefault();
+
+            //lấy ảnh receipt 
+            var listIMG = myDB.ProofImages
+                .Where(pf => pf.ImageType == "receipt")
+                .Where(pf => pf.ModelId == ReceiptID)
+                .Select(pf => pf.ImageLink)
+                .ToList();
+
+            //lấy list UserDept
+            var listUDept = myDB.UserDepts.Where(ud => ud.ReceiptId == ReceiptID).Include(r => r.User)
+                .Select(ud => new ReceiptDetailDept
+                {
+                    DeptId = ud.Id,
+                    UserId = ud.UserId,
+                    UserName = ud.User.UserName,//tên người nợ 
+                    Avatar = ud.User.Avatar,
+                    DebtLeft = ud.DebtLeft
+                }).ToListAsync();
+
+            r.IMGLinks = listIMG;
+            r.ListUserDepts = await listUDept;
+            return r;
         }
 
         public async Task<EventReceiptsInfo> GetEventReceiptsInfoAsync(int EventID)
