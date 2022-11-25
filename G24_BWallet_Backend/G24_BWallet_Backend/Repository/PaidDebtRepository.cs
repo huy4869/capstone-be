@@ -47,22 +47,22 @@ namespace G24_BWallet_Backend.Repository
             return await Task.FromResult(userDepts);
         }
 
-        public async Task<string> PaidDebtInEvent(PaidDebtParam p)
+        public async Task<PaidDept> PaidDebtInEvent(PaidDebtParam p)//create paid dept
         {
+            DateTime VNDateTimeNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            PaidDept paidDept = new PaidDept
+            {
+                UserId = p.UserId,
+                EventId = p.EventId,
+                TotalMoney = p.TotalMoney,
+                Status = 1,
+                UpdatedAt = VNDateTimeNow,
+                CreatedAt = VNDateTimeNow
+            };
             try
             {
-                PaidDept paidDept = new PaidDept
-                {
-                    UserId = p.UserId,
-                    EventId = p.EventId,
-                    PaidProof = p.PaidImage,
-                    TotalMoney = p.TotalMoney,
-                    Status = 1,
-                    UpdatedAt = System.DateTime.Now,
-                    CreatedAt = System.DateTime.Now
-                };
                 await context.PaidDepts.AddAsync(paidDept);
-                await context.SaveChangesAsync();
+
                 foreach (var item in p.ListEachPaidDebt)
                 {
                     PaidDebtList paid = new PaidDebtList
@@ -72,16 +72,15 @@ namespace G24_BWallet_Backend.Repository
                         PaidAmount = item.debtLeft
                     };
                     await context.PaidDebtLists.AddAsync(paid);
-                    await context.SaveChangesAsync();
                     await ChangeDebtLeft(item);
                 }
+                await context.SaveChangesAsync();
             }
             catch (Exception e)
             {
-
-                return e.ToString();
+                throw new Exception("PaidDept:Lỗi ghi tiền trả");
             }
-            return "Đã cập nhật các khoản nợ và trạng thái";
+            return paidDept;
         }
 
         private async Task ChangeDebtLeft(RenamePaidDebtList item)

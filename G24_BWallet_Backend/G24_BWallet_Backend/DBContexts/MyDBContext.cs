@@ -17,6 +17,7 @@ namespace G24_BWallet_Backend.DBContexts
         public DbSet<UserDept> UserDepts { get; set; }
         public DbSet<PaidDebtList> PaidDebtLists { get; set; }
         public DbSet<PaidDept> PaidDepts { get; set; }
+        public DbSet<ProofImage> ProofImages { get; set; }
         public DbSet<Request> Requests { get; set; }
         public DbSet<Invite> Invites { get; set; }
         public MyDBContext(DbContextOptions<MyDBContext> o) : base(o) { }

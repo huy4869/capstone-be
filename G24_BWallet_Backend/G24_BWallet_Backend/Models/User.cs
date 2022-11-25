@@ -14,8 +14,7 @@ namespace G24_BWallet_Backend.Models
         public int ID { get; set; }
         public string UserName { get; set; }
         public string Avatar { get; set; }
-        public string FBlink { get; set; }
-        public string BankInfo { get; set; }
+
         [ForeignKey("Account")]
         public int AccountID { get; set; }
         public virtual Account? Account { get; set; }
