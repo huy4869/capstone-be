@@ -134,4 +134,36 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public int UserId { get; set; }
         public List<int> MemberIDs { get; set; }
     }
+
+    public class UserJoinRequestParam
+    {
+        public int UserId { get; set; }
+        public string Avatar { get; set; }
+        public string UserName { get; set; }
+        public string Phone { get; set; }
+        public int Status { get; set; }
+
+    }
+
+    public class IdAvatarNameRole
+    {
+        public int UserId { get; set; }
+        public string Avatar { get; set; }
+        public string Name { get; set; }
+        public int Role { get; set; }
+    }
+    public class IdAvatarNamePhone
+    {
+        public int UserId { get; set; }
+        public string Avatar { get; set; }
+        public string Name { get; set; }
+        public string Phone { get; set; }
+    }
+    public class MemberDetailParam
+    {
+        public string EventName { get; set; }
+        public IdAvatarNameRole Inspector { get; set; }
+        public IdAvatarNameRole Cashier { get; set; }
+        public List<IdAvatarNamePhone> Members { get; set; }
+    }
 }
