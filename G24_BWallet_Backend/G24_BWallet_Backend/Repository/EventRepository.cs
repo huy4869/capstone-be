@@ -287,9 +287,19 @@ namespace G24_BWallet_Backend.Repository
                 Account acc = item.User.Account;
                 u.Phone = acc.PhoneNumber;
                 u.Status = 3;
-                request.Add(u); 
+                request.Add(u);
             }
             return request;
+        }
+
+        public async Task UpdateEventInformation(EventIdNameDes e)
+        {
+            Event eventt = await GetEventById(e.EventId);
+            if (e.EventName.Trim().Length != 0)
+                eventt.EventName = e.EventName.Trim();
+            if (e.EventDescript.Trim().Length != 0)
+                eventt.EventDescript = e.EventDescript.Trim();
+            await context.SaveChangesAsync();
         }
     }
 }

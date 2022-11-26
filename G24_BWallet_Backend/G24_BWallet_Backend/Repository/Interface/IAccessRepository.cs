@@ -1,4 +1,5 @@
 ﻿using G24_BWallet_Backend.Models;
+using G24_BWallet_Backend.Models.ObjectType;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -21,5 +22,6 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<User> GetUserAsync(Account account);
         Task<List<User>> GetAllUserAsync();
         Task<bool> CheckPhoneFormat(string phone);
+        Task UpdateUserProfile(UserAvatarName avatarName, int userId);
     }
 }

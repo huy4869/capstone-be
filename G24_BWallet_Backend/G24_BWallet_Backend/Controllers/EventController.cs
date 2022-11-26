@@ -167,7 +167,19 @@ namespace G24_BWallet_Backend.Controllers
         //    };
         //}
 
-       
+        [HttpPost("edit-event")]
+        public async Task<Respond<string>> EditEventInformation(EventIdNameDes e)
+        {
+            await repo.UpdateEventInformation(e);
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Chỉnh sửa thông tin event thành công",
+                Data = null
+            };
+        }
+
     }
 
 }

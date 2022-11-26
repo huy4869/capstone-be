@@ -167,4 +167,11 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public IdAvatarNameRole Cashier { get; set; }
         public List<IdAvatarNamePhone> Members { get; set; }
     }
+
+    public class EventIdNameDes
+    {
+        public int EventId { get; set; }
+        public string EventName { get; set; }
+        public string EventDescript { get; set; }
+    }
 }
