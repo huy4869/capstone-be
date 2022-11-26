@@ -22,7 +22,9 @@ namespace G24_BWallet_Backend.Repository
         public async Task<List<Receipt>> GetReceipts(int eventId, int status)
         {
             var list = context.Receipts.Include(r => r.UserDepts).Include(r => r.User)
-                .Where(r => r.EventID == eventId && r.ReceiptStatus == status).ToListAsync();
+                .Where(r => r.EventID == eventId && r.ReceiptStatus == status)
+                .OrderByDescending(r => r.Id)
+                .ToListAsync();
             return await list;
         }
 
@@ -44,6 +46,7 @@ namespace G24_BWallet_Backend.Repository
                 }
 
             }
+            userDepts.Reverse();
             return await Task.FromResult(userDepts);
         }
 
