@@ -1,5 +1,6 @@
 ﻿using G24_BWallet_Backend.DBContexts;
 using G24_BWallet_Backend.Models;
+using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -69,7 +70,7 @@ namespace G24_BWallet_Backend.Repository
 
         public async Task<bool> CheckOTPAsync(string phone, string enter)
         {
-            var otp = await context.Otps.OrderBy(o=>o.OtpID)
+            var otp = await context.Otps.OrderBy(o => o.OtpID)
                 .LastOrDefaultAsync(o => o.Phone.Equals(phone.Trim()));
             return await Task.FromResult((otp.OtpCode.Trim().Equals(enter.Trim())));
         }
@@ -214,6 +215,16 @@ namespace G24_BWallet_Backend.Repository
         {
             var regex = new Regex("^\\+84[0-9]{9,10}$");
             return Task.FromResult(regex.IsMatch(phone.Trim()));
+        }
+
+        public async Task UpdateUserProfile(UserAvatarName avatarName, int userId)
+        {
+            User user = await context.Users.FirstOrDefaultAsync(u => u.ID == userId);
+            if (avatarName.Avatar.Trim().Length != 0)
+                user.Avatar = avatarName.Avatar.Trim();
+            if (avatarName.Name.Trim().Length != 0)
+                user.UserName = avatarName.Name.Trim();
+            await context.SaveChangesAsync();
         }
     }
 }

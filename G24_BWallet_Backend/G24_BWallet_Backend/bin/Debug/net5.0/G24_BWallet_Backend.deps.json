@@ -33,6 +33,7 @@
     ".NETCoreApp,Version=v5.0": {
       "G24_BWallet_Backend/1.0.0": {
         "dependencies": {
+          "AWSSDK.S3": "3.7.101.21",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "5.0.10",
           "Microsoft.EntityFrameworkCore": "5.0.10",
           "Microsoft.EntityFrameworkCore.Analyzers": "5.0.10",
@@ -327,6 +328,31 @@
         },
         "compile": {
           "G24_BWallet_Backend.dll": {}
+        }
+      },
+      "AWSSDK.Core/3.7.100.21": {
+        "runtime": {
+          "lib/netcoreapp3.1/AWSSDK.Core.dll": {
+            "assemblyVersion": "3.3.0.0",
+            "fileVersion": "3.7.100.21"
+          }
+        },
+        "compile": {
+          "lib/netcoreapp3.1/AWSSDK.Core.dll": {}
+        }
+      },
+      "AWSSDK.S3/3.7.101.21": {
+        "dependencies": {
+          "AWSSDK.Core": "3.7.100.21"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/AWSSDK.S3.dll": {
+            "assemblyVersion": "3.3.0.0",
+            "fileVersion": "3.7.101.21"
+          }
+        },
+        "compile": {
+          "lib/netcoreapp3.1/AWSSDK.S3.dll": {}
         }
       },
       "Humanizer.Core/2.8.26": {
@@ -2466,6 +2492,20 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "AWSSDK.Core/3.7.100.21": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-yU8kCoEHA39yqFrxqlkEKANHW5Bp3n4CaAwVmZNcq+pyl9o2lK33s3N+7gpns+jvn7BRF6C8EJ4c6sqlGg9h7Q==",
+      "path": "awssdk.core/3.7.100.21",
+      "hashPath": "awssdk.core.3.7.100.21.nupkg.sha512"
+    },
+    "AWSSDK.S3/3.7.101.21": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-mpm5rRg3HvzlgIhTocX3eJktySPh7/dpsau3x9mtl55jNj6HEhJqHs4ZKxhvnrSKDGZrwjx6ADHzlMkPKud0lw==",
+      "path": "awssdk.s3/3.7.101.21",
+      "hashPath": "awssdk.s3.3.7.101.21.nupkg.sha512"
     },
     "Humanizer.Core/2.8.26": {
       "type": "package",
