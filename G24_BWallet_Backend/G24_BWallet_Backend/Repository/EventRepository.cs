@@ -71,7 +71,9 @@ namespace G24_BWallet_Backend.Repository
             // lấy tất cả các event mà mình tham gia
             var listEvent = await context.EventUsers
                 .Where(eu => eu.UserID == userID)
-                .Select(eu => eu.Event).ToListAsync();
+                .Select(eu => eu.Event)
+                .OrderByDescending(eu => eu.ID)
+                .ToListAsync();
             foreach (var eventt in listEvent)
             {
                 EventHome eh = new EventHome();
