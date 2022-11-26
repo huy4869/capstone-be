@@ -124,3 +124,5 @@ C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Back
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.csproj.CopyComplete
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\G24_BWallet_Backend.genruntimeconfig.cache
 C:\Users\lelon\Desktop\capstone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\obj\Debug\net5.0\ref\G24_BWallet_Backend.dll
+D:\GIT clone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\AWSSDK.Core.dll
+D:\GIT clone\capstone-be\G24_BWallet_Backend\G24_BWallet_Backend\bin\Debug\net5.0\AWSSDK.S3.dll
