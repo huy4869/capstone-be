@@ -174,4 +174,11 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string EventName { get; set; }
         public string EventDescript { get; set; }
     }
+
+    public class EventUserIDRole
+    {
+        public int EventId { get; set; }
+        public int UserId { get; set; }
+        public int Role { get; set; }
+    }
 }

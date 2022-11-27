@@ -8,5 +8,9 @@ namespace G24_BWallet_Backend.Repository.Interface
     {
         Task<MemberDetailParam> ShowMemeberDetail(int eventId);
         Task<Event> GetEvent(int eventId);
+        Task PromoteMemberRole(EventUserIDRole e);
+        Task DeletePromoteMemberRole(EventUserID e);
+        Task<bool> IsOwner(int eventId, int v);
+        Task RemoveMember(EventUserID e);
     }
 }
