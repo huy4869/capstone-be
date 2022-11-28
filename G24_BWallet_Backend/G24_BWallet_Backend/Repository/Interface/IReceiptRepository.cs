@@ -13,5 +13,7 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<EventReceiptsInfo> GetEventReceiptsInfoAsync(int EventID);
 
         Task<Receipt> AddReceiptAsync(ReceiptCreateParam addReceipt);
+        Task<ReceiptUserDeptName> GetReceiptDetail(int receiptId);
+        Task<List<ReceiptSentParam>> ReceiptsSent(int userId, int eventId);
     }
 }

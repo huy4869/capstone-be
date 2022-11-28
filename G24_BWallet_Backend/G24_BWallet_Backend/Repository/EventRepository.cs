@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Twilio.TwiML.Fax;
 
 namespace G24_BWallet_Backend.Repository
 {
@@ -306,5 +307,10 @@ namespace G24_BWallet_Backend.Repository
                 eventt.EventDescript = e.EventDescript.Trim();
             await context.SaveChangesAsync();
         }
+
+     
+
+    
+
     }
 }

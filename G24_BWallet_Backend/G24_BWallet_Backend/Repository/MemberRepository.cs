@@ -46,6 +46,24 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(e => e.ID == eventId);
         }
 
+        public async Task<bool> IsCashier(int eventId, int userId)
+        {
+            EventUser eu = await context.EventUsers
+                .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserID == userId);
+            if (eu.UserRole == 3) return true;
+            else if (eu.UserRole == 1) return true;
+            return false;
+        }
+
+        public async Task<bool> IsInspector(int eventId, int userId)
+        {
+            EventUser eu = await context.EventUsers
+                .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserID == userId);
+            if (eu.UserRole == 2) return true;
+            else if (eu.UserRole == 1) return true;
+            return false;
+        }
+
         public async Task<bool> IsOwner(int eventId, int userId)
         {
             EventUser eu = await context.EventUsers

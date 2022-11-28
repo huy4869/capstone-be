@@ -3,6 +3,7 @@ using G24_BWallet_Backend.Models;
 using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository;
 using G24_BWallet_Backend.Repository.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +24,7 @@ using Twilio.TwiML.Voice;
 namespace G24_BWallet_Backend.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
 
     public class ReceiptController : ControllerBase
@@ -38,6 +40,10 @@ namespace G24_BWallet_Backend.Controllers
             userDeptRepo = InitUserDeptRepo;
             eventUserRepo = InitEventUserRepo;
             imageRepo = InitImageRepo;
+        }
+        protected int GetUserId()
+        {
+            return int.Parse(this.User.Claims.First(i => i.Type == "UserId").Value);
         }
 
         [HttpGet]
@@ -153,16 +159,33 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
-        // PUT api/<ReceiptController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+
+        [HttpGet("receipt-detail/ReceiptId={receiptId}")]
+        public async Task<Respond<ReceiptUserDeptName>> ReceiptDetail(int receiptId)
         {
+            ReceiptUserDeptName list = await receiptRepo.GetReceiptDetail(receiptId);
+            return new Respond<ReceiptUserDeptName>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Thông tin chi tiết về hoá đơn này",
+                Data = list
+            };
+
         }
 
-        // DELETE api/<ReceiptController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpGet("receipt-sent/EventId={eventId}")]
+        public async Task<Respond<List<ReceiptSentParam>>> ReceiptSent(int eventId)
         {
+            List<ReceiptSentParam> list = await receiptRepo.ReceiptsSent(GetUserId(),eventId);
+            return new Respond<List<ReceiptSentParam>>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Các hoá đơn mình đã tạo trong event này",
+                Data = list
+            };
+
         }
     }
 }

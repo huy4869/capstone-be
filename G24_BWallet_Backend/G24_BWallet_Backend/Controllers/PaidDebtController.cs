@@ -10,6 +10,7 @@ using System.Collections;
 using Twilio.TwiML.Fax;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
+using System;
 
 namespace G24_BWallet_Backend.Controllers
 {
@@ -36,7 +37,7 @@ namespace G24_BWallet_Backend.Controllers
             e.UserId = GetUserId();
             int status = 2;
             List<Receipt> receipt = await paidDeptRepo.GetReceipts(e.EventId, status);
-            List<UserDebtReturn> userDepts = await paidDeptRepo.GetUserDepts(receipt,e.UserId);
+            List<UserDebtReturn> userDepts = await paidDeptRepo.GetUserDepts(receipt, e.UserId);
             return new Respond<List<UserDebtReturn>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -51,6 +52,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost("paidDebt")]
         public async Task<Respond<PaidDept>> CreatePaidDebt(PaidDebtParam paidParam)
         {
+            paidParam.UserId = GetUserId();
             if (!paidParam.IMGLinks.Any())
             {
                 return new Respond<PaidDept>()
@@ -76,5 +78,36 @@ namespace G24_BWallet_Backend.Controllers
 
         }
 
+        [HttpGet("paid-code")]
+        public async Task<Respond<string>> GetCodePaidDebt()
+        {
+            Random random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var code = new string(Enumerable.Repeat(chars, 8)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Mã thanh toán chứng từ thanh toán",
+                Data = "BW_" + code
+            };
+
+        }
+
+        [HttpGet("paid-sent/eventId={eventId}")]
+        public async Task<Respond<List<DebtPaymentPending>>> PaidDebtRequestSent(int eventId)
+        {
+            List<DebtPaymentPending> list = await paidDeptRepo.PaidDebtRequestSent(GetUserId(), eventId);
+            return new Respond<List<DebtPaymentPending>>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Yêu cầu trả tiền đã gửi",
+                Data = list
+            };
+
+        }
     }
 }

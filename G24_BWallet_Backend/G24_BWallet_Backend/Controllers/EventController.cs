@@ -19,10 +19,20 @@ namespace G24_BWallet_Backend.Controllers
     public class EventController : ControllerBase
     {
         private readonly IEventRepository repo;
+        private readonly IMemberRepository repoMember;
+        private readonly IReceiptRepository repoReceipt;
+        private readonly IPaidDebtRepository repoPaidDebt;
 
-        public EventController(IEventRepository eventRepository)
+        public EventController(IEventRepository eventRepository
+            , IMemberRepository memberRepository
+            , IReceiptRepository receiptRepository
+            ,IPaidDebtRepository paidDebtRepository)
+            
         {
             repo = eventRepository;
+            repoMember = memberRepository;
+            repoReceipt = receiptRepository;
+            repoPaidDebt = paidDebtRepository;
         }
         protected int GetUserId()
         {
@@ -44,7 +54,7 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost]
-        public async Task<Respond<string>> AddEvent( NewEvent newEvent)
+        public async Task<Respond<string>> AddEvent(NewEvent newEvent)
         {
             Event e = new Event
             {
@@ -139,33 +149,55 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
-        //show thông tin event khi click vào tiêu đề, tạm thời chưa có phân quyển
-        //[HttpGet("EventDetail/EventId={eventId}")]
-        //public async Task<Respond<IDictionary>> ShowEventDetail(int eventId)
-        //{
-        //    Event e = await repo.GetEventById(eventId);
-        //    List<UserAvatarName> u = await repo.GetListUserInEvent(eventId);
-        //    var listJoinRequest = await repo.GetJoinRequest(eventId);
-        //    var listReceiptPending = await repo.GetReceiptPending(eventId);
-        //    var listPaidDebtPending = await repo.GetPaidDebtPending(eventId);
-        //    IDictionary<string, object> result = new Dictionary<string, object>
-        //    {
-        //        { "EventLogo", e.EventLogo},
-        //        {"EventName", e.EventName },
-        //        {"EventDescript", e.EventDescript },
-        //        {"TotalMembers", u.Count.ToString() },
-        //        {"JoinRequest", listJoinRequest.Count},
-        //        {"ReceiptPending", listReceiptPending.Count},
-        //        {"PaidDebtPending", listPaidDebtPending.Count}
-        //    };
-        //    return new Respond<IDictionary>()
-        //    {
-        //        StatusCode = HttpStatusCode.Accepted,
-        //        Error = "",
-        //        Message = "Lấy thông tin chi tiết trong event",
-        //        Data = (IDictionary)result
-        //    };
-        //}
+        //show thông tin event khi click vào tiêu đề
+        [HttpGet("EventDetail/EventId={eventId}")]
+        public async Task<Respond<IDictionary>> ShowEventDetail(int eventId)
+        {
+            int userId = GetUserId();
+            Event e = await repo.GetEventById(eventId);
+            List<UserAvatarName> u = await repo.GetListUserInEvent(eventId);
+            var listJoinRequest = await repo.GetJoinRequest(eventId);
+            //var listReceiptPending = await repo.GetReceiptPending(eventId);
+            //var listPaidDebtPending = await repo.GetPaidDebtPending(eventId);
+            IDictionary<string, object> result = new Dictionary<string, object>
+            {
+                { "EventLogo", e.EventLogo},
+                {"EventName", e.EventName },
+                {"EventDescript", e.EventDescript },
+                {"TotalMembers", u.Count.ToString() },
+                //{"JoinRequest", listJoinRequest.Count}
+                //{"ReceiptPending", listReceiptPending.Count},
+                //{"PaidDebtPending", listPaidDebtPending.Count}
+            };
+            if (await repoMember.IsOwner(eventId, userId))
+            { // owner
+
+            }
+            else if (await repoMember.IsInspector(eventId, userId))
+            { // inspector
+
+            }
+            else if (await repoMember.IsCashier(eventId, userId))
+            { // cashier
+
+            }
+            else
+            {
+                // normal member
+                var listPaidDebtRequestSent = await repoPaidDebt.PaidDebtRequestSent(GetUserId(),eventId);
+                var listReceiptSent = await repoReceipt.ReceiptsSent(GetUserId(),eventId);
+                result.Add("PaidDebtRequestSent", listPaidDebtRequestSent.Count);
+                result.Add("ReceiptsSent", listReceiptSent.Count);
+                result.Add("Role", 0);
+            }
+            return new Respond<IDictionary>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Lấy thông tin chi tiết trong event",
+                Data = (IDictionary)result
+            };
+        }
 
         [HttpPost("edit-event")]
         public async Task<Respond<string>> EditEventInformation(EventIdNameDes e)

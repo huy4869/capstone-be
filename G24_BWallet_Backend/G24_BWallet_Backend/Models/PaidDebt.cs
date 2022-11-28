@@ -16,6 +16,8 @@ namespace G24_BWallet_Backend.Models
         public int EventId { get; set; }
         public double TotalMoney { get; set; }
         public int Status { get; set; }
+        public string Code { get; set; }
+        public string Type { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
