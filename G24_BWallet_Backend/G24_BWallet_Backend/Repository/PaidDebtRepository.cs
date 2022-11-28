@@ -52,37 +52,43 @@ namespace G24_BWallet_Backend.Repository
 
         public async Task<PaidDept> PaidDebtInEvent(PaidDebtParam p)//create paid dept
         {
-            DateTime VNDateTimeNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            DateTime VNDateTimeNow = TimeZoneInfo
+                .ConvertTime(DateTime.Now,
+                TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             PaidDept paidDept = new PaidDept
             {
                 UserId = p.UserId,
                 EventId = p.EventId,
                 TotalMoney = p.TotalMoney,
                 Status = 1,
+                Code = p.Code,
+                Type = p.Type,
                 UpdatedAt = VNDateTimeNow,
                 CreatedAt = VNDateTimeNow
             };
-            try
+            //try
+            //{
+            await context.PaidDepts.AddAsync(paidDept);
+            await context.SaveChangesAsync();
+            foreach (var item in p.ListEachPaidDebt)
             {
-                await context.PaidDepts.AddAsync(paidDept);
-
-                foreach (var item in p.ListEachPaidDebt)
+                var check = paidDept.Id;
+                PaidDebtList paid = new PaidDebtList
                 {
-                    PaidDebtList paid = new PaidDebtList
-                    {
-                        PaidId = paidDept.Id,
-                        DebtId = item.userDeptId,
-                        PaidAmount = item.debtLeft
-                    };
-                    await context.PaidDebtLists.AddAsync(paid);
-                    await ChangeDebtLeft(item);
-                }
+                    PaidId = paidDept.Id,
+                    DebtId = item.userDeptId,
+                    PaidAmount = item.debtLeft
+                };
+                await context.PaidDebtLists.AddAsync(paid);
                 await context.SaveChangesAsync();
+                await ChangeDebtLeft(item);
             }
-            catch (Exception e)
-            {
-                throw new Exception("PaidDept:Lỗi ghi tiền trả");
-            }
+           
+            //}
+            //catch (Exception e)
+            //{
+            //    throw new Exception("PaidDept:Lỗi ghi tiền trả");
+            //}
             return paidDept;
         }
 
@@ -100,6 +106,42 @@ namespace G24_BWallet_Backend.Repository
                 userDebt.DeptStatus = 0;
             }
             await context.SaveChangesAsync();
+        }
+        public async Task<List<DebtPaymentPending>> PaidDebtRequestSent(int userId, int eventId)
+        {
+            List<DebtPaymentPending> result = new List<DebtPaymentPending>();
+            List<PaidDept> paidDepts = await context.PaidDepts
+                .Where(p => p.EventId == eventId && p.UserId == userId).ToListAsync();
+            foreach (PaidDept item in paidDepts)
+            {
+                DebtPaymentPending debtPayment = new DebtPaymentPending();
+                debtPayment.TotalMoney = item.TotalMoney;
+                debtPayment.Date = item.CreatedAt.ToString();
+                debtPayment.Code = item.Code;
+                debtPayment.ImageLink = await context.ProofImages
+                    .Where(p => p.ImageType.Equals("paidDept") && p.ModelId == item.Id)
+                    .Select(p => p.ImageLink).FirstOrDefaultAsync();
+                debtPayment.Type = item.Type;
+                debtPayment.Status = item.Status;
+                User cashier = await GetCashier(eventId);
+                debtPayment.cashier = new UserAvatarName
+                { Avatar = cashier.Avatar, Name = cashier.UserName };
+                result.Add(debtPayment);
+            }
+            return result;
+        }
+
+        private async Task<User> GetCashier(int eventId)
+        {
+            EventUser cashier = await context.EventUsers.Include(e => e.User)
+                .FirstOrDefaultAsync(u => u.EventID == eventId && u.UserRole == 3);
+            EventUser owner = await context.EventUsers.Include(e => e.User)
+                .FirstOrDefaultAsync(u => u.EventID == eventId && u.UserRole == 1);
+            EventUser inspector = await context.EventUsers.Include(e => e.User)
+                .FirstOrDefaultAsync(u => u.EventID == eventId && u.UserRole == 2);
+            if (cashier != null) return cashier.User;
+            else if (owner != null) return owner.User;
+            return inspector.User;
         }
     }
 }

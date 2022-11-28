@@ -12,5 +12,7 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task DeletePromoteMemberRole(EventUserID e);
         Task<bool> IsOwner(int eventId, int v);
         Task RemoveMember(EventUserID e);
+        Task<bool> IsInspector(int eventId, int userId);
+        Task<bool> IsCashier(int eventId, int userId);
     }
 }

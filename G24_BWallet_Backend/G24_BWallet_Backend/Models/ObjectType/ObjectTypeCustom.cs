@@ -48,8 +48,9 @@ namespace G24_BWallet_Backend.Models.ObjectType
     {
         public int UserId { get; set; }
         public int EventId { get; set; }
-        public string PaidImage { get; set; }
         public double TotalMoney { get; set; }
+        public string Code { get; set; }
+        public string Type { get; set; }
         public List<RenamePaidDebtList> ListEachPaidDebt { get; set; }
         public List<string> IMGLinks { get; set; }
     }
@@ -180,5 +181,42 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public int EventId { get; set; }
         public int UserId { get; set; }
         public int Role { get; set; }
+    }
+
+    public class ReceiptSentParam
+    {
+        public int ReceiptId { get; set; }
+        public string Date { get; set; }
+        public string ReceiptName { get; set; }
+        public double ReceiptAmount { get; set; }
+        public int ReceiptStatus { get; set; }
+        public List<string> ImageLinks { get; set; }
+    }
+
+    public class UserAvatarNameMoney
+    {
+        public string Avatar { get; set; }
+        public string Name { get; set; }
+        public double TotalAmount { get; set; }
+    }
+
+    public class ReceiptUserDeptName
+    {
+        public string ReceiptName { get; set; }
+        public string Date { get; set; }
+
+        public UserAvatarNameMoney Cashier { get; set; }
+        public List<UserAvatarNameMoney> UserDepts { get; set; }
+
+    }
+    public class DebtPaymentPending
+    {
+        public double TotalMoney { get; set; }
+        public string Date { get; set; }
+        public string Code { get; set; }
+        public UserAvatarName cashier { get; set; }
+        public string ImageLink { get; set; }
+        public string Type { get; set; }
+        public int Status { get; set; }
     }
 }

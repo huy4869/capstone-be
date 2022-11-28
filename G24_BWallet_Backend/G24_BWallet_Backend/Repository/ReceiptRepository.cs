@@ -49,11 +49,11 @@ namespace G24_BWallet_Backend.Repository
             return storeReceipt;
         }
 
-        public async Task<ReceiptDetail> GetReceiptByIDAsync (int ReceiptID)
+        public async Task<ReceiptDetail> GetReceiptByIDAsync(int ReceiptID)
         {
 
             ReceiptDetail r = myDB.Receipts.Where(r => r.Id == ReceiptID).Include(r => r.User)
-                .Select( r => new ReceiptDetail
+                .Select(r => new ReceiptDetail
                 {
                     Id = r.Id,
                     OwnerId = r.UserID,
@@ -91,7 +91,8 @@ namespace G24_BWallet_Backend.Repository
         {
             EventReceiptsInfo eventInfo = myDB.Events
                 .Where(e => e.ID == EventID)
-                .Select(e => new EventReceiptsInfo { 
+                .Select(e => new EventReceiptsInfo
+                {
                     Id = e.ID,
                     EventName = e.EventName,
                     TotalReceiptsAmount = 0
@@ -118,6 +119,68 @@ namespace G24_BWallet_Backend.Repository
             eventInfo.listReceipt = listReceipt;
 
             return eventInfo;
+        }
+
+        public async Task<ReceiptUserDeptName> GetReceiptDetail(int receiptId)
+        {
+            ReceiptUserDeptName result = new ReceiptUserDeptName();
+            Receipt receipt = await myDB.Receipts.Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.Id == receiptId);
+            result.ReceiptName = receipt.ReceiptName;
+            result.Date = receipt.CreatedAt.ToString();
+            User cashier = await GetCashier(receipt.EventID);
+            result.Cashier = new UserAvatarNameMoney
+            {
+                Avatar = receipt.User.Avatar,
+                Name = receipt.User.UserName,
+                TotalAmount = receipt.ReceiptAmount
+            };
+            List<UserAvatarNameMoney> userDepts = new List<UserAvatarNameMoney>();
+            List<UserDept> depts = await myDB.UserDepts.Include(r => r.User)
+                .Where(r => r.ReceiptId == receiptId).ToListAsync();
+            foreach (UserDept item in depts)
+            {
+                UserAvatarNameMoney user = new UserAvatarNameMoney();
+                user.Avatar = item.User.Avatar;
+                user.Name = item.User.UserName;
+                user.TotalAmount = item.Debt;
+                userDepts.Add(user);
+            }
+            result.UserDepts = userDepts;
+            return result;
+        }
+
+        public async Task<List<ReceiptSentParam>> ReceiptsSent(int userId, int eventId)
+        {
+            List<ReceiptSentParam> list = new List<ReceiptSentParam>();
+            List<Receipt> receipts = await myDB.Receipts
+                .Where(r => r.EventID == eventId && r.UserID == userId).ToListAsync();
+            foreach (Receipt receipt in receipts)
+            {
+                ReceiptSentParam param = new ReceiptSentParam();
+                param.ReceiptId = receipt.Id;
+                param.Date = receipt.CreatedAt.ToString();
+                param.ReceiptName = receipt.ReceiptName;
+                param.ReceiptAmount = receipt.ReceiptAmount;
+                param.ReceiptStatus = receipt.ReceiptStatus;
+                param.ImageLinks = await myDB.ProofImages
+                    .Where(p => p.ImageType.Equals("receipt") && p.ModelId == receipt.Id)
+                    .Select(p => p.ImageLink).ToListAsync();
+                list.Add(param);
+            }
+            return list;
+        }
+        private async Task<User> GetCashier(int eventId)
+        {
+            EventUser cashier = await myDB.EventUsers.Include(e => e.User)
+                .FirstOrDefaultAsync(u => u.EventID == eventId && u.UserRole == 3);
+            EventUser owner = await myDB.EventUsers.Include(e => e.User)
+                .FirstOrDefaultAsync(u => u.EventID == eventId && u.UserRole == 1);
+            EventUser inspector = await myDB.EventUsers.Include(e => e.User)
+                .FirstOrDefaultAsync(u => u.EventID == eventId && u.UserRole == 2);
+            if (cashier != null) return cashier.User;
+            else if (owner != null) return owner.User;
+            return inspector.User;
         }
     }
 }
