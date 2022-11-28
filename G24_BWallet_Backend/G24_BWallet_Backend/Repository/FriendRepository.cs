@@ -21,6 +21,7 @@ namespace G24_BWallet_Backend.Repository
 
         public async Task AddInvite(EventFriendParam e)
         {
+            DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             foreach (int friendId in e.MemberIDs)
             {
                 // kiểm tra xem bạn bè đã ở trong event này chưa, nếu chưa thì mới add vào
@@ -33,8 +34,8 @@ namespace G24_BWallet_Backend.Repository
                     invite.FriendId = friendId;
                     invite.EventID = e.EventId;
                     invite.Status = 0;
-                    invite.CreateAt = DateTime.Now;
-                    invite.UpdateAt = DateTime.Now;
+                    invite.CreateAt = VNDateTime;
+                    invite.UpdateAt = VNDateTime;
                     await context.Invites.AddAsync(invite);
                     await context.SaveChangesAsync();
                 }

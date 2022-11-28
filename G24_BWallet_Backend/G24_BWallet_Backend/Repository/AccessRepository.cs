@@ -131,10 +131,11 @@ namespace G24_BWallet_Backend.Repository
 
         public async Task SaveOTPAsync(string phone, string otpCode, string jwt)
         {
+            DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             Otp otp = new Otp();
             otp.Phone = phone;
             otp.OtpCode = otpCode;
-            otp.CreatedAt = DateTime.Now;
+            otp.CreatedAt = VNDateTime;
             otp.JWToken = jwt;
             await context.Otps.AddAsync(otp);
             context.SaveChanges();

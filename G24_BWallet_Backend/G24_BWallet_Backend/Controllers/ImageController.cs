@@ -24,7 +24,8 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost("{folder}")]
         public async Task<Respond<string>> saveIMG(string folder, [FromForm] IFormFile imgFile)
         {
-            string fileName = DateTime.Now.ToString("yyyyMMddHHmmss") + imgFile.FileName;
+            DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            string fileName = VNDateTime.ToString("yyyyMMddHHmmss") + imgFile.FileName;
             var imglinks = imageRepo.SaveIMMGFile(folder, imgFile, fileName);
 
             return new Respond<string>()
@@ -39,7 +40,8 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPut("{folder}")]
         public async Task<Respond<string>> UpdateIMG(string folder, [FromForm] IFormFile imgFile)
         {
-            string fileName = DateTime.Now.ToString("yyyyMMddHHmmss") + imgFile.FileName;
+            DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            string fileName = VNDateTime.ToString("yyyyMMddHHmmss") + imgFile.FileName;
             var imglinks = imageRepo.SaveIMMGFile(folder, imgFile, fileName);
 
             return new Respond<string>()

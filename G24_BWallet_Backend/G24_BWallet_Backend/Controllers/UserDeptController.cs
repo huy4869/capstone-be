@@ -12,6 +12,7 @@ namespace G24_BWallet_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class UserDeptController : ControllerBase
     {
         private readonly IEventRepository repo;
@@ -22,7 +23,7 @@ namespace G24_BWallet_Backend.Controllers
         }
         // GET: api/<UserDeptController>
         [HttpGet]
-        public async Task<Respond<IEnumerable<Receipt>>> GetAllUserDepts([FromBody] User user)//NOT DONE
+        public async Task<Respond<IEnumerable<Receipt>>> GetAllUserDepts([FromBody] User user)
         {
             //var events = repo.GetAllEventsAsync(user);
             return new Respond<IEnumerable<Receipt>>()

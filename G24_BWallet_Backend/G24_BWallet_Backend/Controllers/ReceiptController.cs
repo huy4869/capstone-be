@@ -24,6 +24,7 @@ namespace G24_BWallet_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class ReceiptController : ControllerBase
     {
         private readonly IReceiptRepository receiptRepo;
