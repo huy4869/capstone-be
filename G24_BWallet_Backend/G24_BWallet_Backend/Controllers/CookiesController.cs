@@ -22,8 +22,9 @@ namespace G24_BWallet_Backend.Controllers
         {
             try
             {
+                DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
                 CookieOptions cookie = new CookieOptions();
-                cookie.Expires = DateTime.Now.AddDays(1);
+                cookie.Expires = VNDateTime.AddDays(1);
                 Response.Cookies.Append(Key_Account, acc, cookie);
                 Response.Cookies.Append(Key_Password, pass, cookie);
                 return new Respond<bool>()
@@ -79,7 +80,8 @@ namespace G24_BWallet_Backend.Controllers
             try
             {
                 CookieOptions cookie = new CookieOptions();
-                cookie.Expires = DateTime.Now.AddDays(-1);
+                DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+                cookie.Expires = VNDateTime.AddDays(-1);
                 Response.Cookies.Append(Key_Account, null, cookie);
                 Response.Cookies.Append(Key_Password, null, cookie);
                 return new Respond<bool>()

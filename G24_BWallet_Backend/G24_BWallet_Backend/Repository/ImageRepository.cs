@@ -30,10 +30,11 @@ namespace G24_BWallet_Backend.Repository
         public async Task<List<string>> SaveListIMGFile(string folder, IFormFileCollection files)
         {
             string fileName;
+            DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             List<string> list = new List<string>();
             foreach (var file in files)
             {
-                fileName = DateTime.Now.ToString("yyyyMMddHHmmss") + file.FileName;
+                fileName = VNDateTime.ToString("yyyyMMddHHmmss") + file.FileName;
                 list.Add( await SaveIMMGFile(folder, file, fileName) );
             }
             return list;

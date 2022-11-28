@@ -24,9 +24,10 @@ namespace G24_BWallet_Backend.Repository
 
         public async Task<int> AddEventAsync(Event e)
         {
+            DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             e.EventStatus = 1;
-            e.CreatedAt = System.DateTime.Now;
-            e.UpdatedAt = System.DateTime.Now;
+            e.CreatedAt = VNDateTime;
+            e.UpdatedAt = VNDateTime;
             await context.Events.AddAsync(e);
             await context.SaveChangesAsync();
             return e.ID;
@@ -258,12 +259,14 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(e => e.UserID == eventUserID.UserId
                 && e.EventID == eventUserID.EventId);
             if (eu != null) return "Bạn đã ở trong event này rồi";
+
+            DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             Request r = new Request();
             r.UserID = eventUserID.UserId;
             r.EventID = eventUserID.EventId;
             r.Status = 3;
-            r.CreatedAt = DateTime.Now;
-            r.UpdatedAt = DateTime.Now;
+            r.CreatedAt = VNDateTime;
+            r.UpdatedAt = VNDateTime;
             var request = await context.Requests
                 .FirstOrDefaultAsync(request => request.UserID == r.UserID
                 && request.EventID == r.EventID);

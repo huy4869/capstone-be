@@ -15,7 +15,7 @@ namespace G24_BWallet_Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class PaidDebtController : ControllerBase
     {
         private readonly IPaidDebtRepository paidDeptRepo;
