@@ -277,22 +277,22 @@ namespace G24_BWallet_Backend.Repository
             return "Gửi yêu cầu gia nhập nhóm thành công, đang chờ duyệt";
         }
 
-        public async Task<List<UserJoinRequestParam>> GetJoinRequest(int eventId)
+        public async Task<List<UserJoinRequestWaiting>> GetJoinRequest(int eventId)
         {
-            List<UserJoinRequestParam> request = new List<UserJoinRequestParam>();
+            List<UserJoinRequestWaiting> request = new List<UserJoinRequestWaiting>();
             List<Request> requests = await context.Requests
                 .Include(request => request.User)
                 .Where(request => request.EventID == eventId
                 && request.Status == 3).ToListAsync();
             foreach (Request item in requests)
             {
-                UserJoinRequestParam u = new UserJoinRequestParam();
-                u.UserId = item.UserID;
+                UserJoinRequestWaiting u = new UserJoinRequestWaiting();
+                u.RequestId = item.Id;
                 u.Avatar = item.User.Avatar;
                 u.UserName = item.User.UserName;
-                Account acc = item.User.Account;
+                Account acc = await context.Accounts.FirstOrDefaultAsync(acc =>
+                acc.ID == item.User.AccountID);
                 u.Phone = acc.PhoneNumber;
-                u.Status = 3;
                 request.Add(u);
             }
             return request;
@@ -308,9 +308,62 @@ namespace G24_BWallet_Backend.Repository
             await context.SaveChangesAsync();
         }
 
-     
+        public async Task ApproveEventJoinRequest(ListIdStatus list)
+        {
+            foreach (int item in list.ListId)
+            {
+                Request request = await context.Requests.FirstOrDefaultAsync(p => p.Id == item);
+                request.Status = list.Status;
+                await context.SaveChangesAsync();
+                if (list.Status == 4)
+                {
+                    // accept
+                    await AddUserToEvent(request);
+                }
+            }
+        }
 
-    
+        private async Task AddUserToEvent(Request request)
+        {
+            EventUser e = await context.EventUsers
+                .FirstOrDefaultAsync(e => e.EventID == request.EventID && e.UserID == request.UserID);
+            if (e == null)
+            {
+                EventUser eventUser = new EventUser
+                {
+                    UserID = request.UserID,
+                    EventID = request.EventID,
+                    UserRole = 0
+                };
+                await context.EventUsers.AddAsync(eventUser);
+                await context.SaveChangesAsync();
+            }
+        }
 
+        public async Task<List<JoinRequestHistory>> JoinRequestHistory(int eventId)
+        {
+            List<JoinRequestHistory> result = new List<JoinRequestHistory>();
+            List<Request> requests = await context.Requests
+                .Include(request => request.User)
+                .Where(request => request.EventID == eventId).ToListAsync();
+            foreach (Request item in requests)
+            {
+                JoinRequestHistory u = new JoinRequestHistory();
+                u.Date = item.CreatedAt.ToString();
+                u.Avatar = item.User.Avatar;
+                u.UserName = item.User.UserName;
+                Account acc = await context.Accounts.FirstOrDefaultAsync(acc =>
+                acc.ID == item.User.AccountID);
+                u.Phone = acc.PhoneNumber;
+                u.Status = item.Status;
+                result.Add(u);
+            }
+            return result;
+        }
+
+        public Task<List<UserJoinRequestWaiting>> GetJoinRequestWaiting(int eventId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -90,7 +90,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Mã thanh toán chứng từ thanh toán",
+                Message = "Mã chứng từ thanh toán",
                 Data = "BW_" + code
             };
 
@@ -99,13 +99,42 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet("paid-sent/eventId={eventId}")]
         public async Task<Respond<List<DebtPaymentPending>>> PaidDebtRequestSent(int eventId)
         {
-            List<DebtPaymentPending> list = await paidDeptRepo.PaidDebtRequestSent(GetUserId(), eventId);
+            bool isWaiting = false;
+            List<DebtPaymentPending> list = await paidDeptRepo
+                .PaidDebtRequestSent(GetUserId(), eventId, isWaiting);
             return new Respond<List<DebtPaymentPending>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
                 Message = "Yêu cầu trả tiền đã gửi",
                 Data = list
+            };
+        }
+
+        [HttpGet("paidSent-waiting/eventId={eventId}")]
+        public async Task<Respond<List<DebtPaymentPending>>> PaidSentWaiting(int eventId)
+        {
+            bool isWaiting = true;
+            List<DebtPaymentPending> list = await paidDeptRepo.PaidDebtRequestSent(GetUserId(), eventId, isWaiting);
+            return new Respond<List<DebtPaymentPending>>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Yêu cầu trả tiền đã gửi",
+                Data = list
+            };
+        }
+
+        [HttpGet("paid-approve")]
+        public async Task<Respond<string>> PaidDebtApprove(ListIdStatus list)
+        {
+            await paidDeptRepo.PaidDebtApprove(list);
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Đã phê duyệt hoặc từ chối các yêu cầu trả tiền(có thể xem lịch sử)",
+                Data = null
             };
 
         }
