@@ -69,7 +69,7 @@ namespace G24_BWallet_Backend.Controllers
                 Message = "lấy thông tin event và chính từ thành công",
                 Data = eventReceiptsInfo
             };
-                
+
         }
 
 
@@ -78,7 +78,8 @@ namespace G24_BWallet_Backend.Controllers
         {
             var r = receiptRepo.GetReceiptByIDAsync(receiptId);
 
-            if (r == null){
+            if (r == null)
+            {
                 return new Respond<ReceiptDetail>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
@@ -86,7 +87,9 @@ namespace G24_BWallet_Backend.Controllers
                     Message = "",
                     Data = await r
                 };
-            } else {
+            }
+            else
+            {
                 return new Respond<ReceiptDetail>()
                 {
                     StatusCode = HttpStatusCode.Accepted,
@@ -125,7 +128,7 @@ namespace G24_BWallet_Backend.Controllers
                     Message = "",
                     Data = null
                 };
-            } 
+            }
             if (receipt.ReceiptAmount != receipt.UserDepts.Sum(ud => ud.Debt))
             {
                 return new Respond<Receipt>()
@@ -149,7 +152,7 @@ namespace G24_BWallet_Backend.Controllers
             }
 
             createdReceipt.UserDepts = null;
-            
+
             return new Respond<Receipt>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -177,15 +180,43 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet("receipt-sent/EventId={eventId}")]
         public async Task<Respond<List<ReceiptSentParam>>> ReceiptSent(int eventId)
         {
-            List<ReceiptSentParam> list = await receiptRepo.ReceiptsSent(GetUserId(),eventId);
+            List<ReceiptSentParam> list = await receiptRepo.ReceiptsSent(GetUserId(), eventId, false);
             return new Respond<List<ReceiptSentParam>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Các hoá đơn mình đã tạo trong event này",
+                Message = "Các hoá đơn trong event này",
                 Data = list
             };
 
+        }
+
+        [HttpGet("receipt-approve")]
+        public async Task<Respond<string>> ReceiptApprove(ListIdStatus list)
+        {
+            await receiptRepo.PaidDebtApprove(list);
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Đã phê duyệt hoặc từ chối các chứng từ",
+                Data = null
+            };
+
+        }
+
+        [HttpGet("receiptSent-waiting/eventId={eventId}")]
+        public async Task<Respond<List<ReceiptSentParam>>> ReceiptSentWaiting(int eventId)
+        {
+            bool isWaiting = true;
+            List<ReceiptSentParam> list = await receiptRepo.ReceiptsSent(GetUserId(), eventId, isWaiting);
+            return new Respond<List<ReceiptSentParam>>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Danh sách chứng từ đang chờ xác nhân",
+                Data = list
+            };
         }
     }
 }

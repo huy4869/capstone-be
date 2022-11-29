@@ -83,7 +83,7 @@ namespace G24_BWallet_Backend.Repository
                 await context.SaveChangesAsync();
                 await ChangeDebtLeft(item);
             }
-           
+
             //}
             //catch (Exception e)
             //{
@@ -107,14 +107,37 @@ namespace G24_BWallet_Backend.Repository
             }
             await context.SaveChangesAsync();
         }
-        public async Task<List<DebtPaymentPending>> PaidDebtRequestSent(int userId, int eventId)
+        public async Task<List<DebtPaymentPending>> PaidDebtRequestSent(int userId,
+            int eventId, bool isWaiting)
         {
             List<DebtPaymentPending> result = new List<DebtPaymentPending>();
             List<PaidDept> paidDepts = await context.PaidDepts
+                .Include(p => p.User)
                 .Where(p => p.EventId == eventId && p.UserId == userId).ToListAsync();
+            User cashier = await GetCashier(eventId);
+            // nếu mình là cashier hoặc owner thì sẽ lấy hết
+            if (cashier.ID == userId || await IsOwner(eventId,userId))
+                paidDepts = await context.PaidDepts
+                .Include(p => p.User)
+                .Where(p => p.EventId == eventId).ToListAsync();
             foreach (PaidDept item in paidDepts)
             {
                 DebtPaymentPending debtPayment = new DebtPaymentPending();
+                // nếu là cashier thì user hiện ra sẽ là người tạo paidDebt
+                // nếu không thì sẽ hiện ông cashier
+                if (cashier.ID == userId)
+                {
+                    debtPayment.User = new UserAvatarName
+                    { Avatar = item.User.Avatar, Name = item.User.UserName };
+                    // nếu mình là cashier thì chỉ xem những paid đang chờ duyệt
+                    // nếu trạng thái hiện tại là xem những paid đang chờ duyệt
+                    if (item.Status != 1 && isWaiting == true)
+                        continue;
+                }
+                else
+                    debtPayment.User = new UserAvatarName
+                    { Avatar = cashier.Avatar, Name = cashier.UserName };
+                debtPayment.PaidDebtId = item.Id;
                 debtPayment.TotalMoney = item.TotalMoney;
                 debtPayment.Date = item.CreatedAt.ToString();
                 debtPayment.Code = item.Code;
@@ -123,9 +146,6 @@ namespace G24_BWallet_Backend.Repository
                     .Select(p => p.ImageLink).FirstOrDefaultAsync();
                 debtPayment.Type = item.Type;
                 debtPayment.Status = item.Status;
-                User cashier = await GetCashier(eventId);
-                debtPayment.cashier = new UserAvatarName
-                { Avatar = cashier.Avatar, Name = cashier.UserName };
                 result.Add(debtPayment);
             }
             return result;
@@ -142,6 +162,52 @@ namespace G24_BWallet_Backend.Repository
             if (cashier != null) return cashier.User;
             else if (owner != null) return owner.User;
             return inspector.User;
+        }
+
+        public async Task<List<DebtPaymentPending>> PaidWaitConfirm(int eventId)
+        {
+            List<DebtPaymentPending> result = new List<DebtPaymentPending>();
+            List<PaidDept> paidDepts = await context.PaidDepts
+                .Include(p => p.User)
+                .Where(p => p.EventId == eventId && p.Status == 1).ToListAsync();
+            foreach (PaidDept item in paidDepts)
+            {
+                DebtPaymentPending debt = new DebtPaymentPending();
+                debt.PaidDebtId = item.Id;
+                debt.Status = item.Status;
+                debt.TotalMoney = item.TotalMoney;
+                debt.Date = item.CreatedAt.ToString();
+                debt.Code = item.Code;
+                debt.ImageLink = await context.ProofImages
+                    .Where(p => p.ImageType.Equals("paidDept") && p.ModelId == item.Id)
+                    .Select(p => p.ImageLink).FirstOrDefaultAsync();
+                debt.Type = item.Type;
+                debt.User = new UserAvatarName
+                {
+                    Avatar = item.User.Avatar,
+                    Name = item.User.UserName
+                };
+                result.Add(debt);
+            }
+
+            return result;
+        }
+
+        public async Task PaidDebtApprove(ListIdStatus paid)
+        {
+            foreach (int paidid in paid.ListId)
+            {
+                PaidDept paidDept = await context.PaidDepts.FirstOrDefaultAsync(p => p.Id == paidid);
+                paidDept.Status = paid.Status;
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<bool> IsOwner(int eventId, int userId)
+        {
+            EventUser eu = await context.EventUsers
+                .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserID == userId);
+            return eu.UserRole == 1;
         }
     }
 }

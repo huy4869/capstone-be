@@ -26,8 +26,8 @@ namespace G24_BWallet_Backend.Controllers
         public EventController(IEventRepository eventRepository
             , IMemberRepository memberRepository
             , IReceiptRepository receiptRepository
-            ,IPaidDebtRepository paidDebtRepository)
-            
+            , IPaidDebtRepository paidDebtRepository)
+
         {
             repo = eventRepository;
             repoMember = memberRepository;
@@ -135,10 +135,14 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
-        [HttpPost("JoinRequest")]
-        public async Task<Respond<string>> SendJoinRequest(EventUserID eventUserID)
+        [HttpPost("JoinRequest/EventId={eventId}")]
+        public async Task<Respond<string>> SendJoinRequest(int eventId)
         {
-            eventUserID.UserId = GetUserId();
+            EventUserID eventUserID = new EventUserID
+            {
+                EventId = eventId,
+                UserId = GetUserId()
+            };
             var check = await repo.SendJoinRequest(eventUserID);
             return new Respond<string>()
             {
@@ -157,35 +161,39 @@ namespace G24_BWallet_Backend.Controllers
             Event e = await repo.GetEventById(eventId);
             List<UserAvatarName> u = await repo.GetListUserInEvent(eventId);
             var listJoinRequest = await repo.GetJoinRequest(eventId);
-            //var listReceiptPending = await repo.GetReceiptPending(eventId);
-            //var listPaidDebtPending = await repo.GetPaidDebtPending(eventId);
             IDictionary<string, object> result = new Dictionary<string, object>
             {
                 { "EventLogo", e.EventLogo},
                 {"EventName", e.EventName },
                 {"EventDescript", e.EventDescript },
                 {"TotalMembers", u.Count.ToString() },
-                //{"JoinRequest", listJoinRequest.Count}
-                //{"ReceiptPending", listReceiptPending.Count},
-                //{"PaidDebtPending", listPaidDebtPending.Count}
             };
             if (await repoMember.IsOwner(eventId, userId))
             { // owner
-
+                var listPaidDebtRequestSent = await repoPaidDebt.PaidDebtRequestSent(GetUserId(), eventId, false);
+                var listReceiptSent = await repoReceipt.ReceiptsSent(GetUserId(), eventId, false);
+                result.Add("JoinRequest", listJoinRequest.Count);
+                result.Add("PaidDebtRequestSent", listPaidDebtRequestSent.Count);
+                result.Add("ReceiptsSent", listReceiptSent.Count);
+                result.Add("Role", 1);
             }
             else if (await repoMember.IsInspector(eventId, userId))
             { // inspector
-
+                var receiptRequest = await repoReceipt.ReceiptsSent(GetUserId(), eventId, true);
+                result.Add("ReceiptsWaiting", receiptRequest.Count);
+                result.Add("Role", 2);
             }
             else if (await repoMember.IsCashier(eventId, userId))
             { // cashier
-
+                var paidWaitConfirm = await repoPaidDebt.PaidWaitConfirm(eventId);
+                result.Add("PaidRequestNumber", paidWaitConfirm.Count);
+                result.Add("Role", 3);
             }
             else
             {
                 // normal member
-                var listPaidDebtRequestSent = await repoPaidDebt.PaidDebtRequestSent(GetUserId(),eventId);
-                var listReceiptSent = await repoReceipt.ReceiptsSent(GetUserId(),eventId);
+                var listPaidDebtRequestSent = await repoPaidDebt.PaidDebtRequestSent(GetUserId(), eventId, false);
+                var listReceiptSent = await repoReceipt.ReceiptsSent(GetUserId(), eventId, false);
                 result.Add("PaidDebtRequestSent", listPaidDebtRequestSent.Count);
                 result.Add("ReceiptsSent", listReceiptSent.Count);
                 result.Add("Role", 0);
@@ -209,6 +217,45 @@ namespace G24_BWallet_Backend.Controllers
                 Error = "",
                 Message = "Chỉnh sửa thông tin event thành công",
                 Data = null
+            };
+        }
+
+        [HttpPost("event-approve")]
+        public async Task<Respond<string>> EventApprove(ListIdStatus list)
+        {
+            await repo.ApproveEventJoinRequest(list);
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Xét duyệt tham gia vào event(đồng ý hoặc từ chối)",
+                Data = null
+            };
+        }
+
+        [HttpGet("joinRequest-history/EventId={eventId}")]
+        public async Task<Respond<List<JoinRequestHistory>>> JoinRequestHistory(int eventId)
+        {
+            List<JoinRequestHistory> list = await repo.JoinRequestHistory(eventId);
+            return new Respond<List<JoinRequestHistory>>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Lịch sử các request của event này",
+                Data = list
+            };
+        }
+
+        [HttpGet("joinRequest-waiting/EventId={eventId}")]
+        public async Task<Respond<List<UserJoinRequestWaiting>>> JoinRequestWaiting(int eventId)
+        {
+            List<UserJoinRequestWaiting> list = await repo.GetJoinRequest(eventId);
+            return new Respond<List<UserJoinRequestWaiting>>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Các request join đang chờ accept của event này",
+                Data = list
             };
         }
 

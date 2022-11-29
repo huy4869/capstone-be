@@ -191,6 +191,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public double ReceiptAmount { get; set; }
         public int ReceiptStatus { get; set; }
         public List<string> ImageLinks { get; set; }
+        public UserAvatarName User { get; set; }
     }
 
     public class UserAvatarNameMoney
@@ -211,12 +212,36 @@ namespace G24_BWallet_Backend.Models.ObjectType
     }
     public class DebtPaymentPending
     {
+        public int PaidDebtId { get; set; }
         public double TotalMoney { get; set; }
         public string Date { get; set; }
         public string Code { get; set; }
-        public UserAvatarName cashier { get; set; }
+        public UserAvatarName User { get; set; }
         public string ImageLink { get; set; }
         public string Type { get; set; }
         public int Status { get; set; }
+    }
+
+    public class ListIdStatus
+    {
+        public List<int> ListId { get; set; }
+        public int Status { get; set; }
+    }
+
+    public class JoinRequestHistory
+    {
+        public string Date { get; set; }
+        public string Avatar { get; set; }
+        public string UserName { get; set; }
+        public string Phone { get; set; }
+        public int Status { get; set; }
+    }
+    public class UserJoinRequestWaiting
+    {
+        public int RequestId { get; set; }
+        public string Avatar { get; set; }
+        public string UserName { get; set; }
+        public string Phone { get; set; }
+
     }
 }

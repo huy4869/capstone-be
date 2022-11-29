@@ -68,14 +68,14 @@ namespace G24_BWallet_Backend.Repository
         {
             EventUser eu = await context.EventUsers
                 .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserID == userId);
-            EventUser inspector = await context.EventUsers
-                .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserRole == 2);
-            EventUser cashier = await context.EventUsers
-                .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserRole == 3);
-            if (eu.UserRole == 1) return true;
-            if (inspector != null && inspector.UserID == userId) return true;
-            if (cashier != null && cashier.UserID == userId) return true;
-            return false;
+            //EventUser inspector = await context.EventUsers
+            //    .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserRole == 2);
+            //EventUser cashier = await context.EventUsers
+            //    .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserRole == 3);
+            //if (eu.UserRole == 1) return true;
+            //if (inspector != null && inspector.UserID == userId) return true;
+            //if (cashier != null && cashier.UserID == userId) return true;
+            return eu.UserRole == 1;
         }
 
         public async Task PromoteMemberRole(EventUserIDRole e)
@@ -149,6 +149,10 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(e => e.EventID == eventId && e.UserRole == role);
             // nếu như chưa có ai là role 2 thì sẽ lấy tạm ông role 1
             if (role == 2 && eventUser == null)
+                eventUser = await context.EventUsers.Include(e => e.User)
+                .FirstOrDefaultAsync(e => e.EventID == eventId && e.UserRole == 1);
+            // nếu như chưa có ai là role 3 thì sẽ lấy tạm ông role 1
+            else if (role == 3 && eventUser == null)
                 eventUser = await context.EventUsers.Include(e => e.User)
                 .FirstOrDefaultAsync(e => e.EventID == eventId && e.UserRole == 1);
             return (eventUser != null) ? eventUser.User : null;

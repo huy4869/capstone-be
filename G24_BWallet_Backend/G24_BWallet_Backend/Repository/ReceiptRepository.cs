@@ -131,8 +131,8 @@ namespace G24_BWallet_Backend.Repository
             User cashier = await GetCashier(receipt.EventID);
             result.Cashier = new UserAvatarNameMoney
             {
-                Avatar = receipt.User.Avatar,
-                Name = receipt.User.UserName,
+                Avatar = cashier.Avatar,
+                Name = cashier.UserName,
                 TotalAmount = receipt.ReceiptAmount
             };
             List<UserAvatarNameMoney> userDepts = new List<UserAvatarNameMoney>();
@@ -150,11 +150,15 @@ namespace G24_BWallet_Backend.Repository
             return result;
         }
 
-        public async Task<List<ReceiptSentParam>> ReceiptsSent(int userId, int eventId)
+        public async Task<List<ReceiptSentParam>> ReceiptsSent(int userId, int eventId, bool isWaiting)
         {
             List<ReceiptSentParam> list = new List<ReceiptSentParam>();
-            List<Receipt> receipts = await myDB.Receipts
+            List<Receipt> receipts = await myDB.Receipts.Include(r => r.User)
                 .Where(r => r.EventID == eventId && r.UserID == userId).ToListAsync();
+            // nếu mình là inspector hoặc owner thì sẽ lấy tất cả chứng từ trong event này
+            if (await IsInspector(eventId, userId) || await IsOwner(eventId,userId))
+                receipts = await myDB.Receipts.Include(r => r.User)
+                .Where(r => r.EventID == eventId).ToListAsync();
             foreach (Receipt receipt in receipts)
             {
                 ReceiptSentParam param = new ReceiptSentParam();
@@ -162,10 +166,20 @@ namespace G24_BWallet_Backend.Repository
                 param.Date = receipt.CreatedAt.ToString();
                 param.ReceiptName = receipt.ReceiptName;
                 param.ReceiptAmount = receipt.ReceiptAmount;
+                // kiểm tra nếu đang ở màn chứng từ chờ duyệt thì chỉ lấy status = 1
+                if (isWaiting == true && receipt.ReceiptStatus != 1)
+                    continue;
                 param.ReceiptStatus = receipt.ReceiptStatus;
                 param.ImageLinks = await myDB.ProofImages
                     .Where(p => p.ImageType.Equals("receipt") && p.ModelId == receipt.Id)
                     .Select(p => p.ImageLink).ToListAsync();
+                // nếu mình là inspector thì sẽ lấy ra cả tên của ông tạo ra receipt này
+                if (await IsInspector(eventId, userId))
+                    param.User = new UserAvatarName
+                    {
+                        Avatar = receipt.User.Avatar,
+                        Name = receipt.User.UserName
+                    };
                 list.Add(param);
             }
             return list;
@@ -181,6 +195,30 @@ namespace G24_BWallet_Backend.Repository
             if (cashier != null) return cashier.User;
             else if (owner != null) return owner.User;
             return inspector.User;
+        }
+
+        public async Task<bool> IsInspector(int eventId, int userId)
+        {
+            EventUser eu = await myDB.EventUsers
+                .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserID == userId);
+            if (eu.UserRole == 2) return true;
+            else if (eu.UserRole == 1) return true;
+            return false;
+        }
+        public async Task<bool> IsOwner(int eventId, int userId)
+        {
+            EventUser eu = await myDB.EventUsers
+                .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserID == userId);
+            return eu.UserRole == 1;
+        }
+        public async Task PaidDebtApprove(ListIdStatus list)
+        {
+            foreach (int item in list.ListId)
+            {
+                Receipt receipt = await myDB.Receipts.FirstOrDefaultAsync(p => p.Id == item);
+                receipt.ReceiptStatus = list.Status;
+                await myDB.SaveChangesAsync();
+            }
         }
     }
 }

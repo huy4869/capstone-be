@@ -17,8 +17,9 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<Event> GetEventById(int eventId);
         Task<List<UserAvatarName>> GetListUserInEvent(int eventId);
         Task<string> SendJoinRequest(EventUserID eventUserID);
-        Task<List<UserJoinRequestParam>> GetJoinRequest(int eventId);
+        Task<List<UserJoinRequestWaiting>> GetJoinRequest(int eventId);
         Task UpdateEventInformation(EventIdNameDes e);
-      
+        Task ApproveEventJoinRequest(ListIdStatus list);
+        Task<List<JoinRequestHistory>> JoinRequestHistory(int eventId);
     }
 }
