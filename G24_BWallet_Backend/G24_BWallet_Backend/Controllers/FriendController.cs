@@ -91,7 +91,7 @@ namespace G24_BWallet_Backend.Controllers
             return new Respond<List<Member>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
-                Error = "" + userId,
+                Error = "",
                 Message = "",
                 Data = await sResult
             };
@@ -106,15 +106,15 @@ namespace G24_BWallet_Backend.Controllers
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
                 Message = await sendRequest + "",
-                Data = userId + " send request to" + friend.UserFriendID
+                Data = ""
             };
         }
 
-        [HttpPost("accept-request")]
+        [HttpPost("response-request")]
         public async Task<Respond<string>> AcceptFriendRequest([FromBody] Friend friend)
         {
             int userId = GetUserId();
-            var sendRequest = repo.AcceptFriendRequestAsync(userId, friend.UserFriendID);
+            var sendRequest = repo.AcceptFriendRequestAsync(userId, friend);
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.Accepted,

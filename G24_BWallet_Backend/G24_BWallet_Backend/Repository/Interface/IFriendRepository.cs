@@ -16,8 +16,8 @@ namespace G24_BWallet_Backend.Repository.Interface
         
         Task<List<Member>> SearchFriendToAdd(int userID, string phone);
         Task<string> SendFriendRequestAsync(int userID, int friendID);
-        Task<string> AcceptFriendRequestAsync(int yourID, int userRequestID);
-        
+        Task<string> AcceptFriendRequestAsync(int yourID, Friend respone);
+
         Task<string> DeleteFriendAsync(int userID, int friendID);
         
     }

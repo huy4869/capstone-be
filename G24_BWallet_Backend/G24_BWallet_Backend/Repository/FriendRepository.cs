@@ -192,13 +192,20 @@ namespace G24_BWallet_Backend.Repository
             return "đã gửi lời mời kết bạn chờ chấp thuận";
         }
 
-        public async Task<string> AcceptFriendRequestAsync(int yourID, int userRequestID)
+        public async Task<string> AcceptFriendRequestAsync(int yourID, Friend respone)
         {
-            var friend = context.Friends.Where(f => f.UserID == userRequestID && f.UserFriendID == yourID).FirstOrDefault();
+            var friend = context.Friends.Where(f => f.UserID == respone.UserFriendID && f.UserFriendID == yourID).FirstOrDefault();
             if (friend == null)
             {
                 return "lời kết bạn này không tồn tại";
+            }else if (respone.status == 0)
+            {
+                context.Friends.Remove(friend);
+                await context.SaveChangesAsync();
+
+                return "đã từ chối lời mời kết bạn";
             }
+
             friend.status = 1;
             context.Friends.Update(friend);
             await context.SaveChangesAsync();
