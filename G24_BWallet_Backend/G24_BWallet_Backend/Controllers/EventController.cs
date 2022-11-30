@@ -42,7 +42,6 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet]
         public async Task<Respond<IEnumerable<EventHome>>> GetAllEvent()
         {
-            int userId = GetUserId();
             var events = repo.GetAllEventsAsync(GetUserId());
             return new Respond<IEnumerable<EventHome>>()
             {
@@ -259,6 +258,18 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
+        [HttpGet("event-close/EventId={eventId}")]
+        public async Task<Respond<string>> CloseEvent(int eventId)
+        {
+            string result = await repo.CloseEvent(GetUserId(), eventId);
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Đóng hoặc thoát event",
+                Data = result
+            };
+        }
     }
 
 }

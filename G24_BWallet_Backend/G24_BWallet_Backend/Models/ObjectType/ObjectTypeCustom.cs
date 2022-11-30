@@ -12,10 +12,23 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public int EventId { get; set; }
         public string EventName { get; set; }
         public string EventLogo { get; set; }
-        public double TotalMoney { get; set; }
-        public List<UserHome> ListUser { get; set; }
+        public int EventStatus { get; set; }
+        public NumberMoney Debt { get; set; }
+        public NumberMoney Receive { get; set; }
+        public MoneyColor TotalMoney { get; set; }
     }
 
+    public class NumberMoney
+    {
+        public int TotalPeople { get; set; }
+        public MoneyColor Money { get; set; }
+    }
+    public class MoneyColor
+    {
+        public string Color { get; set; }
+        public double Amount { get; set; }
+        public string AmountFormat { get; set; }
+    }
     public class UserHome
     {
         public string UserName { get; set; }
