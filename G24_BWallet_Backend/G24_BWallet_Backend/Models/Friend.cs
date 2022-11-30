@@ -13,6 +13,7 @@ namespace G24_BWallet_Backend.Models
         [ForeignKey("User")]
         [Column(Order = 2)]
         public int UserFriendID { get; set; }
+        public int status { get; set; }
         public DateTime CreatedAt { get; set; }
         
     }

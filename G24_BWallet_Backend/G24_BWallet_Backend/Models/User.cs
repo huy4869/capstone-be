@@ -14,6 +14,8 @@ namespace G24_BWallet_Backend.Models
         public int ID { get; set; }
         public string UserName { get; set; }
         public string Avatar { get; set; }
+        public int AllowAddFriendStatus { get; set; }
+        public int AllowInviteEventStatus { get; set; }
 
         [ForeignKey("Account")]
         public int AccountID { get; set; }
