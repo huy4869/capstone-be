@@ -140,6 +140,7 @@ namespace G24_BWallet_Backend.Controllers
                 };
             }
 
+            receipt.UserID = GetUserId();
             var createReceiptTask = receiptRepo.AddReceiptAsync(receipt);
 
             Receipt createdReceipt = await createReceiptTask;
