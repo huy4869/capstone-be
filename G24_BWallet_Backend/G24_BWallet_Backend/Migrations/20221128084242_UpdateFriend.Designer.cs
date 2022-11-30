@@ -3,14 +3,16 @@ using System;
 using G24_BWallet_Backend.DBContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace G24_BWallet_Backend.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    partial class MyDBContextModelSnapshot : ModelSnapshot
+    [Migration("20221128084242_UpdateFriend")]
+    partial class UpdateFriend
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -198,9 +200,6 @@ namespace G24_BWallet_Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("Code")
-                        .HasColumnType("longtext");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -212,9 +211,6 @@ namespace G24_BWallet_Backend.Migrations
 
                     b.Property<double>("TotalMoney")
                         .HasColumnType("double");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
@@ -324,12 +320,6 @@ namespace G24_BWallet_Backend.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("AccountID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AllowAddFriendStatus")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AllowInviteEventStatus")
                         .HasColumnType("int");
 
                     b.Property<string>("Avatar")
