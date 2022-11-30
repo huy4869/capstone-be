@@ -33,7 +33,9 @@ namespace G24_BWallet_Backend.Repository
             List<UserDebtReturn> userDepts = new List<UserDebtReturn>();
             foreach (var item in receipt)
             {
-                UserDept ud = item.UserDepts.Where(ud => ud.UserId == userId).FirstOrDefault();
+                UserDept ud = item.UserDepts.Where(ud => ud.UserId == userId && ud.DeptStatus == 2
+                && ud.DebtLeft > 0)
+                    .FirstOrDefault();
                 if (ud != null)
                 {
                     UserDebtReturn udr = new UserDebtReturn();
@@ -116,7 +118,7 @@ namespace G24_BWallet_Backend.Repository
                 .Where(p => p.EventId == eventId && p.UserId == userId).ToListAsync();
             User cashier = await GetCashier(eventId);
             // nếu mình là cashier hoặc owner thì sẽ lấy hết
-            if (cashier.ID == userId || await IsOwner(eventId,userId))
+            if (cashier.ID == userId || await IsOwner(eventId, userId))
                 paidDepts = await context.PaidDepts
                 .Include(p => p.User)
                 .Where(p => p.EventId == eventId).ToListAsync();

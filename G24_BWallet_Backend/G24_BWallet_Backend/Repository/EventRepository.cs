@@ -17,10 +17,12 @@ namespace G24_BWallet_Backend.Repository
     public class EventRepository : IEventRepository
     {
         private readonly MyDBContext context;
+        private readonly Format format;
 
         public EventRepository(MyDBContext myDB)
         {
             this.context = myDB;
+            this.format = new Format();
         }
 
         public async Task<int> AddEventAsync(Event e)
@@ -82,31 +84,123 @@ namespace G24_BWallet_Backend.Repository
                 eh.EventId = eventt.ID;
                 eh.EventLogo = eventt.EventLogo;
                 eh.EventName = eventt.EventName;
-                eh.ListUser = await GetUserHome(eventt, userID);
-                eh.TotalMoney = GetTotalMoneyEachEvent(eh.ListUser);
+                eh.EventStatus = eventt.EventStatus;
+                eh.Debt = await GetDebtMoney(eventt.ID, userID);
+                eh.Receive = await GetReceiveMoney(eventt.ID, userID);
+                eh.TotalMoney = await GetTotalMoney(eh.Debt, eh.Receive);
                 events.Add(eh);
             }
             return events;
         }
 
-        private double GetTotalMoneyEachEvent(List<UserHome> userHomes)
+        private async Task<MoneyColor> GetTotalMoney(NumberMoney debt, NumberMoney receive)
         {
-            double totalDeptor = 0;
-            double totalOwner = 0;
-            foreach (var item in userHomes)
+            MoneyColor money = new MoneyColor();
+            if (debt.Money.Amount > receive.Money.Amount)
             {
-                if (item.MoneyColor.Equals("Red"))
+                money.Color = "Red";
+                money.Amount = debt.Money.Amount - receive.Money.Amount;
+                money.AmountFormat = format.MoneyFormat(money.Amount);
+            }
+            else if (debt.Money.Amount < receive.Money.Amount)
+            {
+                money.Color = "Green";
+                money.Amount = receive.Money.Amount - debt.Money.Amount;
+                money.AmountFormat = format.MoneyFormat(money.Amount);
+            }
+            else if (debt.Money.Amount == receive.Money.Amount)
+            {
+                money.Color = "Gray";
+                money.Amount = receive.Money.Amount - debt.Money.Amount;
+                money.AmountFormat = format.MoneyFormat(money.Amount);
+            }
+            return await Task.FromResult(money);
+        }
+
+        // tiền người ta nợ mình trong event này
+        private async Task<NumberMoney> GetReceiveMoney(int eventId, int userID)
+        {
+            NumberMoney number = new NumberMoney();
+            MoneyColor moneyColor = new MoneyColor();
+            double mon = 0;
+            int total = 0;
+            List<int> userIdList = new List<int>();
+            // lấy hết các receipt mình tạo trong event này mà vẫn đang trả
+            List<Receipt> receiptList = await context.Receipts
+                .Where(r => r.EventID == eventId && r.ReceiptStatus == 2
+                && r.UserID == userID).ToListAsync();
+            foreach (Receipt receipt in receiptList)
+            {
+                List<UserDept> userDepts = await context.UserDepts
+                    .Where(u => u.ReceiptId == receipt.Id
+                    && u.DeptStatus == 2 && u.DebtLeft > 0).ToListAsync();
+                foreach (var userDept in userDepts)
                 {
-                    totalDeptor += item.Money;
-                }
-                else
-                {
-                    totalOwner += item.Money;
+                    if (userDept != null)
+                    {
+                        mon += userDept.DebtLeft;
+                        userIdList.Add(userDept.UserId);
+                    }
                 }
             }
-            return (totalDeptor > totalOwner) ? (totalDeptor - totalOwner)
-                : (totalOwner - totalDeptor);
+            total = userIdList.Distinct().Count();
+            moneyColor.Color = "Green";
+            moneyColor.Amount = mon;
+            moneyColor.AmountFormat = format.MoneyFormat(mon);
+            number.Money = moneyColor;
+            number.TotalPeople = total;
+            return number;
         }
+
+        // tiền mình nợ trong event này
+        private async Task<NumberMoney> GetDebtMoney(int eventId, int userID)
+        {
+            NumberMoney number = new NumberMoney();
+            MoneyColor moneyColor = new MoneyColor();
+            double mon = 0;
+            int total = 0;
+            List<int> userIdList = new List<int>();
+            // lấy hết các receipt đang trả trong event này
+            List<Receipt> receiptList = await context.Receipts
+                .Where(r => r.EventID == eventId && r.ReceiptStatus == 2).ToListAsync();
+            foreach (Receipt receipt in receiptList)
+            {
+                UserDept userDept = await context.UserDepts
+                    .FirstOrDefaultAsync(u => u.UserId == userID && u.ReceiptId == receipt.Id
+                    && u.DeptStatus == 2 && u.DebtLeft > 0);
+                if (userDept != null)
+                {
+                    mon += userDept.DebtLeft;
+                    userIdList.Add(receipt.UserID);
+                }
+            }
+            total = userIdList.Distinct().Count();
+            moneyColor.Color = "Red";
+            moneyColor.Amount = mon;
+            moneyColor.AmountFormat = format.MoneyFormat(mon);
+            number.Money = moneyColor;
+            number.TotalPeople = total;
+            return number;
+        }
+
+        //private double GetTotalMoneyEachEvent(List<UserHome> userHomes)
+        //{
+        //    double totalDeptor = 0;
+        //    double totalOwner = 0;
+        //    foreach (var item in userHomes)
+        //    {
+        //        if (item.MoneyColor.Equals("Red"))
+        //        {
+        //            totalDeptor += item.Money;
+        //        }
+        //        else
+        //        {
+        //            totalOwner += item.Money;
+        //        }
+        //    }
+        //    return (totalDeptor > totalOwner) ? (totalDeptor - totalOwner)
+        //        : (totalOwner - totalDeptor);
+        //}
 
         private async Task<List<UserHome>> GetUserHome(Event eventt, int userID)
         {
@@ -361,9 +455,44 @@ namespace G24_BWallet_Backend.Repository
             return result;
         }
 
-        public Task<List<UserJoinRequestWaiting>> GetJoinRequestWaiting(int eventId)
+        public async Task<string> CloseEvent(int userId, int eventId)
         {
-            throw new NotImplementedException();
+            EventUser eventUser = await context.EventUsers
+                .FirstOrDefaultAsync(e => e.EventID == eventId && e.UserID == userId);
+            // inspector muốn out nhóm thì phải check ko còn 1 hoá đơn nào chờ duyệt
+            if (eventUser.UserRole == 2)
+            {
+                Receipt receipt = await context.Receipts
+                    .FirstOrDefaultAsync(r => r.EventID == eventId && r.ReceiptStatus == 1);
+                if (receipt != null) return "Còn chứng từ chưa duyệt";
+            }
+            // cashier muốn out nhóm thì phải check ko còn 1 paiddebt  nào chờ duyệt
+            if (eventUser.UserRole == 3)
+            {
+                PaidDept paidDept = await context.PaidDepts
+                   .FirstOrDefaultAsync(r => r.EventId == eventId && r.Status == 1);
+                if (paidDept != null) return "Còn yêu cầu trả tiền chưa duyệt";
+            }
+            // và tất cả mọi người muốn out nhóm thì phải ko còn nợ, và phải thu đủ tiền
+            Receipt receiptActive = await context.Receipts
+                    .FirstOrDefaultAsync(r => r.EventID == eventId && r.ReceiptStatus == 2
+                    && r.UserID == userId);
+            if (receiptActive != null) return "Bạn còn chứng từ chưa thu đủ tiền";
+            PaidDept paidDeptActive = await context.PaidDepts
+                   .FirstOrDefaultAsync(r => r.EventId == eventId && r.Status == 2 && r.UserId == userId);
+            if (paidDeptActive != null) return "Bạn còn khoản nợ chưa trả";
+            // đủ điều kiện thì có thể out hoặc đóng event 
+            if (eventUser.UserRole == 1)
+            { // owner sẽ close event
+                Event e = await context.Events.FirstOrDefaultAsync(ev => ev.ID == eventId);
+                e.EventStatus = 0;
+                await context.SaveChangesAsync();
+                return "Đóng event thành công";
+            }
+            // các member còn lại thì xoá khỏi bảng EventUser là xong
+            context.EventUsers.Remove(eventUser);
+            await context.SaveChangesAsync();
+            return "Out event thành công";
         }
     }
 }

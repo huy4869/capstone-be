@@ -4,7 +4,9 @@ using Amazon.S3.Transfer;
 using G24_BWallet_Backend.DBContexts;
 using G24_BWallet_Backend.Models;
 using G24_BWallet_Backend.Models.ObjectType;
+using G24_BWallet_Backend.Repository;
 using G24_BWallet_Backend.Repository.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +24,7 @@ using Twilio.Rest.Chat.V2.Service.User;
 namespace G24_BWallet_Backend.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class TestController : ControllerBase
     {
@@ -164,6 +167,52 @@ namespace G24_BWallet_Backend.Controllers
             //var list = TimeZoneInfo.GetSystemTimeZones();
             var VietNamTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             return new { VietNamTime };
+        }
+
+        class Product
+        {
+            public string Name { get; set; }
+            public double Money { get; set; }
+            public string MoneyFormat { get; set; }
+        }
+
+        [HttpGet("moneyFormat")]
+        public IActionResult MoneyFormat()
+        {
+            Format f = new Format();
+            Product p1 = new Product { Name = "Laptop", Money = 100 };
+            Product p2 = new Product { Name = "IPhone", Money = 1000 };
+            Product p3 = new Product { Name = "IPhone", Money = 10000 };
+            Product p4 = new Product { Name = "IPhone", Money = 100000 };
+            Product p5 = new Product { Name = "IPhone", Money = 1000000 };
+            Product p6 = new Product { Name = "IPhone", Money = 10000000 };
+            Product p7 = new Product { Name = "IPhone", Money = 100000000 };
+            Product p8 = new Product { Name = "IPhone", Money = 1000000000 };
+            Product p9 = new Product { Name = "IPhone", Money = 10000000000 };
+            Product p10 = new Product { Name = "IPhone", Money = 100000000000 };
+            Product p11= new Product { Name = "IPhone", Money = 1000000000000 };
+            p1.MoneyFormat = f.MoneyFormat(p1.Money);
+            p2.MoneyFormat = f.MoneyFormat(p2.Money);
+            p3.MoneyFormat = f.MoneyFormat(p3.Money);
+            p4.MoneyFormat = f.MoneyFormat(p4.Money);
+            p5.MoneyFormat = f.MoneyFormat(p5.Money);
+            p6.MoneyFormat = f.MoneyFormat(p6.Money);
+            p7.MoneyFormat = f.MoneyFormat(p7.Money);
+            p8.MoneyFormat = f.MoneyFormat(p8.Money);
+            p9.MoneyFormat = f.MoneyFormat(p9.Money);
+            p10.MoneyFormat = f.MoneyFormat(p10.Money);
+            p11.MoneyFormat = f.MoneyFormat(p11.Money);
+            return Ok(new { p1, p2,p3,p4,p5,p6,p7,p8,p9,p10,p11 });
+        }
+
+        protected int GetUserId()
+        {
+            return int.Parse(this.User.Claims.First(i => i.Type == "UserId").Value);
+        }
+        [HttpGet("token")]
+        public IActionResult GetToken()
+        {
+            return Ok(GetUserId());
         }
     }
 }

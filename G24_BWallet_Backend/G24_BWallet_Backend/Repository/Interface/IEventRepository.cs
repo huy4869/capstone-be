@@ -21,5 +21,6 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task UpdateEventInformation(EventIdNameDes e);
         Task ApproveEventJoinRequest(ListIdStatus list);
         Task<List<JoinRequestHistory>> JoinRequestHistory(int eventId);
+        Task<string> CloseEvent(int v, int eventId);
     }
 }
