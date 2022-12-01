@@ -8,7 +8,7 @@ namespace G24_BWallet_Backend.Repository.Interface
 {
     public interface IEventRepository
     {
-        Task<List<EventHome>> GetAllEventsAsync(int userID);
+        Task<List<EventHome>> GetAllEventsAsync(int userID,string name);
         Task<int> AddEventAsync(Event e);
         Task AddEventMember(int eventID, List<int> memebers);
         Task<string> CreateEventUrl(int eventID);

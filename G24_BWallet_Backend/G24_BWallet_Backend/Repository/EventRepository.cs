@@ -69,7 +69,7 @@ namespace G24_BWallet_Backend.Repository
             return eventUrl;
         }
 
-        public async Task<List<EventHome>> GetAllEventsAsync(int userID)
+        public async Task<List<EventHome>> GetAllEventsAsync(int userID, string name)
         {
             List<EventHome> events = new List<EventHome>();
             // lấy tất cả các event mà mình tham gia
@@ -78,6 +78,11 @@ namespace G24_BWallet_Backend.Repository
                 .Select(eu => eu.Event)
                 .OrderByDescending(eu => eu.ID)
                 .ToListAsync();
+            //nếu name có thì lấy theo name
+            if (name != null )
+            {
+                listEvent = await GetEventUserByEventName(userID, name);
+            }
             foreach (var eventt in listEvent)
             {
                 EventHome eh = new EventHome();
@@ -91,6 +96,24 @@ namespace G24_BWallet_Backend.Repository
                 events.Add(eh);
             }
             return events;
+        }
+
+        private async Task<List<Event>> GetEventUserByEventName(int userID, string name)
+        {
+            List<Event> userJoin = new List<Event>();
+            List<Event> events = await context.Events
+                .Where(e => e.EventName.Contains(name)).ToListAsync();
+            foreach (var eventt in events)
+            {
+                EventUser eventUser = await context.EventUsers
+                    .Include(eu => eu.Event)
+                .FirstOrDefaultAsync(eu => eu.UserID == userID && eu.EventID == eventt.ID);
+                if (eventUser != null)
+                    userJoin.Add(eventUser.Event);
+
+            }
+            userJoin.Reverse();
+            return userJoin;
         }
 
         private async Task<MoneyColor> GetTotalMoney(NumberMoney debt, NumberMoney receive)
@@ -365,12 +388,12 @@ namespace G24_BWallet_Backend.Repository
             var request = await context.Requests
                 .FirstOrDefaultAsync(request => request.UserID == r.UserID
                 && request.EventID == r.EventID);
-            if (request != null && request.Status == 3) 
+            if (request != null && request.Status == 3)
                 return "Bạn đã gửi yêu cầu gia nhập nhóm này rồi(đang chờ accept)";
             if (request != null && request.Status == 5)
             {
                 request.Status = 3;
-                request.UpdatedAt= VNDateTime;
+                request.UpdatedAt = VNDateTime;
                 await context.SaveChangesAsync();
                 return "Gửi lại yêu cầu gia nhập nhóm thành công, đang chờ duyệt";
             }
