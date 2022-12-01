@@ -365,7 +365,15 @@ namespace G24_BWallet_Backend.Repository
             var request = await context.Requests
                 .FirstOrDefaultAsync(request => request.UserID == r.UserID
                 && request.EventID == r.EventID);
-            if (request != null) return "Bạn đã gửi yêu cầu gia nhập nhóm này rồi(đang chờ accept)";
+            if (request != null && request.Status == 3) 
+                return "Bạn đã gửi yêu cầu gia nhập nhóm này rồi(đang chờ accept)";
+            if (request != null && request.Status == 5)
+            {
+                request.Status = 3;
+                request.UpdatedAt= VNDateTime;
+                await context.SaveChangesAsync();
+                return "Gửi lại yêu cầu gia nhập nhóm thành công, đang chờ duyệt";
+            }
             await context.Requests.AddAsync(r);
             await context.SaveChangesAsync();
             return "Gửi yêu cầu gia nhập nhóm thành công, đang chờ duyệt";
