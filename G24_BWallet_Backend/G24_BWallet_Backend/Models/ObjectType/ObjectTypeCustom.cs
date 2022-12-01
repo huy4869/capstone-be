@@ -219,7 +219,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string ReceiptName { get; set; }
         public string Date { get; set; }
 
-        public UserAvatarNameMoney Cashier { get; set; }
+        public UserAvatarNameMoney User { get; set; }
         public List<UserAvatarNameMoney> UserDepts { get; set; }
 
     }
@@ -256,5 +256,19 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string UserName { get; set; }
         public string Phone { get; set; }
 
+    }
+
+    public class IdAvatarNamePhoneMoney
+    {
+        public int ReceiptId { get; set; }
+        public string Avatar { get; set; }
+        public string Name { get; set; }
+        public string Phone { get; set; }
+        public string Money { get; set; }
+    }
+    public class TotalMoneyUser
+    {
+        public string Amount { get; set;}
+        public List<IdAvatarNamePhoneMoney> List { get; set; }
     }
 }

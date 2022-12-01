@@ -180,7 +180,7 @@ namespace G24_BWallet_Backend.Controllers
         public IActionResult MoneyFormat()
         {
             Format f = new Format();
-            Product p1 = new Product { Name = "Laptop", Money = 100 };
+            Product p1 = new Product { Name = "Laptop", Money = 100.76 };
             Product p2 = new Product { Name = "IPhone", Money = 1000 };
             Product p3 = new Product { Name = "IPhone", Money = 10000 };
             Product p4 = new Product { Name = "IPhone", Money = 100000 };

@@ -129,7 +129,7 @@ namespace G24_BWallet_Backend.Repository
             result.ReceiptName = receipt.ReceiptName;
             result.Date = receipt.CreatedAt.ToString();
             User cashier = await GetCashier(receipt.EventID);
-            result.Cashier = new UserAvatarNameMoney
+            result.User = new UserAvatarNameMoney
             {
                 Avatar = cashier.Avatar,
                 Name = cashier.UserName,
