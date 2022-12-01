@@ -20,6 +20,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Twilio.Http;
 using Twilio.Rest.Chat.V2.Service.User;
+using Twilio.TwiML.Voice;
 
 namespace G24_BWallet_Backend.Controllers
 {
@@ -161,12 +162,18 @@ namespace G24_BWallet_Backend.Controllers
             return "receipt name: " + receipt.ReceiptName + "//" + receipt.User.UserName + " is who make it";
         }
 
-        [HttpPost("testTimeZone")]
-        public async Task<Object> TestTimeZone()//SE Asia Standard Time
+        [HttpGet("testTimeZone")]
+        public async Task<Object> TestTimeZone([FromQuery] double money)//SE Asia Standard Time
         {
             //var list = TimeZoneInfo.GetSystemTimeZones();
-            var VietNamTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
-            return new { VietNamTime };
+            //var VietNamTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+
+            //double money = 12345689.324;
+            Format f = new Format();
+            //string formatmoney = f.MoneyFormat(money);
+            string formatmoney = money.ToString("C10");
+            money = (int)(money / 1) ;
+            return new { money };
         }
 
         class Product

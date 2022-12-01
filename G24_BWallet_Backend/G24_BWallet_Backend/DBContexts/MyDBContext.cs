@@ -20,6 +20,7 @@ namespace G24_BWallet_Backend.DBContexts
         public DbSet<ProofImage> ProofImages { get; set; }
         public DbSet<Request> Requests { get; set; }
         public DbSet<Invite> Invites { get; set; }
+        public DbSet<FAQ> FAQ { get; set; }
         public MyDBContext(DbContextOptions<MyDBContext> o) : base(o) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
