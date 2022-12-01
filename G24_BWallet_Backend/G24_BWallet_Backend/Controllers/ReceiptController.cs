@@ -33,13 +33,15 @@ namespace G24_BWallet_Backend.Controllers
         private readonly IUserDeptRepository userDeptRepo;
         private readonly IEventUserRepository eventUserRepo;
         private readonly IImageRepository imageRepo;
+        private readonly IMemberRepository memberRepo;
 
-        public ReceiptController(IReceiptRepository InitReceiptRepo, IUserDeptRepository InitUserDeptRepo, IEventUserRepository InitEventUserRepo, IImageRepository InitImageRepo)
+        public ReceiptController(IReceiptRepository InitReceiptRepo, IUserDeptRepository InitUserDeptRepo, IEventUserRepository InitEventUserRepo, IImageRepository InitImageRepo, IMemberRepository InitMemberRepo)
         {
             receiptRepo = InitReceiptRepo;
             userDeptRepo = InitUserDeptRepo;
             eventUserRepo = InitEventUserRepo;
             imageRepo = InitImageRepo;
+            memberRepo = InitMemberRepo;
         }
         protected int GetUserId()
         {
@@ -49,7 +51,8 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet]
         public async Task<Respond<EventReceiptsInfo>> GetReceiptsByEventID([FromQuery] int eventid)
         {
-            EventReceiptsInfo eventReceiptsInfo = await receiptRepo.GetEventReceiptsInfoAsync(eventid);
+            int userID = GetUserId();
+            EventReceiptsInfo eventReceiptsInfo = await receiptRepo.GetEventReceiptsInfoAsync(eventid, userID);
 
             if (eventReceiptsInfo == null)
             {
@@ -69,11 +72,10 @@ namespace G24_BWallet_Backend.Controllers
                 Message = "lấy thông tin event và chính từ thành công",
                 Data = eventReceiptsInfo
             };
-
         }
 
 
-        [HttpGet("{receiptId}")]
+        /*[HttpGet("{receiptId}")]
         public async Task<Respond<ReceiptDetail>> GetReceipt(int receiptId)
         {
             var r = receiptRepo.GetReceiptByIDAsync(receiptId);
@@ -98,7 +100,7 @@ namespace G24_BWallet_Backend.Controllers
                     Data = await r
                 };
             }
-        }
+        }*/
 
 
         //create receipt
@@ -119,6 +121,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost("create")]
         public async Task<Respond<Receipt>> PostCreateReceipt([FromBody] ReceiptCreateParam receipt)
         {
+            int userID = GetUserId();
             if (!receipt.IMGLinks.Any())
             {
                 return new Respond<Receipt>()
@@ -140,7 +143,7 @@ namespace G24_BWallet_Backend.Controllers
                 };
             }
 
-            receipt.UserID = GetUserId();
+            receipt.UserID = userID;
             var createReceiptTask = receiptRepo.AddReceiptAsync(receipt);
 
             Receipt createdReceipt = await createReceiptTask;
@@ -149,6 +152,8 @@ namespace G24_BWallet_Backend.Controllers
 
             foreach (UserDept ud in receipt.UserDepts)
             {
+                ud.Debt = (int)(ud.Debt / 1);
+                if(ud.UserId != userID)
                 await userDeptRepo.AddUserDeptToReceiptAsync(ud, createdReceipt.Id);
             }
 
@@ -192,10 +197,10 @@ namespace G24_BWallet_Backend.Controllers
 
         }
 
-        [HttpGet("receipt-approve")]
+        [HttpPost("receipt-approve")]
         public async Task<Respond<string>> ReceiptApprove(ListIdStatus list)
         {
-            await receiptRepo.PaidDebtApprove(list);
+            await receiptRepo.ReceiptApprove(list);
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.Accepted,

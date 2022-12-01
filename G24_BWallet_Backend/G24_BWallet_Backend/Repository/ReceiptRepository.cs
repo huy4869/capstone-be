@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Amazon;
+using Microsoft.Extensions.Logging;
 
 namespace G24_BWallet_Backend.Repository
 {
@@ -22,11 +23,13 @@ namespace G24_BWallet_Backend.Repository
     {
         private readonly MyDBContext myDB;
         private readonly IConfiguration _configuration;
+        private readonly Format format;
 
-        public ReceiptRepository(MyDBContext myDB, IConfiguration _configuration)
+        public ReceiptRepository(MyDBContext myDB, IConfiguration _configuration )
         {
             this.myDB = myDB;
             this._configuration = _configuration;
+            this.format = new Format();
 
         }
 
@@ -87,7 +90,7 @@ namespace G24_BWallet_Backend.Repository
             return r;
         }
 
-        public async Task<EventReceiptsInfo> GetEventReceiptsInfoAsync(int EventID)
+        public async Task<EventReceiptsInfo> GetEventReceiptsInfoAsync(int EventID, int userID)
         {
             EventReceiptsInfo eventInfo = myDB.Events
                 .Where(e => e.ID == EventID)
@@ -95,7 +98,9 @@ namespace G24_BWallet_Backend.Repository
                 {
                     Id = e.ID,
                     EventName = e.EventName,
-                    TotalReceiptsAmount = 0
+                    EventLogo = e.EventLogo,
+                    EventStatus = e.EventStatus
+                    //TotalReceiptsAmount = 0
                 })
                 .FirstOrDefault();
             if (eventInfo == null) return null;
@@ -109,17 +114,106 @@ namespace G24_BWallet_Backend.Repository
                     Id = r.Id,
                     ReceiptName = r.ReceiptName,
                     ReceiptAmount = r.ReceiptAmount,
+                    ReceiptAmountFormat = format.MoneyFormat(r.ReceiptAmount),
                     CreatedAt = r.CreatedAt
                 })
                 .ToList();
-            foreach (ReceiptMainInfo r in listReceipt)
-            {
-                eventInfo.TotalReceiptsAmount += r.ReceiptAmount;
-            }
+            //eventInfo.TotalReceiptsAmount = listReceipt.Sum(r => r.ReceiptAmount);
+            NumberMoney Debt = await GetDebtMoney(EventID, userID);
+            NumberMoney Receive = await GetReceiveMoney(EventID, userID);
+            eventInfo.UserInvolveAmount = await GetTotalMoney(Debt, Receive);
+
             eventInfo.listReceipt = listReceipt;
 
             return eventInfo;
         }
+        private async Task<NumberMoney> GetDebtMoney(int eventId, int userID)
+        {
+            NumberMoney number = new NumberMoney();
+            MoneyColor moneyColor = new MoneyColor();
+            double mon = 0;
+            int total = 0;
+            List<int> userIdList = new List<int>();
+            // lấy hết các receipt đang trả trong event này
+            List<Receipt> receiptList = await myDB.Receipts
+                .Where(r => r.EventID == eventId && r.ReceiptStatus == 2).ToListAsync();
+            foreach (Receipt receipt in receiptList)
+            {
+                UserDept userDept = await myDB.UserDepts
+                    .FirstOrDefaultAsync(u => u.UserId == userID && u.ReceiptId == receipt.Id
+                    && u.DeptStatus == 2 && u.DebtLeft > 0);
+                if (userDept != null)
+                {
+                    mon += userDept.DebtLeft;
+                    userIdList.Add(receipt.UserID);
+                }
+            }
+            total = userIdList.Distinct().Count();
+            moneyColor.Color = "Red";
+            moneyColor.Amount = mon;
+            moneyColor.AmountFormat = format.MoneyFormat(mon);
+            number.Money = moneyColor;
+            number.TotalPeople = total;
+            return number;
+        }
+
+        private async Task<NumberMoney> GetReceiveMoney(int eventId, int userID)
+        {
+            NumberMoney number = new NumberMoney();
+            MoneyColor moneyColor = new MoneyColor();
+            double mon = 0;
+            int total = 0;
+            List<int> userIdList = new List<int>();
+            // lấy hết các receipt mình tạo trong event này mà vẫn đang trả
+            List<Receipt> receiptList = await myDB.Receipts
+                .Where(r => r.EventID == eventId && r.ReceiptStatus == 2
+                && r.UserID == userID).ToListAsync();
+            foreach (Receipt receipt in receiptList)
+            {
+                List<UserDept> userDepts = await myDB.UserDepts
+                    .Where(u => u.ReceiptId == receipt.Id
+                    && u.DeptStatus == 2 && u.DebtLeft > 0).ToListAsync();
+                foreach (var userDept in userDepts)
+                {
+                    if (userDept != null)
+                    {
+                        mon += userDept.DebtLeft;
+                        userIdList.Add(userDept.UserId);
+                    }
+                }
+            }
+            total = userIdList.Distinct().Count();
+            moneyColor.Color = "Green";
+            moneyColor.Amount = mon;
+            moneyColor.AmountFormat = format.MoneyFormat(mon);
+            number.Money = moneyColor;
+            number.TotalPeople = total;
+            return number;
+        }
+        public async Task<MoneyColor> GetTotalMoney(NumberMoney debt, NumberMoney receive)
+        {
+            MoneyColor money = new MoneyColor();
+            if (debt.Money.Amount > receive.Money.Amount)
+            {
+                money.Color = "Red";
+                money.Amount = debt.Money.Amount - receive.Money.Amount;
+                money.AmountFormat = format.MoneyFormat(money.Amount);
+            }
+            else if (debt.Money.Amount < receive.Money.Amount)
+            {
+                money.Color = "Green";
+                money.Amount = receive.Money.Amount - debt.Money.Amount;
+                money.AmountFormat = format.MoneyFormat(money.Amount);
+            }
+            else if (debt.Money.Amount == receive.Money.Amount)
+            {
+                money.Color = "Gray";
+                money.Amount = receive.Money.Amount - debt.Money.Amount;
+                money.AmountFormat = format.MoneyFormat(money.Amount);
+            }
+            return await Task.FromResult(money);
+        }
+
 
         public async Task<ReceiptUserDeptName> GetReceiptDetail(int receiptId)
         {
@@ -155,10 +249,12 @@ namespace G24_BWallet_Backend.Repository
             List<ReceiptSentParam> list = new List<ReceiptSentParam>();
             List<Receipt> receipts = await myDB.Receipts.Include(r => r.User)
                 .Where(r => r.EventID == eventId && r.UserID == userId).ToListAsync();
+
             // nếu mình là inspector hoặc owner thì sẽ lấy tất cả chứng từ trong event này
             if (await IsInspector(eventId, userId) || await IsOwner(eventId,userId))
                 receipts = await myDB.Receipts.Include(r => r.User)
                 .Where(r => r.EventID == eventId).ToListAsync();
+
             foreach (Receipt receipt in receipts)
             {
                 ReceiptSentParam param = new ReceiptSentParam();
@@ -166,6 +262,7 @@ namespace G24_BWallet_Backend.Repository
                 param.Date = receipt.CreatedAt.ToString();
                 param.ReceiptName = receipt.ReceiptName;
                 param.ReceiptAmount = receipt.ReceiptAmount;
+
                 // kiểm tra nếu đang ở màn chứng từ chờ duyệt thì chỉ lấy status = 1
                 if (isWaiting == true && receipt.ReceiptStatus != 1)
                     continue;
@@ -173,6 +270,7 @@ namespace G24_BWallet_Backend.Repository
                 param.ImageLinks = await myDB.ProofImages
                     .Where(p => p.ImageType.Equals("receipt") && p.ModelId == receipt.Id)
                     .Select(p => p.ImageLink).ToListAsync();
+
                 // nếu mình là inspector thì sẽ lấy ra cả tên của ông tạo ra receipt này
                 if (await IsInspector(eventId, userId))
                     param.User = new UserAvatarName
@@ -180,6 +278,7 @@ namespace G24_BWallet_Backend.Repository
                         Avatar = receipt.User.Avatar,
                         Name = receipt.User.UserName
                     };
+
                 list.Add(param);
             }
             return list;
@@ -211,12 +310,14 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserID == userId);
             return eu.UserRole == 1;
         }
-        public async Task PaidDebtApprove(ListIdStatus list)
+        public async Task ReceiptApprove(ListIdStatus list)
         {
             foreach (int item in list.ListId)
             {
-                Receipt receipt = await myDB.Receipts.FirstOrDefaultAsync(p => p.Id == item);
+                Receipt receipt = await myDB.Receipts.Include(r => r.UserDepts).FirstOrDefaultAsync(r => r.Id == item);
                 receipt.ReceiptStatus = list.Status;
+                receipt.UserDepts.ForEach(s => s.DeptStatus = list.Status);
+                myDB.Receipts.Update(receipt);
                 await myDB.SaveChangesAsync();
             }
         }
