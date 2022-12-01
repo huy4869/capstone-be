@@ -42,7 +42,20 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet]
         public async Task<Respond<IEnumerable<EventHome>>> GetAllEvent()
         {
-            var events = repo.GetAllEventsAsync(GetUserId());
+            var events = repo.GetAllEventsAsync(GetUserId(),"");
+            return new Respond<IEnumerable<EventHome>>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Get event success",
+                Data = await events
+            };
+        }
+
+        [HttpGet("search/name={name}")]
+        public async Task<Respond<IEnumerable<EventHome>>> GetAllEventByName(string name)
+        {
+            var events = repo.GetAllEventsAsync(GetUserId(),name);
             return new Respond<IEnumerable<EventHome>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
