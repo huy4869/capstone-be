@@ -21,6 +21,8 @@ namespace G24_BWallet_Backend.DBContexts
         public DbSet<Request> Requests { get; set; }
         public DbSet<Invite> Invites { get; set; }
         public DbSet<FAQ> FAQ { get; set; }
+        public DbSet<Activity> Activities { get; set; }
+        public DbSet<ActivityIcon> ActivityIcons { get; set; }
         public MyDBContext(DbContextOptions<MyDBContext> o) : base(o) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -3,14 +3,16 @@ using System;
 using G24_BWallet_Backend.DBContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace G24_BWallet_Backend.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    partial class MyDBContextModelSnapshot : ModelSnapshot
+    [Migration("20221204131820_UpdateActivity")]
+    partial class UpdateActivity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,7 +52,7 @@ namespace G24_BWallet_Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int?>("ActivityIconId")
+                    b.Property<int>("ActivityIconId")
                         .HasColumnType("int");
 
                     b.Property<string>("Content")
@@ -452,7 +454,9 @@ namespace G24_BWallet_Backend.Migrations
                 {
                     b.HasOne("G24_BWallet_Backend.Models.ActivityIcon", "ActivityIcon")
                         .WithMany()
-                        .HasForeignKey("ActivityIconId");
+                        .HasForeignKey("ActivityIconId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("G24_BWallet_Backend.Models.User", "User")
                         .WithMany()

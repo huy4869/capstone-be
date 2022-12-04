@@ -24,13 +24,14 @@ namespace G24_BWallet_Backend.Repository
         private readonly MyDBContext myDB;
         private readonly IConfiguration _configuration;
         private readonly Format format;
+        private readonly ActivityRepository activity;
 
-        public ReceiptRepository(MyDBContext myDB, IConfiguration _configuration )
+        public ReceiptRepository(MyDBContext myDB, IConfiguration _configuration)
         {
             this.myDB = myDB;
             this._configuration = _configuration;
             this.format = new Format();
-
+            activity = new ActivityRepository(myDB);
         }
 
         public async Task<Receipt> AddReceiptAsync(ReceiptCreateParam addReceipt)//
@@ -48,7 +49,7 @@ namespace G24_BWallet_Backend.Repository
 
             await myDB.Receipts.AddAsync(storeReceipt);
             await myDB.SaveChangesAsync();
-
+            await activity.AddReceiptActivity(addReceipt.UserID,addReceipt.ReceiptName,addReceipt.EventID);
             return storeReceipt;
         }
 
@@ -251,7 +252,7 @@ namespace G24_BWallet_Backend.Repository
                 .Where(r => r.EventID == eventId && r.UserID == userId).ToListAsync();
 
             // nếu mình là inspector hoặc owner thì sẽ lấy tất cả chứng từ trong event này
-            if (await IsInspector(eventId, userId) || await IsOwner(eventId,userId))
+            if (await IsInspector(eventId, userId) || await IsOwner(eventId, userId))
                 receipts = await myDB.Receipts.Include(r => r.User)
                 .Where(r => r.EventID == eventId).ToListAsync();
 
@@ -310,12 +311,20 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserID == userId);
             return eu.UserRole == 1;
         }
-        public async Task ReceiptApprove(ListIdStatus list)
+        public async Task ReceiptApprove(ListIdStatus list, int userId)
         {
             foreach (int item in list.ListId)
             {
-                Receipt receipt = await myDB.Receipts.Include(r => r.UserDepts).FirstOrDefaultAsync(r => r.Id == item);
+                Receipt receipt = await myDB.Receipts
+                    .Include(r => r.UserDepts)
+                    .Include(r => r.Event)
+                    .FirstOrDefaultAsync(r => r.Id == item);
                 receipt.ReceiptStatus = list.Status;
+                // Add activity
+                await activity.InspectorReceiptApproveActivity(list.Status, userId, receipt.ReceiptName
+                    , receipt.Event.EventName);
+                await activity.CreatorReceiptApproveActivity(list.Status, receipt.UserID
+                    , receipt.ReceiptName, receipt.Event.EventName);
                 receipt.UserDepts.ForEach(s => s.DeptStatus = list.Status);
                 myDB.Receipts.Update(receipt);
                 await myDB.SaveChangesAsync();

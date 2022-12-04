@@ -271,4 +271,11 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string Amount { get; set;}
         public List<IdAvatarNamePhoneMoney> List { get; set; }
     }
+
+    public class ActivityScreen
+    {
+        public string? Link { get; set;}
+        public string Content { get; set;}
+        public DateTime Date { get; set;}
+    }
 }
