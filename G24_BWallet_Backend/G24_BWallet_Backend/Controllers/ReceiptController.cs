@@ -200,7 +200,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost("receipt-approve")]
         public async Task<Respond<string>> ReceiptApprove(ListIdStatus list)
         {
-            await receiptRepo.ReceiptApprove(list);
+            await receiptRepo.ReceiptApprove(list, GetUserId());
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.Accepted,

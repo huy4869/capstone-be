@@ -3,14 +3,16 @@ using System;
 using G24_BWallet_Backend.DBContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace G24_BWallet_Backend.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    partial class MyDBContextModelSnapshot : ModelSnapshot
+    [Migration("20221204083752_AddActivity")]
+    partial class AddActivity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,8 +52,8 @@ namespace G24_BWallet_Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int?>("ActivityIconId")
-                        .HasColumnType("int");
+                    b.Property<string>("ActivityIconId")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Content")
                         .HasColumnType("longtext");
@@ -66,10 +68,6 @@ namespace G24_BWallet_Backend.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("ActivityIconId");
-
-                    b.HasIndex("UserID");
 
                     b.ToTable("Activity");
                 });
@@ -446,23 +444,6 @@ namespace G24_BWallet_Backend.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserDept");
-                });
-
-            modelBuilder.Entity("G24_BWallet_Backend.Models.Activity", b =>
-                {
-                    b.HasOne("G24_BWallet_Backend.Models.ActivityIcon", "ActivityIcon")
-                        .WithMany()
-                        .HasForeignKey("ActivityIconId");
-
-                    b.HasOne("G24_BWallet_Backend.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ActivityIcon");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.EventUser", b =>
