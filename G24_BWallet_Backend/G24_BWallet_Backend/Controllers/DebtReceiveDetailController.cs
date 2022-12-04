@@ -66,5 +66,34 @@ namespace G24_BWallet_Backend.Controllers
                 Data = result
             };
         }
+
+        [HttpPost("sendSMS")]
+        public async Task<Respond<string>> ClickRemind(IdAvatarNamePhoneMoney i)
+        {
+            string check = await repo.SendRemind(i);
+            if ( check != null && check.Equals("Wrong"))
+                return new Respond<string>()
+                {
+                    StatusCode = HttpStatusCode.Accepted,
+                    Error = "",
+                    Message = "Gửi tin nhắn nhắc trả tiền",
+                    Data = "Có lỗi xảy ra"
+                };
+            if (check == null)
+                return new Respond<string>()
+                {
+                    StatusCode = HttpStatusCode.Accepted,
+                    Error = "",
+                    Message = "Gửi tin nhắn nhắc trả tiền",
+                    Data = "Gửi tin nhắn thành công"
+                };
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.NotAcceptable,
+                Error = "",
+                Message = "Gửi tin nhắn nhắc trả tiền",
+                Data = "Bạn đã gửi vào lúc " + check + "! Mỗi lần gửi phải cách nhau 12 tiếng !"
+            };
+        }
     }
 }

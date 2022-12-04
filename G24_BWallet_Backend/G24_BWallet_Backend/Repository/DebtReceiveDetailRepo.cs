@@ -3,21 +3,28 @@ using G24_BWallet_Backend.Models;
 using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
 
 namespace G24_BWallet_Backend.Repository
 {
     public class DebtReceiveDetailRepo : IDebtReceiveDetailRepo
     {
         private readonly MyDBContext context;
+        private readonly IConfiguration _configuration;
         private readonly Format format;
 
-        public DebtReceiveDetailRepo(MyDBContext myDB)
+        public DebtReceiveDetailRepo(MyDBContext myDB, IConfiguration configuration)
         {
             this.context = myDB;
+            _configuration = configuration;
             format = new Format();
         }
 
@@ -205,6 +212,61 @@ namespace G24_BWallet_Backend.Repository
                 depts.Insert(0, temp);
             }
             return await Task.FromResult(depts);
+        }
+
+
+        // nhắn tin nhắc trả tiền
+        public async Task<string> SendRemind(IdAvatarNamePhoneMoney i)
+        {
+            try
+            {
+                Receipt receipt = await context.Receipts.FirstOrDefaultAsync(r => r.Id == i.ReceiptId);
+                Account account = await context.Accounts
+               .FirstOrDefaultAsync(a => a.PhoneNumber.Equals(i.Phone));
+                User user = await context.Users
+                    .FirstOrDefaultAsync(u => u.AccountID == account.ID);
+                UserDept userDept = await context.UserDepts
+                    .FirstOrDefaultAsync(u => u.UserId == user.ID && u.ReceiptId == i.ReceiptId);
+                DateTime oldRemind = userDept.RemindDate;
+                DateTime now = DateTime.Now;
+                TimeSpan diffResult = now.Subtract(oldRemind);
+                if (diffResult.Hours >= 12)
+                { // có thể gửi tiếp
+                  // Find your Account SID and Auth Token at twilio.com/console
+                  // and set the environment variables. See http://twil.io/secure
+                    string accountSid = _configuration["Twilio:accountSid"];
+                    string authToken = _configuration["Twilio:authToken"];
+
+                    TwilioClient.Init(accountSid, authToken);
+                    try
+                    {
+                        var message = await MessageResource.CreateAsync(
+                                       body: "Xin chào, bạn còn 1 khoản thanh toán của chứng từ: "
+                                       + receipt.ReceiptName,
+                                       from: new Twilio.Types.PhoneNumber(_configuration["Twilio:from"]),
+                                       to: new Twilio.Types.PhoneNumber(i.Phone)
+                                   );
+                    }
+                    catch (Exception)
+                    {
+
+                        return "Wrong";
+                    }
+                    // gửi tin xong thì update Remind Date
+                    userDept.RemindDate = now;
+                    await context.SaveChangesAsync();
+                }
+                else// chưa đủ 12 tiếng nên ko gửi tiếp được
+                {
+                    return userDept.RemindDate.ToString();
+                }
+            }
+            catch (Exception)
+            {
+
+                return "Wrong";
+            }
+            return null;
         }
     }
 }
