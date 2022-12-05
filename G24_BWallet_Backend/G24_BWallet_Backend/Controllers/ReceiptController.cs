@@ -105,12 +105,12 @@ namespace G24_BWallet_Backend.Controllers
 
         //create receipt
         [HttpGet("create")]
-        public async Task<Respond<searchEventMember>> PrepareCreateReceipt([FromQuery] int EventID, string name)
+        public async Task<Respond<List<Member>>> PrepareCreateReceipt([FromQuery] int EventID, string name)
         {
             
             var eventUsers = eventUserRepo.SearchEventUsersAsync(EventID, GetUserId(), name);
 
-            return new Respond<searchEventMember>()
+            return new Respond<List<Member>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = EventID+ ""+ name,

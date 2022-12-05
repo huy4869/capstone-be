@@ -278,14 +278,4 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string Content { get; set;}
         public DateTime Date { get; set;}
     }
-
-    public class searchEventMember
-    {
-        public int UserId { get; set; }
-        public string UserName { get; set; }
-        public string UserAvatar { get; set; }
-        public string UserPhone { get; set; }
-
-        public List<Member> eventUsers { get; set; }
-    }
 }
