@@ -9,6 +9,6 @@ namespace G24_BWallet_Backend.Repository.Interface
 {
     public interface IEventUserRepository
     {
-        Task<List<Member>> GetAllEventUsersAsync(int eventID);
+        Task<searchEventMember> SearchEventUsersAsync(int eventID,int userID, string name = null);
     }
 }

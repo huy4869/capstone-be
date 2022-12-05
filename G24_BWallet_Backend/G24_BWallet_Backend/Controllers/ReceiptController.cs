@@ -85,7 +85,7 @@ namespace G24_BWallet_Backend.Controllers
                 return new Respond<ReceiptDetail>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
-                    Error = "không tìm thấy hóa đơn",
+                    Error = "không tìm thấy chứng từ",
                     Message = "",
                     Data = await r
                 };
@@ -96,7 +96,7 @@ namespace G24_BWallet_Backend.Controllers
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
-                    Message = "tìm thấy hóa đơn",
+                    Message = "tìm thấy chứng từ",
                     Data = await r
                 };
             }
@@ -105,11 +105,12 @@ namespace G24_BWallet_Backend.Controllers
 
         //create receipt
         [HttpGet("create")]
-        public async Task<Respond<List<Member>>> PrepareCreateReceipt([FromQuery] int EventID)
+        public async Task<Respond<searchEventMember>> PrepareCreateReceipt([FromQuery] int EventID, string name)
         {
-            var eventUsers = eventUserRepo.GetAllEventUsersAsync(EventID);
+            
+            var eventUsers = eventUserRepo.SearchEventUsersAsync(EventID, GetUserId(), name);
 
-            return new Respond<List<Member>>()
+            return new Respond<searchEventMember>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
@@ -122,12 +123,22 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<Receipt>> PostCreateReceipt([FromBody] ReceiptCreateParam receipt)
         {
             int userID = GetUserId();
+            if (receipt.ReceiptName.IsNullOrEmpty() || receipt.ReceiptAmount <= 0)
+            {
+                return new Respond<Receipt>()
+                {
+                    StatusCode = HttpStatusCode.BadRequest, 
+                    Error = "chứng từ thiếu thông tin",
+                    Message = "",
+                    Data = null
+                };
+            }
             if (!receipt.IMGLinks.Any())
             {
                 return new Respond<Receipt>()
                 {
                     StatusCode = HttpStatusCode.BadRequest,
-                    Error = "hóa đơn không có ảnh chứng minh",
+                    Error = "chứng từ không có ảnh chứng minh",
                     Message = "",
                     Data = null
                 };
@@ -137,7 +148,7 @@ namespace G24_BWallet_Backend.Controllers
                 return new Respond<Receipt>()
                 {
                     StatusCode = HttpStatusCode.BadRequest,
-                    Error = "hóa đơn không chia đúng với tổng",
+                    Error = "chứng từ không chia đúng với tổng",
                     Message = "",
                     Data = null
                 };
@@ -163,7 +174,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "tạo hóa đơn xong chờ chấp thuận",
+                Message = "tạo chứng từ xong chờ chấp thuận",
                 Data = createdReceipt
             };
         }

@@ -22,11 +22,15 @@ namespace G24_BWallet_Backend.Repository
         {
         }
 
-        public async Task<List<Member>> GetAllEventUsersAsync(int eventID)
+        public async Task<searchEventMember> SearchEventUsersAsync(int eventID, int userID, string name = null)
         {
-            var eventUsers = await myDB.EventUsers
+            var whoSearch = myDB.Users.Include(u => u.Account).Where(u => u.ID == userID).FirstOrDefault();
+            List<Member> eventUsers;
+
+            if(name == null)//find all
+            eventUsers = await myDB.EventUsers
                 .Include(eu => eu.User).Include(eu => eu.User.Account)
-                .Where(eu => eu.EventID == eventID)
+                .Where(eu => eu.EventID == eventID && eu.UserID != userID)
                 .Select(eu => new Member
                 {
                     UserId = eu.UserID,
@@ -35,13 +39,27 @@ namespace G24_BWallet_Backend.Repository
                     UserPhone = eu.User.Account.PhoneNumber
                 })
                 .ToListAsync();
-            
-            return eventUsers;
-        }
 
-        public string test(int eventID)
-        {
-            return "fuk you" + eventID;
+            else//find by name
+            eventUsers = await myDB.EventUsers
+                .Include(eu => eu.User).Include(eu => eu.User.Account)
+                .Where(eu => eu.EventID == eventID && eu.UserID != userID && eu.User.UserName.Contains(name))
+                .Select(eu => new Member
+                {
+                    UserId = eu.UserID,
+                    UserName = eu.User.UserName,
+                    UserAvatar = eu.User.Avatar,
+                    UserPhone = eu.User.Account.PhoneNumber
+                })
+                .ToListAsync();
+
+            searchEventMember result = new searchEventMember();
+            result.UserId = userID;
+            result.UserName = whoSearch.UserName;
+            result.UserAvatar = whoSearch.Avatar;
+            result.UserPhone = whoSearch.Account.PhoneNumber;
+            result.eventUsers = eventUsers;
+            return result;
         }
     }
 }
