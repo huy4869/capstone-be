@@ -38,7 +38,7 @@ namespace G24_BWallet_Backend.Repository
 
             storeUserDept.ReceiptId = receiptID;
             storeUserDept.UserId = addUserDept.UserId;
-            storeUserDept.DeptStatus = 1;
+            storeUserDept.DeptStatus = (addUserDept.Debt == 0) ? 0 : 1;
             storeUserDept.Debt = addUserDept.Debt;
             storeUserDept.DebtLeft = addUserDept.Debt;
 
@@ -46,10 +46,6 @@ namespace G24_BWallet_Backend.Repository
             await myDB.SaveChangesAsync();
 
             return storeUserDept.Id;
-        }
-        public static Task<List<UserDept>> balanceUserDeptMoney()
-        {
-            return null;
         }
 
     }
