@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Amazon;
 using Microsoft.Extensions.Logging;
+using Twilio.TwiML.Fax;
 
 namespace G24_BWallet_Backend.Repository
 {
@@ -49,7 +50,7 @@ namespace G24_BWallet_Backend.Repository
 
             await myDB.Receipts.AddAsync(storeReceipt);
             await myDB.SaveChangesAsync();
-            await activity.AddReceiptActivity(addReceipt.UserID,addReceipt.ReceiptName,addReceipt.EventID);
+            await activity.AddReceiptActivity(addReceipt.UserID, addReceipt.ReceiptName, addReceipt.EventID);
             return storeReceipt;
         }
 
@@ -91,6 +92,7 @@ namespace G24_BWallet_Backend.Repository
             return r;
         }
 
+        // lấy danh sách các chứng từ khi bấm vào 1 event từ màn main
         public async Task<EventReceiptsInfo> GetEventReceiptsInfoAsync(int EventID, int userID)
         {
             EventReceiptsInfo eventInfo = myDB.Events
@@ -109,25 +111,107 @@ namespace G24_BWallet_Backend.Repository
 
             List<ReceiptMainInfo> listReceipt = myDB.Receipts
                 .Where(r => r.EventID == EventID)
-                .Where(r => r.ReceiptStatus == 2)
+                .Where(r => r.ReceiptStatus == 2 || r.ReceiptStatus == 4 || r.ReceiptStatus == 0)
                 .Select(r => new ReceiptMainInfo
                 {
                     Id = r.Id,
                     ReceiptName = r.ReceiptName,
                     ReceiptAmount = r.ReceiptAmount,
                     ReceiptAmountFormat = format.MoneyFormat(r.ReceiptAmount),
+                    ReceiptStatus = r.ReceiptStatus,
                     CreatedAt = r.CreatedAt
                 })
                 .ToList();
             //eventInfo.TotalReceiptsAmount = listReceipt.Sum(r => r.ReceiptAmount);
             NumberMoney Debt = await GetDebtMoney(EventID, userID);
             NumberMoney Receive = await GetReceiveMoney(EventID, userID);
-            eventInfo.UserInvolveAmount = await GetTotalMoney(Debt, Receive);
-
+            // sau khi biết số tiền mình nợ event và số tiền mình cần nhận lại thì tính chung ra 1 cái
+            eventInfo.ReceiveOrPaidAmount = await ReceiveOrPaidAmount(Debt, Receive);
+            eventInfo.UserAmount = format.MoneyFormat(await AllUserMoneyInEvent(EventID, userID));
+            eventInfo.GroupAmount = format.MoneyFormat(await AllGroupMoneyInEvent(EventID, userID));
+            eventInfo.TotalAmount = format.MoneyFormat(
+                await AllUserMoneyInEvent(EventID, userID) +
+                await AllGroupMoneyInEvent(EventID, userID)
+                );
+            eventInfo.Number = await GetNumberNotify(EventID, userID);
             eventInfo.listReceipt = listReceipt;
 
             return eventInfo;
         }
+
+        private async Task<MoneyColor> ReceiveOrPaidAmount(NumberMoney debt, NumberMoney receive)
+        {
+            MoneyColor moneyColor = new MoneyColor();
+            if (debt.Money.Amount > receive.Money.Amount)
+            {
+                moneyColor.Amount = debt.Money.Amount - receive.Money.Amount;
+                moneyColor.AmountFormat = format.MoneyFormat(moneyColor.Amount);
+                moneyColor.Color = "Red";
+            }
+            else if (debt.Money.Amount < receive.Money.Amount)
+            {
+                moneyColor.Amount = receive.Money.Amount - debt.Money.Amount;
+                moneyColor.AmountFormat = format.MoneyFormat(moneyColor.Amount);
+                moneyColor.Color = "Green";
+            }
+            else if (debt.Money.Amount == receive.Money.Amount)
+            {
+                moneyColor.Amount = 0;
+                moneyColor.AmountFormat = format.MoneyFormat(moneyColor.Amount);
+                moneyColor.Color = "Gray";
+            }
+            return moneyColor;
+        }
+
+        private async Task<int> GetNumberNotify(int eventID, int userID)
+        {
+            // số lượng yêu cầu tham gia event này: owner
+            int requestNum = (await myDB.Requests
+                .Where(r => r.EventID == eventID && r.Status == 3).ToListAsync()).Count;
+            // số lượng chứng từ chờ duyệt : inspector
+            int receiptNum = (await myDB.Receipts
+                .Where(r => r.EventID == eventID && r.ReceiptStatus == 1).ToListAsync()).Count;
+            // số lượng yêu cầu trả tiền chờ duyêt : cashier
+            int paidNum = (await myDB.PaidDepts
+                .Where(p => p.EventId == eventID && p.Status == 1).ToListAsync()).Count;
+            // kiểm tra role user
+            if (await IsOwner(eventID, userID))
+            {
+                return requestNum;
+            }
+            if (await IsInspector(eventID, userID))
+            {
+                return receiptNum;
+            }
+            if (await IsCashier(eventID, userID))
+            {
+                return paidNum;
+            }
+            return 0;
+        }
+
+        //số tiền mà nhóm đa chi trong event
+        private async Task<double> AllGroupMoneyInEvent(int eventID, int userID)
+        {
+            List<Receipt> receipts = await myDB.Receipts
+               .Where(r => r.EventID == eventID && r.UserID != userID
+               && (r.ReceiptStatus == 2 || r.ReceiptStatus == 0)).ToListAsync();
+            double amount = 0;
+            receipts.ForEach(r => amount += r.ReceiptAmount);
+            return amount;
+        }
+
+        // số tiền mà mình đã chi trrong event
+        private async Task<double> AllUserMoneyInEvent(int eventID, int userID)
+        {
+            List<Receipt> receipts = await myDB.Receipts
+                .Where(r => r.EventID == eventID && r.UserID == userID
+                && (r.ReceiptStatus == 2 || r.ReceiptStatus == 0)).ToListAsync();
+            double amount = 0;
+            receipts.ForEach(r => amount += r.ReceiptAmount);
+            return amount;
+        }
+
         private async Task<NumberMoney> GetDebtMoney(int eventId, int userID)
         {
             NumberMoney number = new NumberMoney();
@@ -191,29 +275,29 @@ namespace G24_BWallet_Backend.Repository
             number.TotalPeople = total;
             return number;
         }
-        public async Task<MoneyColor> GetTotalMoney(NumberMoney debt, NumberMoney receive)
-        {
-            MoneyColor money = new MoneyColor();
-            if (debt.Money.Amount > receive.Money.Amount)
-            {
-                money.Color = "Red";
-                money.Amount = debt.Money.Amount - receive.Money.Amount;
-                money.AmountFormat = format.MoneyFormat(money.Amount);
-            }
-            else if (debt.Money.Amount < receive.Money.Amount)
-            {
-                money.Color = "Green";
-                money.Amount = receive.Money.Amount - debt.Money.Amount;
-                money.AmountFormat = format.MoneyFormat(money.Amount);
-            }
-            else if (debt.Money.Amount == receive.Money.Amount)
-            {
-                money.Color = "Gray";
-                money.Amount = receive.Money.Amount - debt.Money.Amount;
-                money.AmountFormat = format.MoneyFormat(money.Amount);
-            }
-            return await Task.FromResult(money);
-        }
+        //public async Task<MoneyColor> GetTotalMoney(NumberMoney debt, NumberMoney receive)
+        //{
+        //    MoneyColor money = new MoneyColor();
+        //    if (debt.Money.Amount > receive.Money.Amount)
+        //    {
+        //        money.Color = "Red";
+        //        money.Amount = debt.Money.Amount - receive.Money.Amount;
+        //        money.AmountFormat = format.MoneyFormat(money.Amount);
+        //    }
+        //    else if (debt.Money.Amount < receive.Money.Amount)
+        //    {
+        //        money.Color = "Green";
+        //        money.Amount = receive.Money.Amount - debt.Money.Amount;
+        //        money.AmountFormat = format.MoneyFormat(money.Amount);
+        //    }
+        //    else if (debt.Money.Amount == receive.Money.Amount)
+        //    {
+        //        money.Color = "Gray";
+        //        money.Amount = receive.Money.Amount - debt.Money.Amount;
+        //        money.AmountFormat = format.MoneyFormat(money.Amount);
+        //    }
+        //    return await Task.FromResult(money);
+        //}
 
 
         public async Task<ReceiptUserDeptName> GetReceiptDetail(int receiptId)
@@ -305,6 +389,14 @@ namespace G24_BWallet_Backend.Repository
             else if (eu.UserRole == 1) return true;
             return false;
         }
+        public async Task<bool> IsCashier(int eventId, int userId)
+        {
+            EventUser eu = await myDB.EventUsers
+                .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserID == userId);
+            if (eu.UserRole == 3) return true;
+            else if (eu.UserRole == 1) return true;
+            return false;
+        }
         public async Task<bool> IsOwner(int eventId, int userId)
         {
             EventUser eu = await myDB.EventUsers
@@ -328,7 +420,47 @@ namespace G24_BWallet_Backend.Repository
                 receipt.UserDepts.ForEach(s => s.DeptStatus = list.Status);
                 myDB.Receipts.Update(receipt);
                 await myDB.SaveChangesAsync();
+                // nếu tổng số tiền thằng tạo receipt nợ và số nó chờ nhận lại bằng nhau
+                // thì sửa lại hết status của receipt nó tạo và nợ của nó thành đã trả hết
+                await CheckStatusChange(receipt.UserID, receipt.EventID);
             }
         }
+
+        private async Task CheckStatusChange(int userID, int eventID)
+        {
+            double totalDebt = (await GetDebtMoney(eventID, userID)).Money.Amount;
+            double totalReceive = (await GetReceiveMoney(eventID, userID)).Money.Amount;
+            double diff = totalDebt - totalReceive;
+            if (diff < 0) diff = diff * (-1);
+            // nếu chênh lệch khoảng hơn 5k thì không tính nữa
+            if (diff > 5000) return;
+            // tất cả các chứng từ mình tạo sẽ chuyển trạng thái thành đã trả hết
+            List<Receipt> receipts = await myDB.Receipts
+                .Include(r => r.UserDepts)
+                .Where(r => r.EventID == eventID && r.UserID == userID && r.ReceiptStatus == 2)
+                .ToListAsync();
+            foreach (var item in receipts)
+            {
+                item.ReceiptStatus = 0;
+                item.UserDepts.ForEach(u => u.DeptStatus = 0);
+                myDB.Receipts.Update(item);
+                await myDB.SaveChangesAsync();
+            }
+            // tất cả các khoản nợ của mình cũng chuyển thành đã trả hết
+            List<Receipt> allReceipts = await myDB.Receipts
+                .Include(r => r.UserDepts)
+                .Where(r => r.EventID == eventID && r.ReceiptStatus == 2).ToListAsync();
+            foreach (Receipt item in allReceipts)
+            {
+                UserDept userDepts = item.UserDepts.FirstOrDefault(u => u.UserId == userID);
+                if (userDepts != null)
+                {
+                    userDepts.DeptStatus = 0;
+                    await myDB.SaveChangesAsync();
+                }
+            }
+        }
+
+
     }
 }

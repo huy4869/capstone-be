@@ -4,6 +4,7 @@ using G24_BWallet_Backend.Models;
 using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,6 +87,37 @@ namespace G24_BWallet_Backend.Repository
             string content = string.Format("Chứng từ [{0}] trong nhóm [{1}]" +
                 " bạn mới thêm đang chờ duyệt", receiptName, e.EventName);
             await AddActivity(userID, content, "receipt");
+        }
+
+        public async Task CreatorPaidDebtActivity(int userId, double totalMoney, int eventId)
+        {
+            Event e = await context.Events.FirstOrDefaultAsync(e => e.ID == eventId);
+            string content = string.Format("Yêu cầu trả {0} của bạn trong sự kiện {1} đang chờ duyệt"
+                , totalMoney, e.EventName);
+            await AddActivity(userId, content, "paiddebt");
+        }
+
+        public async Task CreatorPaidDebtApprovedActivity(int paidid, int userId, int status)
+        {
+            PaidDept paidDept = await context.PaidDepts
+                .Include(p => p.Event)
+                .FirstOrDefaultAsync(p => p.Id == paidid);
+            string statuss = (status == 2) ? "được phê duyệt" : "bị từ chối";
+            string content = string.Format("Yêu cầu trả {0} của bạn trong sự kiện {1} đã {2}"
+                , paidDept.TotalMoney, paidDept.Event.EventName, status);
+            await AddActivity(userId, content, "paiddebt");
+        }
+
+        public async Task InspectorPaidDebtApprovedActivity(int paidid, int userId, int status)
+        {
+            PaidDept paidDept = await context.PaidDepts
+                 .Include(p => p.Event)
+                 .Include(p => p.User)
+                 .FirstOrDefaultAsync(p => p.Id == paidid);
+            string statuss = (status == 2) ? "phê duyệt" : "từ chối";
+            string content = string.Format("Bạn đã {0} yêu cầu trả {1} của {2} trong nhóm {3}"
+                , statuss, paidDept.TotalMoney, paidDept.User.UserName, paidDept.Event.EventName);
+            await AddActivity(userId, content, "paiddebt");
         }
     }
 }

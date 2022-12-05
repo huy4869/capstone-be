@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace G24_BWallet_Backend.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    [Migration("20221203181801_AddRemindDate")]
-    partial class AddRemindDate
+    [Migration("20221205064121_InitDB")]
+    partial class InitDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -44,6 +44,53 @@ namespace G24_BWallet_Backend.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Account");
+                });
+
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Activity", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ActivityIconId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ActivityIconId");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("Activity");
+                });
+
+            modelBuilder.Entity("G24_BWallet_Backend.Models.ActivityIcon", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("ActivityIcon");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.Event", b =>
@@ -401,6 +448,23 @@ namespace G24_BWallet_Backend.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserDept");
+                });
+
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Activity", b =>
+                {
+                    b.HasOne("G24_BWallet_Backend.Models.ActivityIcon", "ActivityIcon")
+                        .WithMany()
+                        .HasForeignKey("ActivityIconId");
+
+                    b.HasOne("G24_BWallet_Backend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ActivityIcon");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.EventUser", b =>
