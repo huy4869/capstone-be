@@ -22,12 +22,23 @@ namespace G24_BWallet_Backend.Repository
         {
         }
 
-        public async Task<searchEventMember> SearchEventUsersAsync(int eventID, int userID, string name = null)
+        public async Task<List<Member>> SearchEventUsersAsync(int eventID, int userID, string name = null)
         {
-            var whoSearch = myDB.Users.Include(u => u.Account).Where(u => u.ID == userID).FirstOrDefault();
+            List<Member> result = new List<Member>();
             List<Member> eventUsers;
+            
+            var whoSearch = myDB.Users.Include(u => u.Account).Where(u => u.ID == userID)
+                .Select(u => new Member
+                {
+                    UserId = u.ID,
+                    UserName = u.UserName,
+                    UserAvatar = u.Avatar,
+                    UserPhone = u.Account.PhoneNumber
+                })
+                .FirstOrDefault();
+            result.Add(whoSearch);
 
-            if(name == null)//find all
+            if (name == null)//find all
             eventUsers = await myDB.EventUsers
                 .Include(eu => eu.User).Include(eu => eu.User.Account)
                 .Where(eu => eu.EventID == eventID && eu.UserID != userID)
@@ -53,12 +64,7 @@ namespace G24_BWallet_Backend.Repository
                 })
                 .ToListAsync();
 
-            searchEventMember result = new searchEventMember();
-            result.UserId = userID;
-            result.UserName = whoSearch.UserName;
-            result.UserAvatar = whoSearch.Avatar;
-            result.UserPhone = whoSearch.Account.PhoneNumber;
-            result.eventUsers = eventUsers;
+            result.AddRange(eventUsers);
             return result;
         }
     }
