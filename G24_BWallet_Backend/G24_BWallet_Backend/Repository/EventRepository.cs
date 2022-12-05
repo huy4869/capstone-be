@@ -79,7 +79,7 @@ namespace G24_BWallet_Backend.Repository
                 .OrderByDescending(eu => eu.ID)
                 .ToListAsync();
             //nếu name có thì lấy theo name
-            if (name != null )
+            if (name != null)
             {
                 listEvent = await GetEventUserByEventName(userID, name);
             }
@@ -93,9 +93,19 @@ namespace G24_BWallet_Backend.Repository
                 eh.Debt = await GetDebtMoney(eventt.ID, userID);
                 eh.Receive = await GetReceiveMoney(eventt.ID, userID);
                 eh.TotalMoney = await GetTotalMoney(eh.Debt, eh.Receive);
+                eh.ReceiptCount = await ReceiptCount(eventt.ID);
                 events.Add(eh);
             }
+
             return events;
+        }
+
+        private async Task<int> ReceiptCount(int eventiD)
+        {
+            List<Receipt> receipts = await context.Receipts
+                 .Where(r => r.EventID == eventiD && (r.ReceiptStatus == 2
+                 || r.ReceiptStatus == 0 || r.ReceiptStatus == 4)).ToListAsync();
+            return receipts.Count;
         }
 
         private async Task<List<Event>> GetEventUserByEventName(int userID, string name)

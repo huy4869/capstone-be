@@ -120,15 +120,15 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Yêu cầu trả tiền đã gửi",
+                Message = "Yêu cầu trả tiền đang chờ duyệt",
                 Data = list
             };
         }
 
-        [HttpGet("paid-approve")]
+        [HttpPost("paid-approve")]
         public async Task<Respond<string>> PaidDebtApprove(ListIdStatus list)
         {
-            await paidDeptRepo.PaidDebtApprove(list);
+            await paidDeptRepo.PaidDebtApprove(list,GetUserId());
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -138,5 +138,19 @@ namespace G24_BWallet_Backend.Controllers
             };
 
         }
+
+        //[HttpGet("paid-detail/PaidId={paidid}")]
+        //public async Task<Respond<string>> PaidDebtDetail(int paidid)
+        //{
+        //    await paidDeptRepo.PaidDebtApprove(list, GetUserId());
+        //    return new Respond<string>()
+        //    {
+        //        StatusCode = HttpStatusCode.Accepted,
+        //        Error = "",
+        //        Message = "Chi tiết các yêu cầu trả tiền khi click vào",
+        //        Data = null
+        //    };
+
+        //}
     }
 }

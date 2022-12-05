@@ -19,10 +19,6 @@ namespace G24_BWallet_Backend.Models
         public double DebtLeft { get; set; }
         public DateTime RemindDate { get; set; }
 
-
-
-
-
         public virtual User User { get; set; }
 
         public virtual Receipt Receipt { get; set; }

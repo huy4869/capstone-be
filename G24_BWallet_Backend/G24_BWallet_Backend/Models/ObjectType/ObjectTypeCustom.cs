@@ -16,6 +16,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public NumberMoney Debt { get; set; }
         public NumberMoney Receive { get; set; }
         public MoneyColor TotalMoney { get; set; }
+        public int ReceiptCount { get; set; }
     }
 
     public class NumberMoney

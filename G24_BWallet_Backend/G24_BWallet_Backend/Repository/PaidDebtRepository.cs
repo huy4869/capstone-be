@@ -14,10 +14,12 @@ namespace G24_BWallet_Backend.Repository
     public class PaidDebtRepository : IPaidDebtRepository
     {
         private readonly MyDBContext context;
+        private readonly ActivityRepository activity;
 
         public PaidDebtRepository(MyDBContext myDB)
         {
             this.context = myDB;
+            activity = new ActivityRepository(myDB);
         }
         public async Task<List<Receipt>> GetReceipts(int eventId, int status)
         {
@@ -85,7 +87,7 @@ namespace G24_BWallet_Backend.Repository
                 await context.SaveChangesAsync();
                 await ChangeDebtLeft(item);
             }
-
+            await activity.CreatorPaidDebtActivity(p.UserId,p.TotalMoney,p.EventId);
             //}
             //catch (Exception e)
             //{
@@ -195,14 +197,17 @@ namespace G24_BWallet_Backend.Repository
             return result;
         }
 
-        public async Task PaidDebtApprove(ListIdStatus paid)
+        public async Task PaidDebtApprove(ListIdStatus paid, int userId)
         {
             foreach (int paidid in paid.ListId)
             {
                 PaidDept paidDept = await context.PaidDepts.FirstOrDefaultAsync(p => p.Id == paidid);
                 paidDept.Status = paid.Status;
+                await activity.CreatorPaidDebtApprovedActivity(paidid, paidDept.UserId, paid.Status);
+                await activity.InspectorPaidDebtApprovedActivity(paidid, userId, paid.Status);
                 await context.SaveChangesAsync();
             }
+
         }
 
         public async Task<bool> IsOwner(int eventId, int userId)
