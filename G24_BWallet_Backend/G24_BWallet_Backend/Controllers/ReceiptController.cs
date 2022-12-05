@@ -113,7 +113,7 @@ namespace G24_BWallet_Backend.Controllers
             return new Respond<searchEventMember>()
             {
                 StatusCode = HttpStatusCode.Accepted,
-                Error = EventID+ ""+ name,
+                Error = "",
                 Message = "lấy danh sách thành viên trong event thành công",
                 Data = await eventUsers
             };
