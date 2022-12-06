@@ -18,6 +18,7 @@ namespace G24_BWallet_Backend.Controllers
         {
             repo = member;
         }
+
         protected int GetUserId()
         {
             return int.Parse(this.User.Claims.First(i => i.Type == "UserId").Value);
@@ -67,8 +68,8 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<string>> DeletePromoteMemberRole(EventUserID e)
         {
             // kiểm tra xem có phải là owner không, nếu không phải thì không được xoá
-            bool isOwner = await repo.IsOwner(e.EventId, GetUserId());
-            if (isOwner)
+            bool isOwner = await repo.IsOwner(e.EventId, e.UserId);
+            if (isOwner == false)
             {
                 await repo.DeletePromoteMemberRole(e);
                 return new Respond<string>()
