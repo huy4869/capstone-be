@@ -307,12 +307,15 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(r => r.Id == receiptId);
             result.ReceiptName = receipt.ReceiptName;
             result.Date = receipt.CreatedAt.ToString();
-            User cashier = await GetCashier(receipt.EventID);
+            // chỗ này phải lấy thằng tạo receipt chứ không phải thằng cashier
+            //User cashier = await GetCashier(receipt.EventID);
+            User cashier = receipt.User;
             result.User = new UserAvatarNameMoney
             {
                 Avatar = cashier.Avatar,
                 Name = cashier.UserName,
-                TotalAmount = receipt.ReceiptAmount
+                TotalAmount = receipt.ReceiptAmount,
+                TotalAmountFormat = format.MoneyFormat(receipt.ReceiptAmount)
             };
             List<UserAvatarNameMoney> userDepts = new List<UserAvatarNameMoney>();
             List<UserDept> depts = await myDB.UserDepts.Include(r => r.User)
@@ -323,10 +326,21 @@ namespace G24_BWallet_Backend.Repository
                 user.Avatar = item.User.Avatar;
                 user.Name = item.User.UserName;
                 user.TotalAmount = item.Debt;
+                user.TotalAmountFormat = format.MoneyFormat(item.Debt);
                 userDepts.Add(user);
             }
             result.UserDepts = userDepts;
+            result.ImgLink = await GetListImg("receipt", receiptId);
+            result.ReceiptStatus = receipt.ReceiptStatus;
             return result;
+        }
+
+        private async Task<List<string>> GetListImg(string type, int receiptId)
+        {
+            return await myDB.ProofImages
+                .Where(p => p.ImageType.Equals(type) && p.ModelId == receiptId)
+                .Select(p => p.ImageLink)
+                .ToListAsync();
         }
 
         public async Task<List<ReceiptSentParam>> ReceiptsSent(int userId, int eventId, bool isWaiting)

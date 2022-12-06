@@ -213,6 +213,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string Avatar { get; set; }
         public string Name { get; set; }
         public double TotalAmount { get; set; }
+        public string TotalAmountFormat { get; set; }
     }
 
     public class ReceiptUserDeptName
@@ -222,7 +223,8 @@ namespace G24_BWallet_Backend.Models.ObjectType
 
         public UserAvatarNameMoney User { get; set; }
         public List<UserAvatarNameMoney> UserDepts { get; set; }
-
+        public List<string> ImgLink { get; set; }
+        public int ReceiptStatus { get; set; }
     }
     public class DebtPaymentPending
     {
@@ -269,14 +271,14 @@ namespace G24_BWallet_Backend.Models.ObjectType
     }
     public class TotalMoneyUser
     {
-        public string Amount { get; set;}
+        public string Amount { get; set; }
         public List<IdAvatarNamePhoneMoney> List { get; set; }
     }
 
     public class ActivityScreen
     {
-        public string? Link { get; set;}
-        public string Content { get; set;}
-        public DateTime Date { get; set;}
+        public string? Link { get; set; }
+        public string Content { get; set; }
+        public DateTime Date { get; set; }
     }
 }
