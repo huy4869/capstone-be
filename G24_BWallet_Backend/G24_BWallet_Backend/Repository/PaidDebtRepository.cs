@@ -26,7 +26,7 @@ namespace G24_BWallet_Backend.Repository
         public async Task<List<Receipt>> GetReceipts(int eventId, int status)
         {
             var list = context.Receipts.Include(r => r.UserDepts).Include(r => r.User)
-                .Where(r => r.EventID == eventId && r.ReceiptStatus == status)
+                .Where(r => r.EventID == eventId && (r.ReceiptStatus == status || r.ReceiptStatus == 4))
                 .OrderByDescending(r => r.Id)
                 .ToListAsync();
             return await list;
@@ -37,7 +37,7 @@ namespace G24_BWallet_Backend.Repository
             List<UserDebtReturn> userDepts = new List<UserDebtReturn>();
             foreach (var item in receipt)
             {
-                UserDept ud = item.UserDepts.Where(ud => ud.UserId == userId && ud.DeptStatus == 2
+                UserDept ud = item.UserDepts.Where(ud => ud.UserId == userId && (ud.DeptStatus == 2 || ud.DeptStatus == 4)
                 && ud.DebtLeft > 0)
                     .FirstOrDefault();
                 if (ud != null)
@@ -48,6 +48,7 @@ namespace G24_BWallet_Backend.Repository
                     udr.Date = item.CreatedAt + "";
                     udr.OwnerName = item.User.UserName;
                     udr.DebtLeft = ud.DebtLeft;
+                    udr.status = ud.DeptStatus;
                     userDepts.Add(udr);
                 }
 
