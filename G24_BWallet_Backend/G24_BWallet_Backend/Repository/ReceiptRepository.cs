@@ -112,6 +112,7 @@ namespace G24_BWallet_Backend.Repository
             List<ReceiptMainInfo> listReceipt = myDB.Receipts
                 .Where(r => r.EventID == EventID)
                 .Where(r => r.ReceiptStatus == 2 || r.ReceiptStatus == 4 || r.ReceiptStatus == 0)
+                .OrderByDescending(r => r.Id)
                 .Select(r => new ReceiptMainInfo
                 {
                     Id = r.Id,
@@ -352,7 +353,9 @@ namespace G24_BWallet_Backend.Repository
         {
             List<ReceiptSentParam> list = new List<ReceiptSentParam>();
             List<Receipt> receipts = await myDB.Receipts.Include(r => r.User)
-                .Where(r => r.EventID == eventId && r.UserID == userId).ToListAsync();
+                .OrderByDescending(r => r.Id)
+                .Where(r => r.EventID == eventId && r.UserID == userId)
+                .ToListAsync();
 
             // nếu mình là inspector hoặc owner thì sẽ lấy tất cả chứng từ trong event này
             if (await IsInspector(eventId, userId) || await IsOwner(eventId, userId))

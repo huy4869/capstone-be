@@ -119,12 +119,14 @@ namespace G24_BWallet_Backend.Repository
             List<DebtPaymentPending> result = new List<DebtPaymentPending>();
             List<PaidDept> paidDepts = await context.PaidDepts
                 .Include(p => p.User)
+                .OrderByDescending(p => p.Id)
                 .Where(p => p.EventId == eventId && p.UserId == userId).ToListAsync();
             User cashier = await GetCashier(eventId);
             // nếu mình là cashier hoặc owner thì sẽ lấy hết
             if (cashier.ID == userId || await IsOwner(eventId, userId))
                 paidDepts = await context.PaidDepts
                 .Include(p => p.User)
+                .OrderByDescending(p => p.Id)
                 .Where(p => p.EventId == eventId).ToListAsync();
             foreach (PaidDept item in paidDepts)
             {
@@ -175,6 +177,7 @@ namespace G24_BWallet_Backend.Repository
             List<DebtPaymentPending> result = new List<DebtPaymentPending>();
             List<PaidDept> paidDepts = await context.PaidDepts
                 .Include(p => p.User)
+                .OrderByDescending(p => p.Id)
                 .Where(p => p.EventId == eventId && p.Status == 1).ToListAsync();
             foreach (PaidDept item in paidDepts)
             {
@@ -243,6 +246,7 @@ namespace G24_BWallet_Backend.Repository
             // lấy ra tất cả các thằng chủ nợ mà mình trả tiền
             List<PaidDebtList> paidDebtLists = await context.PaidDebtLists
                 .Include(p => p.UserDept)
+                .OrderByDescending(p => p.Id)
                 .Where(p => p.PaidId == paidid).ToListAsync();
             foreach (PaidDebtList item in paidDebtLists)
             {
