@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace G24_BWallet_Backend.Models.ObjectType
 {
@@ -212,6 +213,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
     {
         public string Avatar { get; set; }
         public string Name { get; set; }
+        public string Phone { get; set; }
         public double TotalAmount { get; set; }
         public string TotalAmountFormat { get; set; }
     }
@@ -280,5 +282,13 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string? Link { get; set; }
         public string Content { get; set; }
         public DateTime Date { get; set; }
+    }
+
+    public class PaidDebtDetailScreen
+    {
+        public string Code { get; set; }
+        public DateTime Date { get; set; }
+        public List<UserAvatarNameMoney> Users { get; set; }
+        public string ImgLink { get; set; }
     }
 }
