@@ -127,12 +127,17 @@ namespace G24_BWallet_Backend.Repository
             NumberMoney Receive = await GetReceiveMoney(EventID, userID);
             // sau khi biết số tiền mình nợ event và số tiền mình cần nhận lại thì tính chung ra 1 cái
             eventInfo.ReceiveOrPaidAmount = await ReceiveOrPaidAmount(Debt, Receive);
-            eventInfo.UserAmount = format.MoneyFormat(await AllUserMoneyInEvent(EventID, userID));
-            eventInfo.GroupAmount = format.MoneyFormat(await AllGroupMoneyInEvent(EventID, userID));
-            eventInfo.TotalAmount = format.MoneyFormat(
+            eventInfo.UserAmountFormat = format.MoneyFormat(await AllUserMoneyInEvent(EventID, userID));
+            eventInfo.GroupAmountFormat = format.MoneyFormat(await AllGroupMoneyInEvent(EventID, userID));
+            eventInfo.TotalAmountFormat = format.MoneyFormat(
                 await AllUserMoneyInEvent(EventID, userID) +
                 await AllGroupMoneyInEvent(EventID, userID)
                 );
+            eventInfo.UserAmount = await AllUserMoneyInEvent(EventID, userID);
+            eventInfo.GroupAmount = await AllGroupMoneyInEvent(EventID, userID);
+            eventInfo.TotalAmount =
+                await AllUserMoneyInEvent(EventID, userID) +
+                await AllGroupMoneyInEvent(EventID, userID);
             eventInfo.Number = await GetNumberNotify(EventID, userID);
             eventInfo.listReceipt = listReceipt;
 

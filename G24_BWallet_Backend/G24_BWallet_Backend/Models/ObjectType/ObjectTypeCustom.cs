@@ -31,6 +31,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public double Amount { get; set; }
         public string AmountFormat { get; set; }
     }
+
     public class UserHome
     {
         public string UserName { get; set; }

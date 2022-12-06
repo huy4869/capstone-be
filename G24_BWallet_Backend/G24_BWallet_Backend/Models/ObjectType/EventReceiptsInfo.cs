@@ -10,9 +10,12 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public int EventStatus { get; set; }
         public string EventName { get; set; }
 
-        public string TotalAmount { get; set; }
-        public string GroupAmount { get; set; }
-        public string UserAmount { get; set; }
+        public double TotalAmount { get; set; }
+        public string TotalAmountFormat { get; set; }
+        public double GroupAmount { get; set; }
+        public string GroupAmountFormat { get; set; }
+        public double UserAmount { get; set; }
+        public string UserAmountFormat { get; set; }
         public MoneyColor ReceiveOrPaidAmount { get; set; }
         public int Number { get; set; }
         //public double TotalReceiptsAmount { get; set; }
