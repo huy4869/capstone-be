@@ -42,7 +42,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet]
         public async Task<Respond<IEnumerable<EventHome>>> GetAllEvent()
         {
-            var events = repo.GetAllEventsAsync(GetUserId(),"");
+            var events = repo.GetAllEventsAsync(GetUserId(), "");
             return new Respond<IEnumerable<EventHome>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -55,7 +55,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet("search/name={name}")]
         public async Task<Respond<IEnumerable<EventHome>>> GetAllEventByName(string name)
         {
-            var events = repo.GetAllEventsAsync(GetUserId(),name);
+            var events = repo.GetAllEventsAsync(GetUserId(), name);
             return new Respond<IEnumerable<EventHome>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -276,11 +276,19 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<string>> CloseEvent(int eventId)
         {
             string result = await repo.CloseEvent(GetUserId(), eventId);
+            if (result.Equals("Đóng event thành công") || result.Equals("Out event thành công"))
+                return new Respond<string>()
+                {
+                    StatusCode = HttpStatusCode.Accepted,
+                    Error = "",
+                    Message = "",
+                    Data = result
+                };
             return new Respond<string>()
             {
-                StatusCode = HttpStatusCode.Accepted,
+                StatusCode = HttpStatusCode.NotAcceptable,
                 Error = "",
-                Message = "Đóng hoặc thoát event",
+                Message = "",
                 Data = result
             };
         }

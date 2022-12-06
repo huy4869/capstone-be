@@ -505,23 +505,23 @@ namespace G24_BWallet_Backend.Repository
             {
                 Receipt receipt = await context.Receipts
                     .FirstOrDefaultAsync(r => r.EventID == eventId && r.ReceiptStatus == 1);
-                if (receipt != null) return "Còn chứng từ chưa duyệt";
+                if (receipt != null) return "Còn chứng từ chưa duyệt!";
             }
             // cashier muốn out nhóm thì phải check ko còn 1 paiddebt  nào chờ duyệt
             if (eventUser.UserRole == 3)
             {
                 PaidDept paidDept = await context.PaidDepts
                    .FirstOrDefaultAsync(r => r.EventId == eventId && r.Status == 1);
-                if (paidDept != null) return "Còn yêu cầu trả tiền chưa duyệt";
+                if (paidDept != null) return "Còn yêu cầu trả tiền chưa duyệt!";
             }
             // và tất cả mọi người muốn out nhóm thì phải ko còn nợ, và phải thu đủ tiền
             Receipt receiptActive = await context.Receipts
                     .FirstOrDefaultAsync(r => r.EventID == eventId && r.ReceiptStatus == 2
                     && r.UserID == userId);
-            if (receiptActive != null) return "Bạn còn chứng từ chưa thu đủ tiền";
+            if (receiptActive != null) return "Bạn còn chứng từ chưa thu đủ tiền!";
             PaidDept paidDeptActive = await context.PaidDepts
                    .FirstOrDefaultAsync(r => r.EventId == eventId && r.Status == 2 && r.UserId == userId);
-            if (paidDeptActive != null) return "Bạn còn khoản nợ chưa trả";
+            if (paidDeptActive != null) return "Bạn còn khoản nợ chưa trả!";
             // đủ điều kiện thì có thể out hoặc đóng event 
             if (eventUser.UserRole == 1)
             { // owner sẽ close event

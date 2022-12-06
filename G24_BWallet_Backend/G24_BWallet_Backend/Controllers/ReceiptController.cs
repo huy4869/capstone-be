@@ -52,7 +52,8 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<EventReceiptsInfo>> GetReceiptsByEventID([FromQuery] int eventid)
         {
             int userID = GetUserId();
-            EventReceiptsInfo eventReceiptsInfo = await receiptRepo.GetEventReceiptsInfoAsync(eventid, userID);
+            EventReceiptsInfo eventReceiptsInfo = 
+                await receiptRepo.GetEventReceiptsInfoAsync(eventid, userID);
 
             if (eventReceiptsInfo == null)
             {
@@ -107,7 +108,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet("create")]
         public async Task<Respond<List<Member>>> PrepareCreateReceipt([FromQuery] int EventID, string name)
         {
-            
+
             var eventUsers = eventUserRepo.SearchEventUsersAsync(EventID, GetUserId(), name);
 
             return new Respond<List<Member>>()
@@ -127,7 +128,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 return new Respond<Receipt>()
                 {
-                    StatusCode = HttpStatusCode.BadRequest, 
+                    StatusCode = HttpStatusCode.BadRequest,
                     Error = "chứng từ thiếu thông tin",
                     Message = "",
                     Data = null
@@ -164,8 +165,8 @@ namespace G24_BWallet_Backend.Controllers
             foreach (UserDept ud in receipt.UserDepts)
             {
                 ud.Debt = (int)(ud.Debt / 1);
-                if(ud.UserId != userID)
-                await userDeptRepo.AddUserDeptToReceiptAsync(ud, createdReceipt.Id);
+                if (ud.UserId != userID)
+                    await userDeptRepo.AddUserDeptToReceiptAsync(ud, createdReceipt.Id);
             }
 
             createdReceipt.UserDepts = null;
@@ -212,14 +213,21 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<string>> ReceiptApprove(ListIdStatus list)
         {
             await receiptRepo.ReceiptApprove(list, GetUserId());
+            if (list.Status == 2)
+                return new Respond<string>()
+                {
+                    StatusCode = HttpStatusCode.Accepted,
+                    Error = "",
+                    Message = "",
+                    Data = "Chứng từ đã được duyệt"
+                };
             return new Respond<string>()
             {
-                StatusCode = HttpStatusCode.Accepted,
+                StatusCode = HttpStatusCode.NotAcceptable,
                 Error = "",
-                Message = "Đã phê duyệt hoặc từ chối các chứng từ",
-                Data = null
+                Message = "",
+                Data = "Chứng từ đã bị từ chối"
             };
-
         }
 
         [HttpGet("receiptSent-waiting/eventId={eventId}")]
