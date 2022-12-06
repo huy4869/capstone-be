@@ -27,7 +27,7 @@ namespace G24_BWallet_Backend.Repository
             List<Member> result = new List<Member>();
             List<Member> eventUsers;
             
-            var whoSearch = myDB.Users.Include(u => u.Account).Where(u => u.ID == userID)
+            /*var whoSearch = myDB.Users.Include(u => u.Account).Where(u => u.ID == userID)
                 .Select(u => new Member
                 {
                     UserId = u.ID,
@@ -36,7 +36,7 @@ namespace G24_BWallet_Backend.Repository
                     UserPhone = u.Account.PhoneNumber
                 })
                 .FirstOrDefault();
-            result.Add(whoSearch);
+            result.Add(whoSearch);*/
 
             if (name == null)//find all
             eventUsers = await myDB.EventUsers

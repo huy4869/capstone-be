@@ -114,6 +114,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string Date { get; set; }
         public string OwnerName { get; set; }
         public double DebtLeft { get; set; }
+        public int status { get; set; }
     }
 
     public class UserPhone
@@ -291,5 +292,16 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public DateTime Date { get; set; }
         public List<UserAvatarNameMoney> Users { get; set; }
         public string ImgLink { get; set; }
+    }
+
+    public class ReportReturn
+    {
+        public int ID { get; set; }
+        public int ReportReceiptID { get; set; }
+        public string ReportReceiptName { get; set; }
+        public int ReportStatus { get; set; }
+        public string ReportReason { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public Member Reporter { get; set; }
     }
 }
