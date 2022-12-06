@@ -68,6 +68,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost]
         public async Task<Respond<string>> AddEvent(NewEvent newEvent)
         {
+            newEvent.MemberIDs.Add(GetUserId());
             Event e = new Event
             {
                 EventName = newEvent.EventName,
