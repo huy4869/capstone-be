@@ -10,6 +10,7 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<List<Receipt>> GetReceipts(int eventId, int status);
         Task<List<UserDebtReturn>> GetUserDepts(List<Receipt> receipt, int userId);
         Task PaidDebtApprove(ListIdStatus paid ,int userid);
+        Task<PaidDebtDetailScreen> PaidDebtDetail(int paidid);
         Task<PaidDept> PaidDebtInEvent(PaidDebtParam p);
         Task<List<DebtPaymentPending>> PaidDebtRequestSent(int userId, int eventId, bool isWaiting);
         Task<List<DebtPaymentPending>> PaidWaitConfirm(int eventId);

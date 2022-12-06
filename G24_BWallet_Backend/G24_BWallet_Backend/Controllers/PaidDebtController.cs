@@ -139,18 +139,18 @@ namespace G24_BWallet_Backend.Controllers
 
         }
 
-        //[HttpGet("paid-detail/PaidId={paidid}")]
-        //public async Task<Respond<string>> PaidDebtDetail(int paidid)
-        //{
-        //    await paidDeptRepo.PaidDebtApprove(list, GetUserId());
-        //    return new Respond<string>()
-        //    {
-        //        StatusCode = HttpStatusCode.Accepted,
-        //        Error = "",
-        //        Message = "Chi tiết các yêu cầu trả tiền khi click vào",
-        //        Data = null
-        //    };
+        [HttpGet("paid-detail/PaidId={paidid}")]
+        public async Task<Respond<PaidDebtDetailScreen>> PaidDebtDetail(int paidid)
+        {
+            PaidDebtDetailScreen p = await paidDeptRepo.PaidDebtDetail(paidid);
+            return new Respond<PaidDebtDetailScreen>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Chi tiết các yêu cầu trả tiền khi click vào",
+                Data = p
+            };
 
-        //}
+        }
     }
 }

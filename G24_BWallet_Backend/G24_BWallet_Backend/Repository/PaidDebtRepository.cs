@@ -15,11 +15,13 @@ namespace G24_BWallet_Backend.Repository
     {
         private readonly MyDBContext context;
         private readonly ActivityRepository activity;
+        private readonly Format format;
 
         public PaidDebtRepository(MyDBContext myDB)
         {
             this.context = myDB;
             activity = new ActivityRepository(myDB);
+            format = new Format();
         }
         public async Task<List<Receipt>> GetReceipts(int eventId, int status)
         {
@@ -87,7 +89,7 @@ namespace G24_BWallet_Backend.Repository
                 await context.SaveChangesAsync();
                 await ChangeDebtLeft(item);
             }
-            await activity.CreatorPaidDebtActivity(p.UserId,p.TotalMoney,p.EventId);
+            await activity.CreatorPaidDebtActivity(p.UserId, p.TotalMoney, p.EventId);
             //}
             //catch (Exception e)
             //{
@@ -215,6 +217,90 @@ namespace G24_BWallet_Backend.Repository
             EventUser eu = await context.EventUsers
                 .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserID == userId);
             return eu.UserRole == 1;
+        }
+
+        public async Task<PaidDebtDetailScreen> PaidDebtDetail(int paidid)
+        {
+            PaidDebtDetailScreen paid = new PaidDebtDetailScreen();
+            PaidDept paidDept = await context.PaidDepts
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.Id == paidid);
+            paid.Code = paidDept.Code;
+            paid.Date = paidDept.CreatedAt;
+            paid.ImgLink = await context.ProofImages
+                    .Where(p => p.ImageType.Equals("paidDept") && p.ModelId == paidid)
+                    .Select(p => p.ImageLink).FirstOrDefaultAsync();
+            List<UserAvatarNameMoney> userList = new List<UserAvatarNameMoney>();
+            // lấy ra tổng tiền mình trả, add luôn vào đầu danh sách
+            UserAvatarNameMoney current = new UserAvatarNameMoney();
+            current.Avatar = paidDept.User.Avatar;
+            current.Name = paidDept.User.UserName;
+            current.Phone = await GetPhoneByUserId(paidDept.UserId);
+            current.TotalAmount = paidDept.TotalMoney;
+            current.TotalAmountFormat = format.MoneyFormat(paidDept.TotalMoney);
+            userList.Add(current);
+
+            // lấy ra tất cả các thằng chủ nợ mà mình trả tiền
+            List<PaidDebtList> paidDebtLists = await context.PaidDebtLists
+                .Include(p => p.UserDept)
+                .Where(p => p.PaidId == paidid).ToListAsync();
+            foreach (PaidDebtList item in paidDebtLists)
+            {
+                UserDept userDept = item.UserDept;
+                // từ userdept lấy ra receipt id, xong mới suy ra id thằng chủ nợ
+                int ownerId = (await context.Receipts
+                    .FirstOrDefaultAsync(r => r.Id == userDept.ReceiptId)).UserID;
+                // đây là thằng chủ nợ
+                User ownerDebt = await context.Users
+                    .FirstOrDefaultAsync(u => u.ID == ownerId);
+                // add vào user list
+                UserAvatarNameMoney owner = new UserAvatarNameMoney();
+                owner.Avatar = ownerDebt.Avatar;
+                owner.Name = ownerDebt.UserName;
+                owner.Phone = await GetPhoneByUserId(ownerDebt.ID);
+                owner.TotalAmount = item.PaidAmount;
+                owner.TotalAmountFormat = format.MoneyFormat(item.PaidAmount);
+                // Kiểm tra trong list có ông này chưa, nếu chưa có mới add
+                // có rồi thì chỉ cộng thêm tiền thôi
+                if (await PhoneExist(userList, owner.Phone))
+
+                    await UpdateMoney(userList, owner.Phone, owner.TotalAmount);
+                else
+                    userList.Add(owner);
+            }
+            paid.Users = userList;
+            return paid;
+        }
+
+        private async Task UpdateMoney(List<UserAvatarNameMoney> userList,
+            string phone, double totalAmount)
+        {
+            foreach (var item in userList)
+            {
+                if (item.Phone.Equals(phone))
+                {
+                    item.TotalAmount = item.TotalAmount + totalAmount;
+                    item.TotalAmountFormat = format.MoneyFormat(item.TotalAmount);
+                    return;
+                }
+            }
+        }
+
+        private async Task<bool> PhoneExist(List<UserAvatarNameMoney> userList, string phone)
+        {
+            foreach (var item in userList)
+            {
+                if (item.Phone.Equals(phone))
+                    return true;
+            }
+            return false;
+        }
+
+        private async Task<string> GetPhoneByUserId(int useriD)
+        {
+            User user = await context.Users.Include(u => u.Account)
+                .FirstOrDefaultAsync(u => u.ID == useriD);
+            return user.Account.PhoneNumber;
         }
     }
 }
