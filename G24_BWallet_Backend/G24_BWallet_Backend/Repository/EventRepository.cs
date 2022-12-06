@@ -44,8 +44,8 @@ namespace G24_BWallet_Backend.Repository
                 EventUser eu = new EventUser();
                 eu.EventID = eventID;
                 eu.UserID = item;
-                eu.UserRole = (count == 0) ? 1 : 2;
-                count = 1;
+                eu.UserRole = (count == memebers.Count - 1) ? 1 : 0;
+                count++;
                 await context.EventUsers.AddAsync(eu);
             }
             await context.SaveChangesAsync();
