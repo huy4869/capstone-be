@@ -65,6 +65,19 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
+        [HttpGet("status/eventId={eventId}")]
+        public async Task<Respond<int>> GetEventStatus(int eventId)
+        {
+            int status = await repo.GetEventStatus(eventId);
+            return new Respond<int>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Event status: 1 Open _ 2 Close",
+                Data = status
+            };
+        }
+
         [HttpPost]
         public async Task<Respond<string>> AddEvent(NewEvent newEvent)
         {

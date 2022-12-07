@@ -543,5 +543,12 @@ namespace G24_BWallet_Backend.Repository
             if (eventUsers.Count == 500) return true;
             return false;
         }
+
+        public async Task<int> GetEventStatus(int eventId)
+        {
+            Event e = await context.Events
+                 .FirstOrDefaultAsync(e => e.ID == eventId);
+            return e.EventStatus;
+        }
     }
 }
