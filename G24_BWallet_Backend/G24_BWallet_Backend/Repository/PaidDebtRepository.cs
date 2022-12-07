@@ -157,7 +157,10 @@ namespace G24_BWallet_Backend.Repository
                 debtPayment.ImageLink = await context.ProofImages
                     .Where(p => p.ImageType.Equals("paidDept") && p.ModelId == item.Id)
                     .Select(p => p.ImageLink).FirstOrDefaultAsync();
-                debtPayment.Type = item.Type;
+                if (item.Type.Equals("money"))
+                    debtPayment.Type = "Tiền mặt";
+                else
+                    debtPayment.Type = "Chuyển khoản";
                 debtPayment.Status = item.Status;
                 result.Add(debtPayment);
             }
