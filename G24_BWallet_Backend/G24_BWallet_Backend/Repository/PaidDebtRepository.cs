@@ -113,7 +113,9 @@ namespace G24_BWallet_Backend.Repository
                 userDebt.DeptStatus = 0;
             }
             await context.SaveChangesAsync();
+
         }
+
         public async Task<List<DebtPaymentPending>> PaidDebtRequestSent(int userId,
             int eventId, bool isWaiting)
         {
@@ -209,6 +211,10 @@ namespace G24_BWallet_Backend.Repository
             {
                 PaidDept paidDept = await context.PaidDepts.FirstOrDefaultAsync(p => p.Id == paidid);
                 paidDept.Status = paid.Status;
+                //if (paid.Status == 2)// duyệt
+                //{
+                //    await ChangeDebtLeft(item);
+                //}
                 await activity.CreatorPaidDebtApprovedActivity(paidid, paidDept.UserId, paid.Status);
                 await activity.InspectorPaidDebtApprovedActivity(paidid, userId, paid.Status);
                 await context.SaveChangesAsync();

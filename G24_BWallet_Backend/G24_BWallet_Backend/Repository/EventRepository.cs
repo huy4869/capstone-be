@@ -535,5 +535,13 @@ namespace G24_BWallet_Backend.Repository
             await context.SaveChangesAsync();
             return "Out event thành công";
         }
+
+        public async Task<bool> IsMaxMember(int eventId)
+        {
+            List<EventUser> eventUsers = await context.EventUsers
+                .Where(e => e.EventID == eventId).ToListAsync();
+            if (eventUsers.Count == 500) return true;
+            return false;
+        }
     }
 }
