@@ -144,7 +144,7 @@ namespace G24_BWallet_Backend.Controllers
                     Data = null
                 };
             }
-            if (receipt.ReceiptAmount != receipt.UserDepts.Sum(ud => ud.Debt))
+            /*if (receipt.ReceiptAmount != receipt.UserDepts.Sum(ud => ud.Debt))
             {
                 return new Respond<Receipt>()
                 {
@@ -153,7 +153,7 @@ namespace G24_BWallet_Backend.Controllers
                     Message = "",
                     Data = null
                 };
-            }
+            }*/
 
             receipt.UserID = userID;
             var createReceiptTask = receiptRepo.AddReceiptAsync(receipt);
@@ -164,7 +164,7 @@ namespace G24_BWallet_Backend.Controllers
 
             foreach (UserDept ud in receipt.UserDepts)
             {
-                ud.Debt = (int)(ud.Debt / 1);
+                ud.Debt = ((int)(ud.Debt / 1000)) * 1000;
                 if (ud.UserId != userID)
                     await userDeptRepo.AddUserDeptToReceiptAsync(ud, createdReceipt.Id);
             }
