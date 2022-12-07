@@ -528,12 +528,12 @@ namespace G24_BWallet_Backend.Repository
                 Event e = await context.Events.FirstOrDefaultAsync(ev => ev.ID == eventId);
                 e.EventStatus = 0;
                 await context.SaveChangesAsync();
-                return "Đóng event thành công";
+                return "Đóng sự kiện thành công";
             }
             // các member còn lại thì xoá khỏi bảng EventUser là xong
             context.EventUsers.Remove(eventUser);
             await context.SaveChangesAsync();
-            return "Out event thành công";
+            return "Rời sự kiện thành công";
         }
 
         public async Task<bool> IsMaxMember(int eventId)
