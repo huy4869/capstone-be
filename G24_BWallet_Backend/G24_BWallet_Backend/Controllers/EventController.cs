@@ -66,10 +66,10 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpGet("status/eventId={eventId}")]
-        public async Task<Respond<int>> GetEventStatus(int eventId)
+        public async Task<Respond<IDictionary>> GetEventStatus(int eventId)
         {
-            int status = await repo.GetEventStatus(eventId);
-            return new Respond<int>()
+            IDictionary status = await repo.GetEventStatus(eventId);
+            return new Respond<IDictionary>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",

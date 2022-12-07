@@ -544,11 +544,15 @@ namespace G24_BWallet_Backend.Repository
             return false;
         }
 
-        public async Task<int> GetEventStatus(int eventId)
+        public async Task<IDictionary> GetEventStatus(int eventId)
         {
             Event e = await context.Events
                  .FirstOrDefaultAsync(e => e.ID == eventId);
-            return e.EventStatus;
+            IDictionary<string, int> dictionary = new Dictionary<string, int>
+            {
+                { "EventStatus", e.EventStatus }
+            };
+            return (IDictionary)dictionary;
         }
     }
 }
