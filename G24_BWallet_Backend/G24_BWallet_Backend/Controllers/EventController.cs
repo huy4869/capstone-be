@@ -73,7 +73,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Event status: 1 Open _ 2 Close",
+                Message = "Event status: 1 Open _ 0 Close",
                 Data = status
             };
         }
