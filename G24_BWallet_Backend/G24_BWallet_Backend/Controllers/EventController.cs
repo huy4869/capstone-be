@@ -151,6 +151,15 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost("JoinRequest/EventId={eventId}")]
         public async Task<Respond<string>> SendJoinRequest(int eventId)
         {
+            bool isMax = await repo.IsMaxMember(eventId);
+            if(isMax)
+                return new Respond<string>()
+                {
+                    StatusCode = HttpStatusCode.NotAcceptable,
+                    Error = "",
+                    Message = "",
+                    Data = "Không thế tham gia được vì nhóm đã có đủ 500 thành viên"
+                };
             EventUserID eventUserID = new EventUserID
             {
                 EventId = eventId,
