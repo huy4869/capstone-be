@@ -40,7 +40,7 @@ namespace G24_BWallet_Backend.Controllers
 
             return new Respond<List<ReportReturn>>()
             {
-                StatusCode = HttpStatusCode.BadRequest,
+                StatusCode = HttpStatusCode.Accepted,
                 Error = "",
                 Message = "danh sách báo cáo chờ duyệt",
                 Data = await listReport
@@ -55,7 +55,7 @@ namespace G24_BWallet_Backend.Controllers
 
             return new Respond<List<ReportReturn>>()
             {
-                StatusCode = HttpStatusCode.BadRequest,
+                StatusCode = HttpStatusCode.Accepted,
                 Error = "",
                 Message = "danh sách báo cáo đã duyệt",
                 Data = await listReport
@@ -108,7 +108,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "đã xử lý báo cáo ád",
+                Message = "đã xử lý báo cáo",
                 Data = null
             };
         }
