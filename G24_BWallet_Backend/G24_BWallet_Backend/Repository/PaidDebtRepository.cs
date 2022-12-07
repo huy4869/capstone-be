@@ -48,6 +48,7 @@ namespace G24_BWallet_Backend.Repository
                     udr.Date = item.CreatedAt + "";
                     udr.OwnerName = item.User.UserName;
                     udr.DebtLeft = ud.DebtLeft;
+                    udr.DebtLeftFormat = format.MoneyFormat(ud.DebtLeft);
                     udr.status = ud.DeptStatus;
                     userDepts.Add(udr);
                 }
