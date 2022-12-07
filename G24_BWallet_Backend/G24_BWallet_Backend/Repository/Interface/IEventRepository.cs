@@ -23,5 +23,6 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<List<JoinRequestHistory>> JoinRequestHistory(int eventId);
         Task<string> CloseEvent(int v, int eventId);
         Task<bool> IsMaxMember(int eventId);
+        Task<IDictionary> GetEventStatus(int eventId);
     }
 }
