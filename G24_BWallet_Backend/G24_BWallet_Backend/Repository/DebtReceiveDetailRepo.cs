@@ -38,12 +38,13 @@ namespace G24_BWallet_Backend.Repository
             List<int> userIdList = new List<int>();
             // lấy hết các receipt đang trả trong event này
             List<Receipt> receiptList = await context.Receipts
-                .Where(r => r.EventID == eventId && r.ReceiptStatus == 2).ToListAsync();
+                .Where(r => r.EventID == eventId && (r.ReceiptStatus == 2 || r.ReceiptStatus == 4))
+                .ToListAsync();
             foreach (Receipt receipt in receiptList)
             {
                 UserDept userDept = await context.UserDepts
                     .FirstOrDefaultAsync(u => u.UserId == userID && u.ReceiptId == receipt.Id
-                    && u.DeptStatus == 2 && u.DebtLeft > 0);
+                    && (u.DeptStatus == 2 || u.DeptStatus == 4) && u.DebtLeft > 0);
                 if (userDept != null)
                 {
                     mon += userDept.DebtLeft;
@@ -69,13 +70,13 @@ namespace G24_BWallet_Backend.Repository
             List<int> userIdList = new List<int>();
             // lấy hết các receipt mình tạo trong event này mà vẫn đang trả
             List<Receipt> receiptList = await context.Receipts
-                .Where(r => r.EventID == eventId && r.ReceiptStatus == 2
+                .Where(r => r.EventID == eventId && (r.ReceiptStatus == 2 || r.ReceiptStatus == 4)
                 && r.UserID == userID).ToListAsync();
             foreach (Receipt receipt in receiptList)
             {
                 List<UserDept> userDepts = await context.UserDepts
                     .Where(u => u.ReceiptId == receipt.Id
-                    && u.DeptStatus == 2 && u.DebtLeft > 0).ToListAsync();
+                    && (u.DeptStatus == 2 || u.DeptStatus == 4) && u.DebtLeft > 0).ToListAsync();
                 foreach (var userDept in userDepts)
                 {
                     if (userDept != null)
