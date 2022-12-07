@@ -196,6 +196,7 @@ namespace G24_BWallet_Backend.Controllers
             Event e = await repo.GetEventById(eventId);
             List<UserAvatarName> u = await repo.GetListUserInEvent(eventId);
             var listJoinRequest = await repo.GetJoinRequest(eventId);
+            var listReportWaiting = await repo.GetReportWaiting(eventId);
             IDictionary<string, object> result = new Dictionary<string, object>
             {
                 { "EventLogo", e.EventLogo},
@@ -210,6 +211,7 @@ namespace G24_BWallet_Backend.Controllers
                 result.Add("JoinRequest", listJoinRequest.Count);
                 result.Add("ReceiptsSent", listReceiptSent.Count);
                 result.Add("PaidDebtRequestSent", listPaidDebtRequestSent.Count);
+                result.Add("ReportWaiting", listReportWaiting.Count);
                 result.Add("Role", 1);
             }
             else if (await repoMember.IsInspector(eventId, userId))

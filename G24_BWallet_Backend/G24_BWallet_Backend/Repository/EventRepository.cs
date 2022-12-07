@@ -554,5 +554,12 @@ namespace G24_BWallet_Backend.Repository
             };
             return (IDictionary)dictionary;
         }
+
+        public async Task<List<Report>> GetReportWaiting(int eventId)
+        {
+            List<Report> reports = await context.Reports
+                .Where(r => r.EventId == eventId).ToListAsync();
+            return reports;
+        }
     }
 }

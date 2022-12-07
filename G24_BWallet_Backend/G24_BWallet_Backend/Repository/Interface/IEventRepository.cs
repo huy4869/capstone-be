@@ -24,5 +24,6 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<string> CloseEvent(int v, int eventId);
         Task<bool> IsMaxMember(int eventId);
         Task<IDictionary> GetEventStatus(int eventId);
+        Task<List<Report>> GetReportWaiting(int eventId);
     }
 }
