@@ -150,6 +150,7 @@ namespace G24_BWallet_Backend.Repository
                     { Avatar = cashier.Avatar, Name = cashier.UserName };
                 debtPayment.PaidDebtId = item.Id;
                 debtPayment.TotalMoney = item.TotalMoney;
+                debtPayment.TotalMoneyFormat = format.MoneyFormat(item.TotalMoney);
                 debtPayment.Date = item.CreatedAt.ToString();
                 debtPayment.Code = item.Code;
                 debtPayment.ImageLink = await context.ProofImages

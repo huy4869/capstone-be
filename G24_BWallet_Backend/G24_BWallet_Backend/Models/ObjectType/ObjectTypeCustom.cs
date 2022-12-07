@@ -235,6 +235,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
     {
         public int PaidDebtId { get; set; }
         public double TotalMoney { get; set; }
+        public string TotalMoneyFormat { get; set; }
         public string Date { get; set; }
         public string Code { get; set; }
         public UserAvatarName User { get; set; }
