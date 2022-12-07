@@ -37,7 +37,8 @@ namespace G24_BWallet_Backend.Repository
             List<UserDebtReturn> userDepts = new List<UserDebtReturn>();
             foreach (var item in receipt)
             {
-                UserDept ud = item.UserDepts.Where(ud => ud.UserId == userId && (ud.DeptStatus == 2 || ud.DeptStatus == 4)
+                UserDept ud = item.UserDepts
+                    .Where(ud => ud.UserId == userId && (ud.DeptStatus == 2 || ud.DeptStatus == 4)
                 && ud.DebtLeft > 0)
                     .FirstOrDefault();
                 if (ud != null)
