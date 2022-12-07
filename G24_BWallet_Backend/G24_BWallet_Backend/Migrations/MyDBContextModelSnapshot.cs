@@ -351,6 +351,42 @@ namespace G24_BWallet_Backend.Migrations
                     b.ToTable("Receipt");
                 });
 
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Report", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReceiptId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReportReason")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("ReportStatus")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ReceiptId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Report");
+                });
+
             modelBuilder.Entity("G24_BWallet_Backend.Models.Request", b =>
                 {
                     b.Property<int>("Id")
@@ -548,6 +584,25 @@ namespace G24_BWallet_Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Event");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("G24_BWallet_Backend.Models.Report", b =>
+                {
+                    b.HasOne("G24_BWallet_Backend.Models.Receipt", "Receipt")
+                        .WithMany()
+                        .HasForeignKey("ReceiptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("G24_BWallet_Backend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Receipt");
 
                     b.Navigation("User");
                 });

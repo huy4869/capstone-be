@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace G24_BWallet_Backend.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    [Migration("20221206055554_addReport")]
-    partial class addReport
+    [Migration("20221207114114_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -386,7 +386,7 @@ namespace G24_BWallet_Backend.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reports");
+                    b.ToTable("Report");
                 });
 
             modelBuilder.Entity("G24_BWallet_Backend.Models.Request", b =>
