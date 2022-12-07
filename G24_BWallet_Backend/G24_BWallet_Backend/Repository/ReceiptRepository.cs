@@ -66,6 +66,7 @@ namespace G24_BWallet_Backend.Repository
                     ReceiptName = r.ReceiptName,
                     ReceiptStatus = r.ReceiptStatus,
                     ReceiptAmount = r.ReceiptAmount,
+                    ReceiptAmountFormat = format.MoneyFormat(r.ReceiptAmount),
                     CreatedAt = r.CreatedAt
                 }).FirstOrDefault();
 
@@ -84,7 +85,8 @@ namespace G24_BWallet_Backend.Repository
                     UserId = ud.UserId,
                     UserName = ud.User.UserName,//tên người nợ 
                     Avatar = ud.User.Avatar,
-                    DebtLeft = ud.DebtLeft
+                    DebtLeft = ud.DebtLeft,
+                    DebtLeftFormat = format.MoneyFormat(ud.DebtLeft)
                 }).ToListAsync();
 
             r.IMGLinks = listIMG;

@@ -32,6 +32,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string AmountFormat { get; set; }
     }
 
+    // ko dùng
     public class UserHome
     {
         public string UserName { get; set; }
@@ -114,6 +115,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string Date { get; set; }
         public string OwnerName { get; set; }
         public double DebtLeft { get; set; }
+        public string DebtLeftFormat { get; set; }
         public int status { get; set; }
     }
 
