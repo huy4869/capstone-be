@@ -369,6 +369,7 @@ namespace G24_BWallet_Backend.Repository
                 param.Date = receipt.CreatedAt.ToString();
                 param.ReceiptName = receipt.ReceiptName;
                 param.ReceiptAmount = receipt.ReceiptAmount;
+                param.ReceiptAmountFormat = format.MoneyFormat(receipt.ReceiptAmount);
 
                 // kiểm tra nếu đang ở màn chứng từ chờ duyệt thì chỉ lấy status = 1
                 if (isWaiting == true && receipt.ReceiptStatus != 1)
