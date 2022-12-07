@@ -205,11 +205,11 @@ namespace G24_BWallet_Backend.Controllers
             };
             if (await repoMember.IsOwner(eventId, userId))
             { // owner
-                var listPaidDebtRequestSent = await repoPaidDebt.PaidDebtRequestSent(GetUserId(), eventId, false);
-                var listReceiptSent = await repoReceipt.ReceiptsSent(GetUserId(), eventId, false);
+                var listPaidDebtRequestSent = await repoPaidDebt.PaidDebtRequestSent(GetUserId(), eventId, true);
+                var listReceiptSent = await repoReceipt.ReceiptsSent(GetUserId(), eventId, true);
                 result.Add("JoinRequest", listJoinRequest.Count);
-                result.Add("PaidDebtRequestSent", listPaidDebtRequestSent.Count);
                 result.Add("ReceiptsSent", listReceiptSent.Count);
+                result.Add("PaidDebtRequestSent", listPaidDebtRequestSent.Count);
                 result.Add("Role", 1);
             }
             else if (await repoMember.IsInspector(eventId, userId))
