@@ -203,7 +203,7 @@ namespace G24_BWallet_Backend.Repository
         {
             List<Receipt> receipts = await myDB.Receipts
                .Where(r => r.EventID == eventID && r.UserID != userID
-               && (r.ReceiptStatus == 2 || r.ReceiptStatus == 0)).ToListAsync();
+               && (r.ReceiptStatus == 2 || r.ReceiptStatus == 0 || r.ReceiptStatus == 4)).ToListAsync();
             double amount = 0;
             receipts.ForEach(r => amount += r.ReceiptAmount);
             return amount;
@@ -214,7 +214,7 @@ namespace G24_BWallet_Backend.Repository
         {
             List<Receipt> receipts = await myDB.Receipts
                 .Where(r => r.EventID == eventID && r.UserID == userID
-                && (r.ReceiptStatus == 2 || r.ReceiptStatus == 0)).ToListAsync();
+                && (r.ReceiptStatus == 2 || r.ReceiptStatus == 0 || r.ReceiptStatus == 4)).ToListAsync();
             double amount = 0;
             receipts.ForEach(r => amount += r.ReceiptAmount);
             return amount;
