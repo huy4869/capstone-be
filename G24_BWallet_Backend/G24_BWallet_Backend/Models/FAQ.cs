@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace G24_BWallet_Backend.Models
 {
-    [Table("FAQ")]
+    [Table("faq")]
     public class FAQ
     {
         [Key]

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace G24_BWallet_Backend.Models
 {
-    [Table("Event")]
+    [Table("event")]
     public class Event
     {
         [Key]

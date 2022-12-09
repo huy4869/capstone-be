@@ -4,19 +4,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace G24_BWallet_Backend.Models
 {
-    [Table("Invite")]
+    [Table("invite")]
     public class Invite
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
-        [ForeignKey("User")]
+        [ForeignKey("user")]
         [Column(Order = 1)]
         public int UserID { get; set; }
-        [ForeignKey("User")]
+        [ForeignKey("user")]
         [Column(Order = 2)]
         public int FriendId { get; set; }
-        [ForeignKey("Event")]
+        [ForeignKey("event")]
         public int EventID { get; set; }
         public int Status { get; set; }
         public DateTime CreateAt { get; set; }
