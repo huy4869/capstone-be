@@ -2,6 +2,7 @@
 using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -93,10 +94,11 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<string>> RemoveMember(EventUserID e)
         {
             // kiểm tra xem có phải là owner không, nếu không phải thì không được xoá
-            bool isOwner = await repo.IsOwner(e.EventId,GetUserId());
+            bool isOwner = await repo.IsOwner(e.EventId, GetUserId());
             if (isOwner)
             {
-                if(GetUserId() == e.UserId) {
+                if (GetUserId() == e.UserId)
+                {
                     return new Respond<string>()
                     {
                         StatusCode = HttpStatusCode.NotAcceptable,
@@ -120,6 +122,20 @@ namespace G24_BWallet_Backend.Controllers
                 Error = "",
                 Message = "Bạn không phải owner của event nên không xoá được member",
                 Data = null
+            };
+        }
+
+        // show ra role của member hiện tại trong event
+        [HttpGet("role/eventId={eventId}")]
+        public async Task<Respond<IDictionary>> GetMemberRole(int eventId)
+        {
+            IDictionary role = await repo.GetMemberRole(eventId, GetUserId());
+            return new Respond<IDictionary>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Member role(trạng thái trong event hiện tại)",
+                Data = role
             };
         }
     }

@@ -5,6 +5,7 @@ using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -46,6 +47,16 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(e => e.ID == eventId);
         }
 
+        public async Task<IDictionary> GetMemberRole(int eventId, int userId)
+        {
+            IDictionary<string, int> pairs = new Dictionary<string, int>();
+            EventUser eventUser = await context.EventUsers
+                .FirstOrDefaultAsync(e => e.EventID == eventId && e.UserID == userId);
+            if (eventUser != null)
+                pairs.Add("UserRole", eventUser.UserRole);
+            return (IDictionary)pairs;
+        }
+
         public async Task<bool> IsCashier(int eventId, int userId)
         {
             EventUser eu = await context.EventUsers
@@ -61,6 +72,14 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserID == userId);
             if (eu.UserRole == 2) return true;
             else if (eu.UserRole == 1) return true;
+            return false;
+        }
+
+        public async Task<bool> IsNormalMember(int eventId, int userId)
+        {
+            EventUser eu = await context.EventUsers
+                 .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserID == userId);
+            if (eu.UserRole == 0) return true;
             return false;
         }
 
