@@ -35,14 +35,14 @@ namespace G24_BWallet_Backend.Repository
             activity = new ActivityRepository(myDB);
         }
 
-        public async Task<Receipt> AddReceiptAsync(ReceiptCreateParam addReceipt)//
+        public async Task<Receipt> AddReceiptAsync(ReceiptCreateParam addReceipt, int userRole)//
         {
             Receipt storeReceipt = new Receipt();
             storeReceipt.EventID = addReceipt.EventID;
             storeReceipt.UserID = addReceipt.UserID;
             storeReceipt.ReceiptName = addReceipt.ReceiptName;
             storeReceipt.ReceiptAmount = addReceipt.ReceiptAmount;
-            storeReceipt.ReceiptStatus = 1;
+            storeReceipt.ReceiptStatus = (userRole == 1 || userRole == 2) ? 2 : 1;
 
             DateTime VNDateTimeNow = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             storeReceipt.CreatedAt = VNDateTimeNow;

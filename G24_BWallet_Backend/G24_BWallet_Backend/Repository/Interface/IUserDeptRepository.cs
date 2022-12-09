@@ -8,6 +8,6 @@ namespace G24_BWallet_Backend.Repository.Interface
     {
         Task<List<UserDept>> GeUserDeptByReceiptIDAsync(int ReceiptID);
         Task<List<UserDept>> GetReceiptByUserIDAsync(int UserID);
-        Task<int> AddUserDeptToReceiptAsync(UserDept addUserDept, int receiptID);
+        Task<int> AddUserDeptToReceiptAsync(UserDept addUserDept, int receiptID, int userRole);
     }
 }

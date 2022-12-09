@@ -32,13 +32,20 @@ namespace G24_BWallet_Backend.Repository
             return listUserDept;
         }
 
-        public async Task<int> AddUserDeptToReceiptAsync(UserDept addUserDept, int receiptID)//
+        public async Task<int> AddUserDeptToReceiptAsync(UserDept addUserDept, int receiptID, int userRole)//
         {
             UserDept storeUserDept = new UserDept();
 
             storeUserDept.ReceiptId = receiptID;
             storeUserDept.UserId = addUserDept.UserId;
-            storeUserDept.DeptStatus = (addUserDept.Debt == 0) ? 0 : 1;
+
+            if (addUserDept.Debt == 0)
+                storeUserDept.DeptStatus = 0;
+            else if (userRole == 1 || userRole == 2)
+                storeUserDept.DeptStatus = 2;
+            else
+                storeUserDept.DeptStatus = 1;
+
             storeUserDept.Debt = addUserDept.Debt;
             storeUserDept.DebtLeft = addUserDept.Debt;
 

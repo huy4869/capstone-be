@@ -41,7 +41,7 @@ namespace G24_BWallet_Backend.Repository
             if (name == null)//find all
             eventUsers = await myDB.EventUsers
                 .Include(eu => eu.User).Include(eu => eu.User.Account)
-                .Where(eu => eu.EventID == eventID && eu.UserID != userID)
+                .Where(eu => eu.EventID == eventID && eu.UserID != userID && eu.UserRole != 4)
                 .Select(eu => new Member
                 {
                     UserId = eu.UserID,
@@ -54,7 +54,10 @@ namespace G24_BWallet_Backend.Repository
             else//find by name
             eventUsers = await myDB.EventUsers
                 .Include(eu => eu.User).Include(eu => eu.User.Account)
-                .Where(eu => eu.EventID == eventID && eu.UserID != userID && eu.User.UserName.Contains(name))
+                .Where(eu => eu.EventID == eventID 
+                        && eu.UserID != userID 
+                        && eu.UserRole != 4 
+                        && eu.User.UserName.Contains(name))
                 .Select(eu => new Member
                 {
                     UserId = eu.UserID,
@@ -66,6 +69,11 @@ namespace G24_BWallet_Backend.Repository
 
             result.AddRange(eventUsers);
             return result;
+        }
+
+        public async Task<int> GetEventUserRoleAsync(int eventID, int userID)
+        {
+            return myDB.EventUsers.Where(eu => eu.EventID == eventID && eu.UserID == userID).FirstOrDefault().UserRole;
         }
     }
 }
