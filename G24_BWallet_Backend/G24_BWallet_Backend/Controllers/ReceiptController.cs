@@ -129,7 +129,7 @@ namespace G24_BWallet_Backend.Controllers
                 return new Respond<Receipt>()
                 {
                     StatusCode = HttpStatusCode.BadRequest,
-                    Error = "chứng từ thiếu thông tin",
+                    Error = "Chứng từ thiếu thông tin",
                     Message = "",
                     Data = null
                 };
@@ -139,7 +139,7 @@ namespace G24_BWallet_Backend.Controllers
                 return new Respond<Receipt>()
                 {
                     StatusCode = HttpStatusCode.BadRequest,
-                    Error = "chứng từ không có ảnh chứng minh",
+                    Error = "Chứng từ không có ảnh chứng minh",
                     Message = "",
                     Data = null
                 };
@@ -150,14 +150,15 @@ namespace G24_BWallet_Backend.Controllers
                 return new Respond<Receipt>()
                 {
                     StatusCode = HttpStatusCode.BadRequest,
-                    Error = "chứng từ không chia đúng với tổng",
+                    Error = "Chia không đúng số tiền tổng",
                     Message = "",
                     Data = null
                 };
             }
 
             receipt.UserID = userID;
-            var createReceiptTask = receiptRepo.AddReceiptAsync(receipt);
+            int userRole = await eventUserRepo.GetEventUserRoleAsync(receipt.EventID, receipt.UserID);
+            var createReceiptTask = receiptRepo.AddReceiptAsync(receipt, userRole);
 
             Receipt createdReceipt = await createReceiptTask;
 
@@ -165,9 +166,9 @@ namespace G24_BWallet_Backend.Controllers
 
             foreach (UserDept ud in receipt.UserDepts)
             {
-                ud.Debt = ((int)(ud.Debt / 1000)) * 1000;
+                //ud.Debt = (int)(ud.Debt / 1);
                 if (ud.UserId != userID)
-                    await userDeptRepo.AddUserDeptToReceiptAsync(ud, createdReceipt.Id);
+                    await userDeptRepo.AddUserDeptToReceiptAsync(ud, createdReceipt.Id, userRole);
             }
 
             createdReceipt.UserDepts = null;
