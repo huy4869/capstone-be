@@ -206,8 +206,8 @@ namespace G24_BWallet_Backend.Controllers
             };
             if (await repoMember.IsOwner(eventId, userId))
             { // owner
-                var listPaidDebtRequestSent = await repoPaidDebt.PaidDebtRequestSent(GetUserId(), eventId, true);
-                var listReceiptSent = await repoReceipt.ReceiptsSent(GetUserId(), eventId, true);
+                var listPaidDebtRequestSent = await repoPaidDebt.PaidsWaitingOrHandled(GetUserId(), eventId, true);
+                var listReceiptSent = await repoReceipt.ReceiptsWaitingOrHandled(GetUserId(), eventId, true);
                 result.Add("JoinRequest", listJoinRequest.Count);
                 result.Add("ReceiptsSent", listReceiptSent.Count);
                 result.Add("PaidDebtRequestSent", listPaidDebtRequestSent.Count);
@@ -216,23 +216,23 @@ namespace G24_BWallet_Backend.Controllers
             }
             else if (await repoMember.IsInspector(eventId, userId))
             { // inspector
-                var receiptRequest = await repoReceipt.ReceiptsSent(GetUserId(), eventId, true);
+                var receiptRequest = await repoReceipt.ReceiptsWaitingOrHandled(GetUserId(), eventId, true);
                 result.Add("ReceiptsWaiting", receiptRequest.Count);
                 result.Add("Role", 2);
             }
             else if (await repoMember.IsCashier(eventId, userId))
             { // cashier
-                var paidWaitConfirm = await repoPaidDebt.PaidWaitConfirm(eventId);
+                var paidWaitConfirm = await repoPaidDebt.PaidsWaitingOrHandled(GetUserId(), eventId, true);
                 result.Add("PaidRequestNumber", paidWaitConfirm.Count);
                 result.Add("Role", 3);
             }
             else
             {
                 // normal member
-                var listPaidDebtRequestSent = await repoPaidDebt.PaidDebtRequestSent(GetUserId(), eventId, false);
-                var listReceiptSent = await repoReceipt.ReceiptsSent(GetUserId(), eventId, false);
-                result.Add("PaidDebtRequestSent", listPaidDebtRequestSent.Count);
-                result.Add("ReceiptsSent", listReceiptSent.Count);
+                //var listPaidDebtRequestSent = await repoPaidDebt.PaidDebtRequestSent(GetUserId(), eventId, false);
+                //var listReceiptSent = await repoReceipt.ReceiptsSent(GetUserId(), eventId, false);
+                //result.Add("PaidDebtRequestSent", listPaidDebtRequestSent.Count);
+                //result.Add("ReceiptsSent", listReceiptSent.Count);
                 result.Add("Role", 0);
             }
             return new Respond<IDictionary>()

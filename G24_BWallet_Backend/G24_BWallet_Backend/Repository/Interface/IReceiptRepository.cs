@@ -14,7 +14,8 @@ namespace G24_BWallet_Backend.Repository.Interface
 
         Task<Receipt> AddReceiptAsync(ReceiptCreateParam addReceipt, int userRole);
         Task<ReceiptUserDeptName> GetReceiptDetail(int receiptId);
-        Task<List<ReceiptSentParam>> ReceiptsSent(int userId, int eventId, bool isWaiting);
+        Task<List<ReceiptSentParam>> ReceiptsWaitingOrHandled(int userId, int eventId, bool isWaiting);
         Task ReceiptApprove(ListIdStatus list, int userId);
+        Task<List<ReceiptSentParam>> ReceiptSent(int userId, int eventId);
     }
 }
