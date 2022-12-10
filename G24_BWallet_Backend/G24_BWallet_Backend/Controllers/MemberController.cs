@@ -3,6 +3,7 @@ using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet("eventId={eventId}")]
         public async Task<Respond<MemberDetailParam>> ShowAllMemeberAndRole(int eventId)
         {
-            MemberDetailParam m = await repo.ShowMemeberDetail(eventId);
+            MemberDetailParam m = await repo.ShowMemeberDetail(eventId, GetUserId());
             return new Respond<MemberDetailParam>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -48,19 +49,27 @@ namespace G24_BWallet_Backend.Controllers
             if (isOwner)
             {
                 await repo.PromoteMemberRole(e);
-                return new Respond<string>()
+                if (e.Role == 2) // inspector
+                    return new Respond<string>()
+                    {
+                        StatusCode = HttpStatusCode.Accepted,
+                        Error = "",
+                        Message = "Thêm người kiểm duyệt chứng từ thành công",
+                        Data = "Thêm người kiểm duyệt chứng từ thành công"
+                    };
+                return new Respond<string>() // cashier
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
-                    Message = "Phân quyền cho member thành cashier hoặc kiểm duyệt thành công",
-                    Data = null
+                    Message = "Thêm người thu ngân thành công",
+                    Data = "Thêm người thu ngân thành công"
                 };
             }
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.NotAcceptable,
                 Error = "",
-                Message = "Phân quyền cho member thất bại vì bạn không phải là owner",
+                Message = "Bạn không phải chủ sự kiện!",
                 Data = null
             };
         }
@@ -69,31 +78,39 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<string>> DeletePromoteMemberRole(EventUserID e)
         {
             // kiểm tra xem có phải là owner không, nếu không phải thì không được xoá
-            bool isOwner = await repo.IsOwner(e.EventId, e.UserId);
-            if (isOwner == false)
+            bool isOwner = await repo.IsOwner(e.EventId, GetUserId());
+            if (isOwner)
             {
+                if(e.UserId == GetUserId())
+                    return new Respond<string>()
+                    {
+                        StatusCode = HttpStatusCode.NotAcceptable,
+                        Error = "",
+                        Message = "Xoá phân quyền thất bại",
+                        Data = "Xoá phân quyền thất bại"
+                    };
                 await repo.DeletePromoteMemberRole(e);
                 return new Respond<string>()
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
-                    Message = "Xoá phân quyền cho member thành công",
-                    Data = null
+                    Message = "Xoá phân quyền thành công",
+                    Data = "Xoá phân quyền thành công"
                 };
             }
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.NotAcceptable,
                 Error = "",
-                Message = "Không xoá được phân quyền vì bạn không phải là owner",
-                Data = null
+                Message = "Bạn không phải chủ sự kiện!",
+                Data = "Bạn không phải chủ sự kiện!"
             };
         }
 
-        [HttpPost("remove-member")]
-        public async Task<Respond<string>> RemoveMember(EventUserID e)
+        [HttpPost("inactive-member")]
+        public async Task<Respond<string>> InActiveMember(EventUserID e)
         {
-            // kiểm tra xem có phải là owner không, nếu không phải thì không được xoá
+            // kiểm tra xem có phải là owner không, nếu không phải thì không được inactive
             bool isOwner = await repo.IsOwner(e.EventId, GetUserId());
             if (isOwner)
             {
@@ -103,16 +120,32 @@ namespace G24_BWallet_Backend.Controllers
                     {
                         StatusCode = HttpStatusCode.NotAcceptable,
                         Error = "",
-                        Message = "Bạn không thể xoá chính mình",
+                        Message = "Bạn không thể ẩn chính mình",
                         Data = null
                     };
                 }
-                await repo.RemoveMember(e);
+                int check = await repo.InActiveMember(e);
+                if (check == 10)
+                    return new Respond<string>()
+                    {
+                        StatusCode = HttpStatusCode.NotAcceptable,
+                        Error = "",
+                        Message = "Còn chứng từ chưa xử lý",
+                        Data = "Còn chứng từ chưa xử lý"
+                    };
+                if (check == 11)
+                    return new Respond<string>()
+                    {
+                        StatusCode = HttpStatusCode.NotAcceptable,
+                        Error = "",
+                        Message = "Còn khoản nợ chưa xử lý",
+                        Data = "Còn khoản nợ chưa xử lý"
+                    };
                 return new Respond<string>()
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
-                    Message = "Xoá member khỏi event thành công",
+                    Message = "Ẩn thành viên thành công",
                     Data = null
                 };
             }
@@ -120,7 +153,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.NotAcceptable,
                 Error = "",
-                Message = "Bạn không phải owner của event nên không xoá được member",
+                Message = "Bạn không phải chủ sự kiện",
                 Data = null
             };
         }
@@ -136,6 +169,31 @@ namespace G24_BWallet_Backend.Controllers
                 Error = "",
                 Message = "Member role(trạng thái trong event hiện tại)",
                 Data = role
+            };
+        }
+
+        // show ra danh sách các member thường để promote, chỉ owner mới thấy
+        [HttpGet("list-promote/eventId={eventId}")]
+        public async Task<Respond<List<IdAvatarNamePhone>>> ListPromote(int eventId)
+        {
+            bool isOwner = await repo.IsOwner(eventId, GetUserId());
+            if (isOwner == false)
+            {
+                return new Respond<List<IdAvatarNamePhone>>()
+                {
+                    StatusCode = HttpStatusCode.NotAcceptable,
+                    Error = "",
+                    Message = "Bạn không phải chủ sự kiện!",
+                    Data = null
+                };
+            }
+            List<IdAvatarNamePhone> list = await repo.ListPromote(eventId, GetUserId());
+            return new Respond<List<IdAvatarNamePhone>>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Danh sách các thành viên có thể phân quyền",
+                Data = list
             };
         }
     }
