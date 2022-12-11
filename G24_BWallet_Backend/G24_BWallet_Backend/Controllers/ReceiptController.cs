@@ -104,7 +104,7 @@ namespace G24_BWallet_Backend.Controllers
         }*/
 
 
-        //create receipt
+        //lấy danh sách thành viên trong event
         [HttpGet("create")]
         public async Task<Respond<List<Member>>> PrepareCreateReceipt([FromQuery] int EventID, string name)
         {
@@ -120,6 +120,7 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
+        // tạo chứng từ 
         [HttpPost("create")]
         public async Task<Respond<Receipt>> PostCreateReceipt([FromBody] ReceiptCreateParam receipt)
         {
@@ -182,7 +183,7 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
-        // khi click chi tiết 1 receipt
+        // lấy thông tin chi tiết của receipt khi click vào 
         [HttpGet("receipt-detail/ReceiptId={receiptId}")]
         public async Task<Respond<ReceiptUserDeptName>> ReceiptDetail(int receiptId)
         {

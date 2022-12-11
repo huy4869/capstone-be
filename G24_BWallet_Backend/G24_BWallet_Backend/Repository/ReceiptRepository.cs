@@ -318,14 +318,15 @@ namespace G24_BWallet_Backend.Repository
             result.Date = receipt.CreatedAt.ToString();
             // chỗ này phải lấy thằng tạo receipt chứ không phải thằng cashier
             //User cashier = await GetCashier(receipt.EventID);
-            User cashier = receipt.User;
+            User creator = receipt.User;
             result.User = new UserAvatarNameMoney
             {
-                Avatar = cashier.Avatar,
-                Name = cashier.UserName,
+                Avatar = creator.Avatar,
+                Name = creator.UserName,
                 TotalAmount = receipt.ReceiptAmount,
                 TotalAmountFormat = format.MoneyFormat(receipt.ReceiptAmount)
             };
+            double totalDebt = 0;
             List<UserAvatarNameMoney> userDepts = new List<UserAvatarNameMoney>();
             List<UserDept> depts = await myDB.UserDepts.Include(r => r.User)
                 .Where(r => r.ReceiptId == receiptId).ToListAsync();
@@ -337,7 +338,17 @@ namespace G24_BWallet_Backend.Repository
                 user.TotalAmount = item.Debt;
                 user.TotalAmountFormat = format.MoneyFormat(item.Debt);
                 userDepts.Add(user);
+                totalDebt += item.Debt;
             }
+            // bước này là add thêm chính thằng tạo receipt vào chỗ detail, để nhìn cho cân bằng
+            UserAvatarNameMoney userCreate = new UserAvatarNameMoney();
+            userCreate.Avatar = creator.Avatar;
+            userCreate.Name = creator.UserName;
+            userCreate.TotalAmount = receipt.ReceiptAmount - totalDebt;
+            userCreate.TotalAmountFormat = format.MoneyFormat(userCreate.TotalAmount);
+            userDepts.Add(userCreate);
+            userDepts.Reverse();
+
             result.UserDepts = userDepts;
             result.ImgLink = await GetListImg("receipt", receiptId);
             result.ReceiptStatus = receipt.ReceiptStatus;
@@ -353,7 +364,7 @@ namespace G24_BWallet_Backend.Repository
         }
 
         // hiện ra những receipt đang chờ duyệt hoặc các receipt đã được duyệt(hoặc từ chôi)
-        public async Task<List<ReceiptSentParam>> ReceiptsWaitingOrHandled(int userIdqeq, 
+        public async Task<List<ReceiptSentParam>> ReceiptsWaitingOrHandled(int userIdqeq,
             int eventId, bool isWaiting)
         {
             List<ReceiptSentParam> list = new List<ReceiptSentParam>();
@@ -519,6 +530,6 @@ namespace G24_BWallet_Backend.Repository
             }
         }
 
-       
+
     }
 }

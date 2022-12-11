@@ -41,6 +41,7 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
+        // phân quyền
         [HttpPost("promote")]
         public async Task<Respond<string>> PromoteMemberRole(EventUserIDRole e)
         {
