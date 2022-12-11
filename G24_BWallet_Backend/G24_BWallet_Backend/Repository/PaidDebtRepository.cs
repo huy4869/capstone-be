@@ -16,12 +16,13 @@ namespace G24_BWallet_Backend.Repository
         private readonly MyDBContext context;
         private readonly ActivityRepository activity;
         private readonly Format format;
-
-        public PaidDebtRepository(MyDBContext myDB)
+        private readonly IMemberRepository memberRepository;
+        public PaidDebtRepository(MyDBContext myDB, IMemberRepository memberRepository)
         {
             this.context = myDB;
             activity = new ActivityRepository(myDB);
             format = new Format();
+            this.memberRepository = memberRepository;
         }
         public async Task<List<Receipt>> GetReceipts(int eventId, int status)
         {
@@ -169,7 +170,11 @@ namespace G24_BWallet_Backend.Repository
                 if (cashier.ID == userId || await IsOwner(eventId, userId))
                 {
                     debtPayment.User = new UserAvatarName
-                    { Avatar = item.User.Avatar, Name = item.User.UserName };
+                    {
+                        Avatar = item.User.Avatar,
+                        Name = item.User.UserName,
+                        Phone = await memberRepository.GetPhoneByUserId(item.User.ID)
+                    };
                     // nếu mình là cashier or owner thì chỉ xem những paid đang chờ duyệt
                     // nếu trạng thái hiện tại là xem những paid đang chờ duyệt
                     if (item.Status != 1 && isWaiting == true)
@@ -181,7 +186,11 @@ namespace G24_BWallet_Backend.Repository
                 }
                 else
                     debtPayment.User = new UserAvatarName
-                    { Avatar = cashier.Avatar, Name = cashier.UserName };
+                    {
+                        Avatar = cashier.Avatar,
+                        Name = cashier.UserName,
+                        Phone = await memberRepository.GetPhoneByUserId(cashier.ID)
+                    };
                 debtPayment.PaidDebtId = item.Id;
                 debtPayment.TotalMoney = item.TotalMoney;
                 debtPayment.TotalMoneyFormat = format.MoneyFormat(item.TotalMoney);
@@ -318,6 +327,7 @@ namespace G24_BWallet_Backend.Repository
             return false;
         }
 
+        // xem chi tiết yêu cầu trả tiền khi click vào
         public async Task<PaidDebtDetailScreen> PaidDebtDetail(int paidid)
         {
             PaidDebtDetailScreen paid = new PaidDebtDetailScreen();

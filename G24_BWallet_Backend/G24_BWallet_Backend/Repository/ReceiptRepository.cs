@@ -26,13 +26,16 @@ namespace G24_BWallet_Backend.Repository
         private readonly IConfiguration _configuration;
         private readonly Format format;
         private readonly ActivityRepository activity;
+        private readonly IMemberRepository memberRepository;
 
-        public ReceiptRepository(MyDBContext myDB, IConfiguration _configuration)
+        public ReceiptRepository(MyDBContext myDB, IConfiguration _configuration,
+            IMemberRepository memberRepository)
         {
             this.myDB = myDB;
             this._configuration = _configuration;
             this.format = new Format();
             activity = new ActivityRepository(myDB);
+            this.memberRepository = memberRepository;
         }
 
         public async Task<Receipt> AddReceiptAsync(ReceiptCreateParam addReceipt, int userRole)//
@@ -323,6 +326,7 @@ namespace G24_BWallet_Backend.Repository
             {
                 Avatar = creator.Avatar,
                 Name = creator.UserName,
+                Phone = await memberRepository.GetPhoneByUserId(creator.ID),
                 TotalAmount = receipt.ReceiptAmount,
                 TotalAmountFormat = format.MoneyFormat(receipt.ReceiptAmount)
             };
@@ -335,6 +339,7 @@ namespace G24_BWallet_Backend.Repository
                 UserAvatarNameMoney user = new UserAvatarNameMoney();
                 user.Avatar = item.User.Avatar;
                 user.Name = item.User.UserName;
+                user.Phone = await memberRepository.GetPhoneByUserId(item.UserId);
                 user.TotalAmount = item.Debt;
                 user.TotalAmountFormat = format.MoneyFormat(item.Debt);
                 userDepts.Add(user);
@@ -344,6 +349,7 @@ namespace G24_BWallet_Backend.Repository
             UserAvatarNameMoney userCreate = new UserAvatarNameMoney();
             userCreate.Avatar = creator.Avatar;
             userCreate.Name = creator.UserName;
+            userCreate.Phone = await memberRepository.GetPhoneByUserId(creator.ID);
             userCreate.TotalAmount = receipt.ReceiptAmount - totalDebt;
             userCreate.TotalAmountFormat = format.MoneyFormat(userCreate.TotalAmount);
             userDepts.Add(userCreate);
@@ -398,7 +404,8 @@ namespace G24_BWallet_Backend.Repository
                 param.User = new UserAvatarName
                 {
                     Avatar = receipt.User.Avatar,
-                    Name = receipt.User.UserName
+                    Name = receipt.User.UserName,
+                    Phone = await memberRepository.GetPhoneByUserId(receipt.UserID)
                 };
 
                 list.Add(param);

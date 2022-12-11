@@ -106,6 +106,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
     {
         public string Avatar { get; set; }
         public string Name { get; set; }
+        public string Phone { get; set; }
     }
 
     public class UserDebtReturn

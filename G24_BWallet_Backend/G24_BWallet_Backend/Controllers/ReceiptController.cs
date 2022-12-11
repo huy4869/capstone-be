@@ -48,6 +48,7 @@ namespace G24_BWallet_Backend.Controllers
             return int.Parse(this.User.Claims.First(i => i.Type == "UserId").Value);
         }
 
+        // lấy tất cả receipt trong event này
         [HttpGet]
         public async Task<Respond<EventReceiptsInfo>> GetReceiptsByEventID([FromQuery] int eventid)
         {

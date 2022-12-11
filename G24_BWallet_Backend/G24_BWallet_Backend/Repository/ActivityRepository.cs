@@ -51,6 +51,7 @@ namespace G24_BWallet_Backend.Repository
         {
             List<ActivityScreen> list = new List<ActivityScreen>();
             var activities = await context.Activities.Include(a => a.ActivityIcon)
+                .OrderByDescending(a => a.ID)
                 .Where(a => a.UserID == userId).ToListAsync();
             foreach (var activity in activities)
             {
