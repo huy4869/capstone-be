@@ -1,10 +1,12 @@
 ﻿using G24_BWallet_Backend.Models;
 using G24_BWallet_Backend.Models.ObjectType;
+using G24_BWallet_Backend.Repository;
 using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,6 +41,7 @@ namespace G24_BWallet_Backend.Controllers
             return int.Parse(this.User.Claims.First(i => i.Type == "UserId").Value);
         }
 
+        // lấy tất cả các event mà thằng user này đã tham gia
         [HttpGet]
         public async Task<Respond<IEnumerable<EventHome>>> GetAllEvent()
         {
@@ -47,11 +50,12 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Get event success",
+                Message = "Lấy thông tin sự kiện thành công",
                 Data = await events
             };
         }
 
+        // search event
         [HttpGet("search/name={name}")]
         public async Task<Respond<IEnumerable<EventHome>>> GetAllEventByName(string name)
         {
@@ -78,6 +82,7 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
+        // thêm mới 1 event
         [HttpPost]
         public async Task<Respond<string>> AddEvent(NewEvent newEvent)
         {
@@ -95,37 +100,41 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Add event success",
+                Message = "Thêm event thành công",
                 Data = eventUrl
             };
         }
 
         [HttpPost("join/eventId={eventId}")]
-        public async Task<Respond<IDictionary>> CheckJoinByUrl(int eventId)
+        public async Task<Respond<IDictionary>> CheckJoinByUrl(string eventId)
         {
-            EventUserID eu = new EventUserID { EventId = eventId, UserId = GetUserId() };
+            // event Id lúc này đang bị mã hoá, mình phải giải mã và chuyển về int
+            Format format = new Format();
+            int eventIdInt = Convert.ToInt32(await format.DecryptAsync(eventId));
+            EventUserID eu = new EventUserID { EventId = eventIdInt, UserId = GetUserId() };
             bool isJoin = await repo.CheckUserJoinEvent(eu);
             IDictionary<string, int> result = new Dictionary<string, int>
             {
-                { "EventId", eventId }
+                { "EventId", eventIdInt }
             };
             if (isJoin == false)
                 return new Respond<IDictionary>()
                 {
                     StatusCode = HttpStatusCode.NotAcceptable,
                     Error = "",
-                    Message = "User chưa tham gia event",
+                    Message = "Bạn chưa tham gia event",
                     Data = (IDictionary)result
                 };
             return new Respond<IDictionary>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "User đã tham gia event",
+                Message = "Bạn đã tham gia event",
                 Data = (IDictionary)result
             };
         }
 
+        // lấy link event
         [HttpGet("ShareableLink/EventId={eventId}")]
         public async Task<Respond<string>> GetEventLink(int eventId)
         {
@@ -139,6 +148,7 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
+        // màn này sẽ show ra thông tin cơ bản của event sau khi check user chưa join
         [HttpGet("EventIntroduce/EventId={eventId}")]
         public async Task<Respond<IDictionary>> ShowEventIntroduce(int eventId)
         {
@@ -161,11 +171,12 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
+        // gửi yêu cầu tham gia event
         [HttpPost("JoinRequest/EventId={eventId}")]
         public async Task<Respond<string>> SendJoinRequest(int eventId)
         {
             bool isMax = await repo.IsMaxMember(eventId);
-            if(isMax)
+            if (isMax)
                 return new Respond<string>()
                 {
                     StatusCode = HttpStatusCode.NotAcceptable,
@@ -183,7 +194,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "",
+                Message = "Yêu cầu tham gia sự kiện đang chờ duyệt",
                 Data = check
             };
         }
@@ -257,16 +268,25 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
+        // duyệt hoặc từ chối các yêu cầu tham gia sự kiện
         [HttpPost("event-approve")]
-        public async Task<Respond<string>> EventApprove(ListIdStatus list)
+        public async Task<Respond<string>> JoinEventApprove(ListIdStatus list)
         {
             await repo.ApproveEventJoinRequest(list);
+            if (list.Status == 4)
+                return new Respond<string>()
+                {
+                    StatusCode = HttpStatusCode.Accepted,
+                    Error = "",
+                    Message = "Chấp thuận các yêu cầu tham gia sự kiện",
+                    Data = "Chấp thuận các yêu cầu tham gia sự kiện"
+                };
             return new Respond<string>()
             {
-                StatusCode = HttpStatusCode.Accepted,
+                StatusCode = HttpStatusCode.NotAcceptable,
                 Error = "",
-                Message = "Xét duyệt tham gia vào event(đồng ý hoặc từ chối)",
-                Data = null
+                Message = "Từ chối các yêu cầu tham gia sự kiện",
+                Data = "Từ chối các yêu cầu tham gia sự kiện"
             };
         }
 

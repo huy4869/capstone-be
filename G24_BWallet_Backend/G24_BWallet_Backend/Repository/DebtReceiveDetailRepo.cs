@@ -19,13 +19,16 @@ namespace G24_BWallet_Backend.Repository
     {
         private readonly MyDBContext context;
         private readonly IConfiguration _configuration;
+        private readonly IMemberRepository memberRepository;
         private readonly Format format;
 
-        public DebtReceiveDetailRepo(MyDBContext myDB, IConfiguration configuration)
+        public DebtReceiveDetailRepo(MyDBContext myDB, IConfiguration configuration
+            , IMemberRepository memberRepository)
         {
             this.context = myDB;
             _configuration = configuration;
             format = new Format();
+            this.memberRepository = memberRepository;
         }
 
         // tiền mình nợ trong event này
@@ -176,6 +179,7 @@ namespace G24_BWallet_Backend.Repository
             {
                 Avatar = receipt.User.Avatar,
                 Name = receipt.User.UserName,
+                Phone = await memberRepository.GetPhoneByUserId(receipt.UserID),
                 TotalAmount = receipt.ReceiptAmount
             };
             List<UserAvatarNameMoney> userDepts = new List<UserAvatarNameMoney>();
@@ -188,6 +192,7 @@ namespace G24_BWallet_Backend.Repository
                 user.Avatar = item.User.Avatar;
                 user.Name = item.User.UserName;
                 user.TotalAmount = item.Debt;
+                user.Phone = await memberRepository.GetPhoneByUserId(item.UserId);
                 userDepts.Add(user);
             }
             result.UserDepts = userDepts;

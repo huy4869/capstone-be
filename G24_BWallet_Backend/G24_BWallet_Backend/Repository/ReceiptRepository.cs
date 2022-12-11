@@ -26,13 +26,16 @@ namespace G24_BWallet_Backend.Repository
         private readonly IConfiguration _configuration;
         private readonly Format format;
         private readonly ActivityRepository activity;
+        private readonly IMemberRepository memberRepository;
 
-        public ReceiptRepository(MyDBContext myDB, IConfiguration _configuration)
+        public ReceiptRepository(MyDBContext myDB, IConfiguration _configuration,
+            IMemberRepository memberRepository)
         {
             this.myDB = myDB;
             this._configuration = _configuration;
             this.format = new Format();
             activity = new ActivityRepository(myDB);
+            this.memberRepository = memberRepository;
         }
 
         public async Task<Receipt> AddReceiptAsync(ReceiptCreateParam addReceipt, int userRole)//
@@ -318,14 +321,16 @@ namespace G24_BWallet_Backend.Repository
             result.Date = receipt.CreatedAt.ToString();
             // chỗ này phải lấy thằng tạo receipt chứ không phải thằng cashier
             //User cashier = await GetCashier(receipt.EventID);
-            User cashier = receipt.User;
+            User creator = receipt.User;
             result.User = new UserAvatarNameMoney
             {
-                Avatar = cashier.Avatar,
-                Name = cashier.UserName,
+                Avatar = creator.Avatar,
+                Name = creator.UserName,
+                Phone = await memberRepository.GetPhoneByUserId(creator.ID),
                 TotalAmount = receipt.ReceiptAmount,
                 TotalAmountFormat = format.MoneyFormat(receipt.ReceiptAmount)
             };
+            double totalDebt = 0;
             List<UserAvatarNameMoney> userDepts = new List<UserAvatarNameMoney>();
             List<UserDept> depts = await myDB.UserDepts.Include(r => r.User)
                 .Where(r => r.ReceiptId == receiptId).ToListAsync();
@@ -334,10 +339,22 @@ namespace G24_BWallet_Backend.Repository
                 UserAvatarNameMoney user = new UserAvatarNameMoney();
                 user.Avatar = item.User.Avatar;
                 user.Name = item.User.UserName;
+                user.Phone = await memberRepository.GetPhoneByUserId(item.UserId);
                 user.TotalAmount = item.Debt;
                 user.TotalAmountFormat = format.MoneyFormat(item.Debt);
                 userDepts.Add(user);
+                totalDebt += item.Debt;
             }
+            // bước này là add thêm chính thằng tạo receipt vào chỗ detail, để nhìn cho cân bằng
+            UserAvatarNameMoney userCreate = new UserAvatarNameMoney();
+            userCreate.Avatar = creator.Avatar;
+            userCreate.Name = creator.UserName;
+            userCreate.Phone = await memberRepository.GetPhoneByUserId(creator.ID);
+            userCreate.TotalAmount = receipt.ReceiptAmount - totalDebt;
+            userCreate.TotalAmountFormat = format.MoneyFormat(userCreate.TotalAmount);
+            userDepts.Add(userCreate);
+            userDepts.Reverse();
+
             result.UserDepts = userDepts;
             result.ImgLink = await GetListImg("receipt", receiptId);
             result.ReceiptStatus = receipt.ReceiptStatus;
@@ -353,7 +370,7 @@ namespace G24_BWallet_Backend.Repository
         }
 
         // hiện ra những receipt đang chờ duyệt hoặc các receipt đã được duyệt(hoặc từ chôi)
-        public async Task<List<ReceiptSentParam>> ReceiptsWaitingOrHandled(int userIdqeq, 
+        public async Task<List<ReceiptSentParam>> ReceiptsWaitingOrHandled(int userIdqeq,
             int eventId, bool isWaiting)
         {
             List<ReceiptSentParam> list = new List<ReceiptSentParam>();
@@ -387,7 +404,8 @@ namespace G24_BWallet_Backend.Repository
                 param.User = new UserAvatarName
                 {
                     Avatar = receipt.User.Avatar,
-                    Name = receipt.User.UserName
+                    Name = receipt.User.UserName,
+                    Phone = await memberRepository.GetPhoneByUserId(receipt.UserID)
                 };
 
                 list.Add(param);
@@ -519,6 +537,6 @@ namespace G24_BWallet_Backend.Repository
             }
         }
 
-       
+
     }
 }

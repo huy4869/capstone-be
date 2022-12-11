@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -144,53 +145,56 @@ namespace G24_BWallet_Backend.Repository
         public async Task<string> EncryptAsync(string password)
         {
             string key = _configuration["KeyEncrypt"];
-            bool useHashing = true;
-            byte[] keyArray;
-            byte[] toEncryptArray = UTF8Encoding.UTF8.GetBytes(password);
+            byte[] iv = new byte[16];
+            byte[] array;
 
-            if (useHashing)
+            using (Aes aes = Aes.Create())
             {
-                MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
-                keyArray = hashmd5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+                aes.Key = Encoding.UTF8.GetBytes(key);
+                aes.IV = iv;
+
+                ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, encryptor, CryptoStreamMode.Write))
+                    {
+                        using (StreamWriter streamWriter = new StreamWriter((Stream)cryptoStream))
+                        {
+                            streamWriter.Write(password);
+                        }
+
+                        array = memoryStream.ToArray();
+                    }
+                }
             }
-            else
-                keyArray = UTF8Encoding.UTF8.GetBytes(key);
 
-            TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
-            tdes.Key = keyArray;
-            tdes.Mode = CipherMode.ECB;
-            tdes.Padding = PaddingMode.PKCS7;
-
-            ICryptoTransform cTransform = tdes.CreateEncryptor();
-            byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
-
-            return await Task.FromResult(Convert.ToBase64String(resultArray, 0, resultArray.Length));
+            return Convert.ToBase64String(array);
         }
 
         public async Task<string> DecryptAsync(string password)
         {
             string key = _configuration["KeyEncrypt"];
-            bool useHashing = true;
-            byte[] keyArray;
-            byte[] toEncryptArray = Convert.FromBase64String(password);
+            byte[] iv = new byte[16];
+            byte[] buffer = Convert.FromBase64String(password);
 
-            if (useHashing)
+            using (Aes aes = Aes.Create())
             {
-                MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
-                keyArray = hashmd5.ComputeHash(UTF8Encoding.UTF8.GetBytes(key));
+                aes.Key = Encoding.UTF8.GetBytes(key);
+                aes.IV = iv;
+                ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+
+                using (MemoryStream memoryStream = new MemoryStream(buffer))
+                {
+                    using (CryptoStream cryptoStream = new CryptoStream((Stream)memoryStream, decryptor, CryptoStreamMode.Read))
+                    {
+                        using (StreamReader streamReader = new StreamReader((Stream)cryptoStream))
+                        {
+                            return streamReader.ReadToEnd();
+                        }
+                    }
+                }
             }
-            else
-                keyArray = UTF8Encoding.UTF8.GetBytes(key);
-
-            TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
-            tdes.Key = keyArray;
-            tdes.Mode = CipherMode.ECB;
-            tdes.Padding = PaddingMode.PKCS7;
-
-            ICryptoTransform cTransform = tdes.CreateDecryptor();
-            byte[] resultArray = cTransform.TransformFinalBlock(toEncryptArray, 0, toEncryptArray.Length);
-
-            return await Task.FromResult(UTF8Encoding.UTF8.GetString(resultArray));
 
         }
 

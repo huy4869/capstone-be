@@ -62,7 +62,9 @@ namespace G24_BWallet_Backend.Repository
 
         public async Task<string> CreateEventUrl(int eventID)
         {
-            string eventUrl = "/event/join/eventId=" + eventID;
+            // mã hoá event id
+            string eventIdEncrypt = await format.EncryptAsync(eventID.ToString());
+            string eventUrl = "/event/join/eventId=" + eventIdEncrypt;
             Event e = await context.Events.FirstOrDefaultAsync(e => e.ID == eventID);
             e.EventLink = eventUrl;
             await context.SaveChangesAsync();
@@ -412,6 +414,7 @@ namespace G24_BWallet_Backend.Repository
             return "Gửi yêu cầu gia nhập nhóm thành công, đang chờ duyệt";
         }
 
+        // các yêu cầu tham gia đang chờ duyệt
         public async Task<List<UserJoinRequestWaiting>> GetJoinRequest(int eventId)
         {
             List<UserJoinRequestWaiting> request = new List<UserJoinRequestWaiting>();
@@ -475,12 +478,16 @@ namespace G24_BWallet_Backend.Repository
             }
         }
 
+        // lịch sử yêu cầu tham gia
         public async Task<List<JoinRequestHistory>> JoinRequestHistory(int eventId)
         {
             List<JoinRequestHistory> result = new List<JoinRequestHistory>();
+            // lấy các request đã chấp nhận hoặc từ chối
             List<Request> requests = await context.Requests
                 .Include(request => request.User)
-                .Where(request => request.EventID == eventId).ToListAsync();
+                .OrderByDescending(request => request.Id)
+                .Where(request => request.EventID == eventId && request.Status != 0
+                && request.Status != 3).ToListAsync();
             foreach (Request item in requests)
             {
                 JoinRequestHistory u = new JoinRequestHistory();
