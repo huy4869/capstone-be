@@ -172,7 +172,7 @@ namespace G24_BWallet_Backend.Controllers
             Format f = new Format();
             //string formatmoney = f.MoneyFormat(money);
             string formatmoney = money.ToString("C10");
-            money = (int)(money / 1) ;
+            money = (int)(money / 1);
             return new { money };
         }
 
@@ -197,7 +197,7 @@ namespace G24_BWallet_Backend.Controllers
             Product p8 = new Product { Name = "IPhone", Money = 1000000000 };
             Product p9 = new Product { Name = "IPhone", Money = 10000000000 };
             Product p10 = new Product { Name = "IPhone", Money = 100000000000 };
-            Product p11= new Product { Name = "IPhone", Money = 1000000000000 };
+            Product p11 = new Product { Name = "IPhone", Money = 1000000000000 };
             p1.MoneyFormat = f.MoneyFormat(p1.Money);
             p2.MoneyFormat = f.MoneyFormat(p2.Money);
             p3.MoneyFormat = f.MoneyFormat(p3.Money);
@@ -209,7 +209,7 @@ namespace G24_BWallet_Backend.Controllers
             p9.MoneyFormat = f.MoneyFormat(p9.Money);
             p10.MoneyFormat = f.MoneyFormat(p10.Money);
             p11.MoneyFormat = f.MoneyFormat(p11.Money);
-            return Ok(new { p1, p2,p3,p4,p5,p6,p7,p8,p9,p10,p11 });
+            return Ok(new { p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11 });
         }
 
         protected int GetUserId()
@@ -220,6 +220,15 @@ namespace G24_BWallet_Backend.Controllers
         public IActionResult GetToken()
         {
             return Ok(GetUserId());
+        }
+
+        [HttpGet("encrypt")]
+        public async Task<IActionResult> GetEncrypt()
+        {
+            Format format = new Format();
+            var a = await format.EncryptAsync("123");
+            var b = await format.DecryptAsync(a);
+            return Ok($"a:{a}   b:{b}");
         }
     }
 }

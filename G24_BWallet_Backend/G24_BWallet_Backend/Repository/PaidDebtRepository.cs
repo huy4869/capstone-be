@@ -16,12 +16,13 @@ namespace G24_BWallet_Backend.Repository
         private readonly MyDBContext context;
         private readonly ActivityRepository activity;
         private readonly Format format;
-
-        public PaidDebtRepository(MyDBContext myDB)
+        private readonly IMemberRepository memberRepository;
+        public PaidDebtRepository(MyDBContext myDB, IMemberRepository memberRepository)
         {
             this.context = myDB;
             activity = new ActivityRepository(myDB);
             format = new Format();
+            this.memberRepository = memberRepository;
         }
         public async Task<List<Receipt>> GetReceipts(int eventId, int status)
         {
@@ -59,17 +60,22 @@ namespace G24_BWallet_Backend.Repository
             return await Task.FromResult(userDepts);
         }
 
+        // tạo yêu cầu trả tiền
         public async Task<PaidDept> PaidDebtInEvent(PaidDebtParam p)//create paid dept
         {
             DateTime VNDateTimeNow = TimeZoneInfo
                 .ConvertTime(DateTime.Now,
                 TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            int status = 1;
+            // kiểm tra nếu mình là owner hoặc cashier thì duyệt luôn, ko phải chờ
+            if (await IsOwner(p.EventId, p.UserId) || await IsCashier(p.EventId, p.UserId))
+                status = 2;
             PaidDept paidDept = new PaidDept
             {
                 UserId = p.UserId,
                 EventId = p.EventId,
                 TotalMoney = p.TotalMoney,
-                Status = 1,
+                Status = status,
                 Code = p.Code,
                 Type = p.Type,
                 UpdatedAt = VNDateTimeNow,
@@ -90,8 +96,11 @@ namespace G24_BWallet_Backend.Repository
                 };
                 await context.PaidDebtLists.AddAsync(paid);
                 await context.SaveChangesAsync();
-                await ChangeDebtLeft(item);
+
             }
+            // nếu được duyệt thì mới trừ tiền luôn, còn không thì phải chờ duyệt mới trừ
+            if (status == 2)
+                await ChangeDebtLeft(paidDept);
             await activity.CreatorPaidDebtActivity(p.UserId, p.TotalMoney, p.EventId);
             //}
             //catch (Exception e)
@@ -101,51 +110,125 @@ namespace G24_BWallet_Backend.Repository
             return paidDept;
         }
 
-        private async Task ChangeDebtLeft(RenamePaidDebtList item)
+        private async Task ChangeDebtLeft(PaidDept paidDept)
         {
-            var paiddlist = new PaidDebtList
+            List<PaidDebtList> paidDebtLists = await context.PaidDebtLists
+                .Where(p => p.PaidId == paidDept.Id).ToListAsync();
+            foreach (PaidDebtList item in paidDebtLists)
             {
-                DebtId = item.userDeptId,
-                PaidAmount = item.debtLeft
-            };
-            var userDebt = await context.UserDepts.FirstOrDefaultAsync(u => u.Id == paiddlist.DebtId);
-            userDebt.DebtLeft -= paiddlist.PaidAmount;
-            if (userDebt.DebtLeft <= 0)// tra het no
-            {
-                userDebt.DeptStatus = 0;
+                UserDept userDebt = await context.UserDepts
+                    .FirstOrDefaultAsync(u => u.Id == item.DebtId);
+                userDebt.DebtLeft -= item.PaidAmount;
+                if (userDebt.DebtLeft <= 0)// trả hết nợ
+                {
+                    userDebt.DeptStatus = 0;
+                }
+                await context.SaveChangesAsync();
+                // kiểm tra nếu tất cả userdept có chung 1 receipt id mà trả hết rồi(status =0)
+                // thì chuyển status của receipt đó thành đã trả hết(cũng = 0 luôn)
+                await ChangeReceiptStatus(userDebt.ReceiptId);
             }
-            await context.SaveChangesAsync();
-
         }
 
-        public async Task<List<DebtPaymentPending>> PaidDebtRequestSent(int userId,
+        // kiểm tra nếu tất cả userdept có chung 1 receipt id mà trả hết rồi(status =0)
+        // thì chuyển status của receipt đó thành đã trả hết(cũng = 0 luôn)
+        private async Task ChangeReceiptStatus(int receiptId)
+        {
+            List<UserDept> userDepts = await context.UserDepts.Include(u => u.Receipt)
+                .Where(u => u.ReceiptId == receiptId).ToListAsync();
+            foreach (UserDept item in userDepts)
+            {
+                // nếu 1 userdept có deft left > 0 hoặc status != 0
+                // thì return luôn vì chưa trả hết
+                if (item.DeptStatus != 0 || item.DebtLeft > 0)
+                    return;
+            }
+            // nếu xuống đc đây thì có nghĩa là hoá đơn này đã trả hết
+            Receipt receipt = await context.Receipts
+                .FirstOrDefaultAsync(r => r.Id == receiptId);
+            receipt.ReceiptStatus = 0;
+            await context.SaveChangesAsync();
+        }
+
+        // danh sách các yêu cầu trả tiền chờ duyệt hoặc đã duyệt
+        public async Task<List<DebtPaymentPending>> PaidsWaitingOrHandled(int userId,
             int eventId, bool isWaiting)
         {
             List<DebtPaymentPending> result = new List<DebtPaymentPending>();
+            // lấy hết paiddebt trong event này
+            List<PaidDept> paidDepts = await context.PaidDepts
+                .Include(p => p.User)
+                .OrderByDescending(p => p.Id)
+                .Where(p => p.EventId == eventId).ToListAsync();
+            User cashier = await GetCashier(eventId);
+
+            foreach (PaidDept item in paidDepts)
+            {
+                DebtPaymentPending debtPayment = new DebtPaymentPending();
+                // nếu là cashier hoặc owner thì user hiện ra sẽ là người tạo paidDebt
+                // nếu không thì sẽ hiện ông cashier
+                if (cashier.ID == userId || await IsOwner(eventId, userId))
+                {
+                    debtPayment.User = new UserAvatarName
+                    {
+                        Avatar = item.User.Avatar,
+                        Name = item.User.UserName,
+                        Phone = await memberRepository.GetPhoneByUserId(item.User.ID)
+                    };
+                    // nếu mình là cashier or owner thì chỉ xem những paid đang chờ duyệt
+                    // nếu trạng thái hiện tại là xem những paid đang chờ duyệt
+                    if (item.Status != 1 && isWaiting == true)
+                        continue;
+                    // ngược lại, nếu trạng thái là xem lịch sử các yêu cầu đã duyệt
+                    // thì sẽ bỏ qua các status == 1
+                    if (item.Status == 1 && isWaiting == false)
+                        continue;
+                }
+                else
+                    debtPayment.User = new UserAvatarName
+                    {
+                        Avatar = cashier.Avatar,
+                        Name = cashier.UserName,
+                        Phone = await memberRepository.GetPhoneByUserId(cashier.ID)
+                    };
+                debtPayment.PaidDebtId = item.Id;
+                debtPayment.TotalMoney = item.TotalMoney;
+                debtPayment.TotalMoneyFormat = format.MoneyFormat(item.TotalMoney);
+                debtPayment.Date = item.CreatedAt.ToString();
+                debtPayment.Code = item.Code;
+                debtPayment.ImageLink = await context.ProofImages
+                    .Where(p => p.ImageType.Equals("paidDept") && p.ModelId == item.Id)
+                    .Select(p => p.ImageLink).FirstOrDefaultAsync();
+                if (item.Type.Equals("money"))
+                    debtPayment.Type = "Tiền mặt";
+                else
+                    debtPayment.Type = "Chuyển khoản";
+                debtPayment.Status = item.Status;
+                result.Add(debtPayment);
+            }
+            return result;
+        }
+
+        // danh sách các yêu cầu trả tiền mình đã gửi trong event này, xem car 3 trạng thái
+        // duyệt,đang chờ, bị từ chối
+        public async Task<List<DebtPaymentPending>> DebtSent(int userId, int eventId)
+        {
+            List<DebtPaymentPending> result = new List<DebtPaymentPending>();
+            // lấy hết paiddebt của mình trong event này
             List<PaidDept> paidDepts = await context.PaidDepts
                 .Include(p => p.User)
                 .OrderByDescending(p => p.Id)
                 .Where(p => p.EventId == eventId && p.UserId == userId).ToListAsync();
             User cashier = await GetCashier(eventId);
-            // nếu mình là cashier hoặc owner thì sẽ lấy hết
-            if (cashier.ID == userId || await IsOwner(eventId, userId))
-                paidDepts = await context.PaidDepts
-                .Include(p => p.User)
-                .OrderByDescending(p => p.Id)
-                .Where(p => p.EventId == eventId).ToListAsync();
             foreach (PaidDept item in paidDepts)
             {
                 DebtPaymentPending debtPayment = new DebtPaymentPending();
-                // nếu là cashier thì user hiện ra sẽ là người tạo paidDebt
+                // nếu là cashier hoặc owner thì user hiện ra sẽ là người tạo paidDebt
                 // nếu không thì sẽ hiện ông cashier
-                if (cashier.ID == userId)
+                if (cashier.ID == userId || await IsOwner(eventId, userId))
                 {
                     debtPayment.User = new UserAvatarName
                     { Avatar = item.User.Avatar, Name = item.User.UserName };
-                    // nếu mình là cashier thì chỉ xem những paid đang chờ duyệt
-                    // nếu trạng thái hiện tại là xem những paid đang chờ duyệt
-                    if (item.Status != 1 && isWaiting == true)
-                        continue;
                 }
                 else
                     debtPayment.User = new UserAvatarName
@@ -180,6 +263,7 @@ namespace G24_BWallet_Backend.Repository
             else if (owner != null) return owner.User;
             return inspector.User;
         }
+
 
         public async Task<List<DebtPaymentPending>> PaidWaitConfirm(int eventId)
         {
@@ -217,15 +301,14 @@ namespace G24_BWallet_Backend.Repository
             {
                 PaidDept paidDept = await context.PaidDepts.FirstOrDefaultAsync(p => p.Id == paidid);
                 paidDept.Status = paid.Status;
-                //if (paid.Status == 2)// duyệt
-                //{
-                //    await ChangeDebtLeft(item);
-                //}
+                if (paid.Status == 2)// duyệt
+                {
+                    await ChangeDebtLeft(paidDept);
+                }
                 await activity.CreatorPaidDebtApprovedActivity(paidid, paidDept.UserId, paid.Status);
                 await activity.InspectorPaidDebtApprovedActivity(paidid, userId, paid.Status);
                 await context.SaveChangesAsync();
             }
-
         }
 
         public async Task<bool> IsOwner(int eventId, int userId)
@@ -235,6 +318,16 @@ namespace G24_BWallet_Backend.Repository
             return eu.UserRole == 1;
         }
 
+        public async Task<bool> IsCashier(int eventId, int userId)
+        {
+            EventUser eu = await context.EventUsers
+                .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserID == userId);
+            if (eu.UserRole == 3) return true;
+            else if (eu.UserRole == 1) return true;
+            return false;
+        }
+
+        // xem chi tiết yêu cầu trả tiền khi click vào
         public async Task<PaidDebtDetailScreen> PaidDebtDetail(int paidid)
         {
             PaidDebtDetailScreen paid = new PaidDebtDetailScreen();
@@ -319,5 +412,7 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(u => u.ID == useriD);
             return user.Account.PhoneNumber;
         }
+
+
     }
 }

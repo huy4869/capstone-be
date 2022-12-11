@@ -28,6 +28,7 @@ namespace G24_BWallet_Backend.Controllers
             return int.Parse(this.User.Claims.First(i => i.Type == "UserId").Value);
         }
 
+        // các khoản mình nợ trong event
         [HttpGet("getDebt/EventId={eventId}")]
         public async Task<Respond<TotalMoneyUser>> GetDebt(int eventId)
         {
@@ -41,6 +42,7 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
+        // các khoản người ta nợ mình trong event
         [HttpGet("getReceive/EventId={eventId}")]
         public async Task<Respond<TotalMoneyUser>> GetReceive(int eventId)
         {

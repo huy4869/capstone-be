@@ -26,13 +26,16 @@ namespace G24_BWallet_Backend.Repository
         private readonly IConfiguration _configuration;
         private readonly Format format;
         private readonly ActivityRepository activity;
+        private readonly IMemberRepository memberRepository;
 
-        public ReceiptRepository(MyDBContext myDB, IConfiguration _configuration)
+        public ReceiptRepository(MyDBContext myDB, IConfiguration _configuration,
+            IMemberRepository memberRepository)
         {
             this.myDB = myDB;
             this._configuration = _configuration;
             this.format = new Format();
             activity = new ActivityRepository(myDB);
+            this.memberRepository = memberRepository;
         }
 
         public async Task<Receipt> AddReceiptAsync(ReceiptCreateParam addReceipt, int userRole)//
@@ -318,14 +321,16 @@ namespace G24_BWallet_Backend.Repository
             result.Date = receipt.CreatedAt.ToString();
             // chỗ này phải lấy thằng tạo receipt chứ không phải thằng cashier
             //User cashier = await GetCashier(receipt.EventID);
-            User cashier = receipt.User;
+            User creator = receipt.User;
             result.User = new UserAvatarNameMoney
             {
-                Avatar = cashier.Avatar,
-                Name = cashier.UserName,
+                Avatar = creator.Avatar,
+                Name = creator.UserName,
+                Phone = await memberRepository.GetPhoneByUserId(creator.ID),
                 TotalAmount = receipt.ReceiptAmount,
                 TotalAmountFormat = format.MoneyFormat(receipt.ReceiptAmount)
             };
+            double totalDebt = 0;
             List<UserAvatarNameMoney> userDepts = new List<UserAvatarNameMoney>();
             List<UserDept> depts = await myDB.UserDepts.Include(r => r.User)
                 .Where(r => r.ReceiptId == receiptId).ToListAsync();
@@ -334,10 +339,22 @@ namespace G24_BWallet_Backend.Repository
                 UserAvatarNameMoney user = new UserAvatarNameMoney();
                 user.Avatar = item.User.Avatar;
                 user.Name = item.User.UserName;
+                user.Phone = await memberRepository.GetPhoneByUserId(item.UserId);
                 user.TotalAmount = item.Debt;
                 user.TotalAmountFormat = format.MoneyFormat(item.Debt);
                 userDepts.Add(user);
+                totalDebt += item.Debt;
             }
+            // bước này là add thêm chính thằng tạo receipt vào chỗ detail, để nhìn cho cân bằng
+            UserAvatarNameMoney userCreate = new UserAvatarNameMoney();
+            userCreate.Avatar = creator.Avatar;
+            userCreate.Name = creator.UserName;
+            userCreate.Phone = await memberRepository.GetPhoneByUserId(creator.ID);
+            userCreate.TotalAmount = receipt.ReceiptAmount - totalDebt;
+            userCreate.TotalAmountFormat = format.MoneyFormat(userCreate.TotalAmount);
+            userDepts.Add(userCreate);
+            userDepts.Reverse();
+
             result.UserDepts = userDepts;
             result.ImgLink = await GetListImg("receipt", receiptId);
             result.ReceiptStatus = receipt.ReceiptStatus;
@@ -352,18 +369,16 @@ namespace G24_BWallet_Backend.Repository
                 .ToListAsync();
         }
 
-        public async Task<List<ReceiptSentParam>> ReceiptsSent(int userId, int eventId, bool isWaiting)
+        // hiện ra những receipt đang chờ duyệt hoặc các receipt đã được duyệt(hoặc từ chôi)
+        public async Task<List<ReceiptSentParam>> ReceiptsWaitingOrHandled(int userIdqeq,
+            int eventId, bool isWaiting)
         {
             List<ReceiptSentParam> list = new List<ReceiptSentParam>();
+            // lấy tất cả chứng từ trong event này
             List<Receipt> receipts = await myDB.Receipts.Include(r => r.User)
                 .OrderByDescending(r => r.Id)
-                .Where(r => r.EventID == eventId && r.UserID == userId)
+                .Where(r => r.EventID == eventId)
                 .ToListAsync();
-
-            // nếu mình là inspector hoặc owner thì sẽ lấy tất cả chứng từ trong event này
-            if (await IsInspector(eventId, userId) || await IsOwner(eventId, userId))
-                receipts = await myDB.Receipts.Include(r => r.User)
-                .Where(r => r.EventID == eventId).ToListAsync();
 
             foreach (Receipt receipt in receipts)
             {
@@ -377,23 +392,58 @@ namespace G24_BWallet_Backend.Repository
                 // kiểm tra nếu đang ở màn chứng từ chờ duyệt thì chỉ lấy status = 1
                 if (isWaiting == true && receipt.ReceiptStatus != 1)
                     continue;
+                // nếu đang ở màn đã xử lý thì không lấy status = 1
+                if (isWaiting == false && receipt.ReceiptStatus == 1)
+                    continue;
                 param.ReceiptStatus = receipt.ReceiptStatus;
                 param.ImageLinks = await myDB.ProofImages
                     .Where(p => p.ImageType.Equals("receipt") && p.ModelId == receipt.Id)
                     .Select(p => p.ImageLink).ToListAsync();
 
-                // nếu mình là inspector thì sẽ lấy ra cả tên của ông tạo ra receipt này
-                if (await IsInspector(eventId, userId))
-                    param.User = new UserAvatarName
-                    {
-                        Avatar = receipt.User.Avatar,
-                        Name = receipt.User.UserName
-                    };
+                // lấy ra cả tên của ông tạo ra receipt này
+                param.User = new UserAvatarName
+                {
+                    Avatar = receipt.User.Avatar,
+                    Name = receipt.User.UserName,
+                    Phone = await memberRepository.GetPhoneByUserId(receipt.UserID)
+                };
 
                 list.Add(param);
             }
             return list;
         }
+
+        // các chứng từ mà mình đã gửi, lấy cả 5 trạng thái
+        public async Task<List<ReceiptSentParam>> ReceiptSent(int userId, int eventId)
+        {
+            List<ReceiptSentParam> list = new List<ReceiptSentParam>();
+            List<Receipt> receipts = await myDB.Receipts.Include(r => r.User)
+               .OrderByDescending(r => r.Id)
+               .Where(r => r.EventID == eventId && r.UserID == userId)
+               .ToListAsync();
+            foreach (Receipt receipt in receipts)
+            {
+                ReceiptSentParam param = new ReceiptSentParam();
+                param.ReceiptId = receipt.Id;
+                param.Date = receipt.CreatedAt.ToString();
+                param.ReceiptName = receipt.ReceiptName;
+                param.ReceiptAmount = receipt.ReceiptAmount;
+                param.ReceiptAmountFormat = format.MoneyFormat(receipt.ReceiptAmount);
+                param.ReceiptStatus = receipt.ReceiptStatus;
+                param.ImageLinks = await myDB.ProofImages
+                    .Where(p => p.ImageType.Equals("receipt") && p.ModelId == receipt.Id)
+                    .Select(p => p.ImageLink).ToListAsync();
+                // lấy ra cả tên của ông tạo ra receipt này
+                //param.User = new UserAvatarName
+                //{
+                //    Avatar = receipt.User.Avatar,
+                //    Name = receipt.User.UserName
+                //};
+                list.Add(param);
+            }
+            return list;
+        }
+
         private async Task<User> GetCashier(int eventId)
         {
             EventUser cashier = await myDB.EventUsers.Include(e => e.User)
