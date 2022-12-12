@@ -192,20 +192,6 @@ namespace G24_BWallet_Backend.Repository
             return list;
         }
 
-        private async Task<List<EventUser>> SortOwnerFirst(List<EventUser> eventUsers)
-        {
-            EventUser eventUser = new EventUser();
-            foreach (var item in eventUsers)
-            {
-                if (item.UserRole == 1)
-                    eventUser = item;
-            }
-            eventUsers.Remove(eventUser);
-            eventUsers.Add(eventUser);
-            eventUsers.Reverse();
-            return eventUsers;
-        }
-
         // current id là mình, user id là từng thằng trong list member
         private async Task<int> GetFriendStatus(int currentId, int userID)
         {
@@ -269,5 +255,20 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(e => e.EventID == eventId && e.UserID == userId);
             return eventUser.UserRole;
         }
+
+        public async Task<List<EventUser>> SortOwnerFirst(List<EventUser> eventUsers)
+        {
+            EventUser eventUser = new EventUser();
+            foreach (var item in eventUsers)
+            {
+                if (item.UserRole == 1)
+                    eventUser = item;
+            }
+            eventUsers.Remove(eventUser);
+            eventUsers.Add(eventUser);
+            eventUsers.Reverse();
+            return eventUsers;
+        }
+
     }
 }
