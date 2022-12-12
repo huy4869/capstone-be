@@ -37,12 +37,24 @@ namespace G24_BWallet_Backend.Controllers
             User user = await repo.GetUserById(userID);
             List<Request> requestPending = await repo.GetRequestPending(userID);
             List<Request> invitePending = await repo.GetInvitePending(userID);
+            // 2 cái list trên là đang lấy hết, ở đây mình chỉ cần đếm các list có status
+            // là đang chờ thôi
+            int requestCount = 0;
+            requestPending.ForEach(r =>
+            {
+                if (r.Status == 3) requestCount++;
+            });
+            int inviteCount = 0;
+            invitePending.ForEach(i =>
+            {
+                if (i.Status == 0) inviteCount++;
+            });
             IDictionary<string, object> dictionary = new Dictionary<string, object>();
             dictionary.Add("Avatar", user.Avatar);
             dictionary.Add("UserName", user.UserName);
             dictionary.Add("PhoneNumber", user.Account.PhoneNumber);
-            dictionary.Add("RequestPending", requestPending.Count);
-            dictionary.Add("InvitePending", invitePending.Count);
+            dictionary.Add("RequestPending", requestCount);
+            dictionary.Add("InvitePending", inviteCount);
             return new Respond<IDictionary>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -75,7 +87,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Danh sách trạng thái các yêu cầu tham gia nhóm của user hiện tại",
+                Message = "Danh sách trạng thái các lời mời tham gia nhóm của user hiện tại",
                 Data = list
             };
         }
@@ -99,6 +111,26 @@ namespace G24_BWallet_Backend.Controllers
                 Error = "",
                 Message = "Đồng ý tham gia event này",
                 Data = null
+            };
+        }
+
+        // đếm số lời mời tham gia vào nhóm mà mình chưa accept, status = 0
+        [HttpGet("invite-count")]
+        public async Task<Respond<int>> CountInviteRequest()
+        {
+            var userID = GetUserId();
+            List<Request> invitePending = await repo.GetInvitePending(userID);
+            int inviteCount = 0;
+            invitePending.ForEach(i =>
+            {
+                if (i.Status == 0) inviteCount++;
+            });
+            return new Respond<int>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Đếm số lời mời tham gia vào nhóm mà mình chưa đồng ý( hoặc từ chối)",
+                Data = inviteCount
             };
         }
     }
