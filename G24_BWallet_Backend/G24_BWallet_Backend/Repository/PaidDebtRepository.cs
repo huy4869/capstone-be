@@ -345,6 +345,7 @@ namespace G24_BWallet_Backend.Repository
             current.Avatar = paidDept.User.Avatar;
             current.Name = paidDept.User.UserName;
             current.Phone = await GetPhoneByUserId(paidDept.UserId);
+            current.Role = await memberRepository.GetRole(paidDept.EventId, paidDept.UserId);
             current.TotalAmount = paidDept.TotalMoney;
             current.TotalAmountFormat = format.MoneyFormat(paidDept.TotalMoney);
             userList.Add(current);
@@ -368,6 +369,7 @@ namespace G24_BWallet_Backend.Repository
                 owner.Avatar = ownerDebt.Avatar;
                 owner.Name = ownerDebt.UserName;
                 owner.Phone = await GetPhoneByUserId(ownerDebt.ID);
+                owner.Role = await memberRepository.GetRole(paidDept.EventId, ownerDebt.ID);
                 owner.TotalAmount = item.PaidAmount;
                 owner.TotalAmountFormat = format.MoneyFormat(item.PaidAmount);
                 // Kiểm tra trong list có ông này chưa, nếu chưa có mới add

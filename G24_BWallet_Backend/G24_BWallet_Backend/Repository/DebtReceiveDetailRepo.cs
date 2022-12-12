@@ -159,6 +159,7 @@ namespace G24_BWallet_Backend.Repository
                         Account a = (await context.Users.Include(u => u.Account)
                         .FirstOrDefaultAsync(u => u.ID == userDept.UserId)).Account;
                         i.Phone = a.PhoneNumber;
+                        i.Role = await memberRepository.GetRole(eventId, u.ID);
                         i.Money = format.MoneyFormat(userDept.DebtLeft);
                         list.Add(i);
                     }
@@ -168,6 +169,7 @@ namespace G24_BWallet_Backend.Repository
             return total;
         }
 
+        // xem chi tiết nợ hoặc khoản thu khi click vào nút i
         public async Task<ReceiptUserDeptName> ClickIButton(int receiptId, int userId)
         {
             ReceiptUserDeptName result = new ReceiptUserDeptName();
@@ -180,7 +182,9 @@ namespace G24_BWallet_Backend.Repository
                 Avatar = receipt.User.Avatar,
                 Name = receipt.User.UserName,
                 Phone = await memberRepository.GetPhoneByUserId(receipt.UserID),
-                TotalAmount = receipt.ReceiptAmount
+                Role = await memberRepository.GetRole(receipt.EventID, receipt.UserID),
+                TotalAmount = receipt.ReceiptAmount,
+                TotalAmountFormat = format.MoneyFormat(receipt.ReceiptAmount)
             };
             List<UserAvatarNameMoney> userDepts = new List<UserAvatarNameMoney>();
             List<UserDept> depts = await context.UserDepts.Include(r => r.User)
@@ -192,7 +196,9 @@ namespace G24_BWallet_Backend.Repository
                 user.Avatar = item.User.Avatar;
                 user.Name = item.User.UserName;
                 user.TotalAmount = item.Debt;
+                user.TotalAmountFormat = format.MoneyFormat(item.Debt);
                 user.Phone = await memberRepository.GetPhoneByUserId(item.UserId);
+                user.Role = await memberRepository.GetRole(receipt.EventID,item.UserId);
                 userDepts.Add(user);
             }
             result.UserDepts = userDepts;

@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace G24_BWallet_Backend.Repository
@@ -147,6 +148,7 @@ namespace G24_BWallet_Backend.Repository
                 ins.UserId = inspector.ID;
                 ins.Name = inspector.UserName;
                 ins.Role = 2;
+                ins.Phone = await GetPhoneByUserId(inspector.ID);
                 param.Inspector = ins;
             }
             // create cashier
@@ -158,6 +160,7 @@ namespace G24_BWallet_Backend.Repository
                 cas.UserId = cashier.ID;
                 cas.Name = cashier.UserName;
                 cas.Role = 3;
+                cas.Phone = await GetPhoneByUserId(cashier.ID);
                 param.Cashier = cas;
             }
 
@@ -258,6 +261,13 @@ namespace G24_BWallet_Backend.Repository
             User user = await context.Users.Include(u => u.Account)
                .FirstOrDefaultAsync(u => u.ID == useriD);
             return user.Account.PhoneNumber;
+        }
+
+        public async Task<int> GetRole(int eventId, int userId)
+        {
+            EventUser eventUser = await context.EventUsers
+                .FirstOrDefaultAsync(e => e.EventID == eventId && e.UserID == userId);
+            return eventUser.UserRole;
         }
     }
 }

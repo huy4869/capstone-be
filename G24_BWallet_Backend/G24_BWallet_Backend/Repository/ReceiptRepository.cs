@@ -17,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Amazon;
 using Microsoft.Extensions.Logging;
 using Twilio.TwiML.Fax;
+using System.Data;
 
 namespace G24_BWallet_Backend.Repository
 {
@@ -327,6 +328,7 @@ namespace G24_BWallet_Backend.Repository
                 Avatar = creator.Avatar,
                 Name = creator.UserName,
                 Phone = await memberRepository.GetPhoneByUserId(creator.ID),
+                Role = await memberRepository.GetRole(receipt.EventID, creator.ID),
                 TotalAmount = receipt.ReceiptAmount,
                 TotalAmountFormat = format.MoneyFormat(receipt.ReceiptAmount)
             };
@@ -340,6 +342,7 @@ namespace G24_BWallet_Backend.Repository
                 user.Avatar = item.User.Avatar;
                 user.Name = item.User.UserName;
                 user.Phone = await memberRepository.GetPhoneByUserId(item.UserId);
+                user.Role = await memberRepository.GetRole(receipt.EventID, item.UserId);
                 user.TotalAmount = item.Debt;
                 user.TotalAmountFormat = format.MoneyFormat(item.Debt);
                 userDepts.Add(user);
@@ -350,6 +353,7 @@ namespace G24_BWallet_Backend.Repository
             userCreate.Avatar = creator.Avatar;
             userCreate.Name = creator.UserName;
             userCreate.Phone = await memberRepository.GetPhoneByUserId(creator.ID);
+            userCreate.Role = await memberRepository.GetRole(receipt.EventID, creator.ID);
             userCreate.TotalAmount = receipt.ReceiptAmount - totalDebt;
             userCreate.TotalAmountFormat = format.MoneyFormat(userCreate.TotalAmount);
             userDepts.Add(userCreate);
@@ -405,7 +409,8 @@ namespace G24_BWallet_Backend.Repository
                 {
                     Avatar = receipt.User.Avatar,
                     Name = receipt.User.UserName,
-                    Phone = await memberRepository.GetPhoneByUserId(receipt.UserID)
+                    Phone = await memberRepository.GetPhoneByUserId(receipt.UserID),
+                    Role = await memberRepository.GetRole(eventId, receipt.UserID)
                 };
 
                 list.Add(param);

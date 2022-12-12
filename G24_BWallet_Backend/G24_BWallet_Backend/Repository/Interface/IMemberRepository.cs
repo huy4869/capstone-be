@@ -18,7 +18,9 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<bool> IsCashier(int eventId, int userId);
         Task<bool> IsNormalMember(int eventId, int userId);
         Task<IDictionary> GetMemberRole(int eventId, int userId);
+        Task<int> GetRole(int eventId, int userId);
         Task<List<IdAvatarNamePhone>> ListPromote(int eventId, int v);
         Task<string> GetPhoneByUserId(int useriD);
+        Task<List<EventUser>> SortOwnerFirst(List<EventUser> eventUsers);
     }
 }
