@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -39,9 +40,16 @@ namespace G24_BWallet_Backend.Repository
         public string MoneyFormat(double money)
         {
 
-            // return money.ToString("C0");
-            var info = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
-            return String.Format(info, "{0:c}", money);
+            //return money.ToString("{0:c}") + " ₫";
+            //var info = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+            //return String.Format(info, "{0:c}", money);
+
+            NumberFormatInfo nfi = new CultureInfo("vi-VN", false).NumberFormat;
+            /*nfi.CurrencyDecimalSeparator = ",";
+            nfi.CurrencyGroupSeparator = ".";
+            nfi.CurrencySymbol = "";*/
+            return money.ToString("C0",nfi);
+
         }
         public string Reverse(string s)
         {

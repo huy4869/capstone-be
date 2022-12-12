@@ -1,12 +1,14 @@
 {
   "version": 2,
-  "dgSpecHash": "dvv6sG6wGwcI+boaMzQjeVA437B1VRe36xVMcsAkdqAjzFGvrIZGzn/f77oN2wWsWhQnTp5DXvUdRRiioFXN1w==",
+  "dgSpecHash": "Xiu5EDhgFsOK71L9NM3e45iSd78VRP32H3R12Q2RGYHLb12gSz0OxWzS8PZm8j6XchohyjNRNq1plJC1RbiWcw==",
   "success": true,
   "projectFilePath": "C:\\Users\\lelon\\Desktop\\capstone\\capstone-be\\G24_BWallet_Backend\\G24_BWallet_Backend\\G24_BWallet_Backend.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\lelon\\.nuget\\packages\\awssdk.core\\3.7.100.21\\awssdk.core.3.7.100.21.nupkg.sha512",
     "C:\\Users\\lelon\\.nuget\\packages\\awssdk.s3\\3.7.101.21\\awssdk.s3.3.7.101.21.nupkg.sha512",
     "C:\\Users\\lelon\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
+    "C:\\Users\\lelon\\.nuget\\packages\\magick.net-q16-anycpu\\12.2.1\\magick.net-q16-anycpu.12.2.1.nupkg.sha512",
+    "C:\\Users\\lelon\\.nuget\\packages\\magick.net.core\\12.2.1\\magick.net.core.12.2.1.nupkg.sha512",
     "C:\\Users\\lelon\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\5.0.10\\microsoft.aspnetcore.authentication.jwtbearer.5.0.10.nupkg.sha512",
     "C:\\Users\\lelon\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
     "C:\\Users\\lelon\\.nuget\\packages\\microsoft.entityframeworkcore\\5.0.10\\microsoft.entityframeworkcore.5.0.10.nupkg.sha512",
