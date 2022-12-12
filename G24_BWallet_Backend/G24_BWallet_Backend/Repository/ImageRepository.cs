@@ -14,6 +14,7 @@ using G24_BWallet_Backend.Models;
 using Amazon.S3.Model;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Twilio.Http;
+using ImageMagick;
 
 namespace G24_BWallet_Backend.Repository
 {
@@ -48,26 +49,46 @@ namespace G24_BWallet_Backend.Repository
                 !string.Equals(file.ContentType, "image/heic", StringComparison.OrdinalIgnoreCase) &&
                 !string.Equals(file.ContentType, "image/png", StringComparison.OrdinalIgnoreCase)))
             {
-                throw new IOException("file ảnh khống đúng định dạng");
+                throw new IOException("File ảnh khống đúng định dạng");
             }
 
             string AWSS3AccessKeyId = _configuration["AWSS3:AccessKeyId"];
             string AWSS3SecretAccessKey = _configuration["AWSS3:SecretAccessKey"];
+            MemoryStream memStream = new MemoryStream();
+
+            //heic to jpeg stream
+            if (string.Equals(file.ContentType, "image/heic", StringComparison.OrdinalIgnoreCase))
+            {
+                var ms = new MemoryStream();
+                file.CopyTo(ms);
+                var fileBytes = ms.ToArray();
+                string s = Convert.ToBase64String(fileBytes);
+                //FileInfo imgfileInfo = new FileInfo(s);
+                //MemoryStream
+                using (MagickImage image = new MagickImage(fileBytes))
+                {
+                    image.Format = MagickFormat.Jpeg;
+                    image.Write(memStream);
+                    //throw new IOException(memStream.ToString());
+                }
+                fileName = fileName.Replace(".heic", ".jpeg");
+            }
+            else
+            {
+                file.CopyTo(memStream);
+            }
 
             using (var client = new AmazonS3Client(AWSS3AccessKeyId, AWSS3SecretAccessKey, RegionEndpoint.APSoutheast1))
-            {
-                using (var newMemoryStream = new MemoryStream())
+            { 
+                var uploadRequest = new TransferUtilityUploadRequest
                 {
-                    file.CopyTo(newMemoryStream);
-                    var uploadRequest = new TransferUtilityUploadRequest
-                    {
-                        InputStream = newMemoryStream,
-                        Key = fileName,
-                        BucketName = "bwallets3bucket/"+folder
-                    };
-                    var fileTransferUtility = new TransferUtility(client);
-                    await fileTransferUtility.UploadAsync(uploadRequest);
-                }
+                    InputStream = memStream,
+                    Key = fileName,
+                    BucketName = "bwallets3bucket/" + folder
+                };
+                var fileTransferUtility = new TransferUtility(client);
+                await fileTransferUtility.UploadAsync(uploadRequest);
+
             }
 
             return _configuration["AWSS3:ImgLink"] + folder + '/' + HttpUtility.UrlEncode(fileName);
