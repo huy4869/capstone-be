@@ -246,7 +246,7 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
-        // danh sách các chứng từ đã xử lý: duyệt hoặc bị từ chối, cái này member ko thấy được
+        // danh sách lịch sử các chứng từ đã xử lý: duyệt hoặc bị từ chối, cái này member ko thấy được
         [HttpGet("receipt-handled/EventId={eventId}")]
         public async Task<Respond<List<ReceiptSentParam>>> ReceiptHandled(int eventId)
         {

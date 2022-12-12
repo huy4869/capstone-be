@@ -18,11 +18,13 @@ namespace G24_BWallet_Backend.Repository
     {
         private readonly MyDBContext context;
         private readonly Format format;
+        private readonly IMemberRepository memberRepository;
 
-        public EventRepository(MyDBContext myDB)
+        public EventRepository(MyDBContext myDB, IMemberRepository memberRepository)
         {
             this.context = myDB;
             this.format = new Format();
+            this.memberRepository = memberRepository;
         }
 
         public async Task<int> AddEventAsync(Event e)
@@ -373,13 +375,22 @@ namespace G24_BWallet_Backend.Repository
             return await context.Events.FirstOrDefaultAsync(e => e.ID == eventId);
         }
 
+        // lấy danh sách các thành viên trong event
         public async Task<List<UserAvatarName>> GetListUserInEvent(int eventId)
         {
             List<UserAvatarName> result = new List<UserAvatarName>();
             List<EventUser> eu = await context.EventUsers.Include(e => e.User)
                 .Where(e => e.EventID == eventId).ToListAsync();
-            eu.ForEach(item => result.Add(
-                new UserAvatarName { Avatar = item.User.Avatar, Name = item.User.UserName }));
+            // săp xếp cho thằng owner lên đầu danh sách
+            eu = await memberRepository.SortOwnerFirst(eu);
+            eu.ForEach(async item => result.Add(
+                new UserAvatarName
+                {
+                    Avatar = item.User.Avatar,
+                    Name = item.User.UserName,
+                    Phone = await memberRepository.GetPhoneByUserId(item.User.ID),
+                    Role = await memberRepository.GetRole(eventId, item.User.ID)
+                }));
             return result;
         }
 

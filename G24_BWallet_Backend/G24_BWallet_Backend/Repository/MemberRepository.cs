@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace G24_BWallet_Backend.Repository
@@ -147,6 +148,7 @@ namespace G24_BWallet_Backend.Repository
                 ins.UserId = inspector.ID;
                 ins.Name = inspector.UserName;
                 ins.Role = 2;
+                ins.Phone = await GetPhoneByUserId(inspector.ID);
                 param.Inspector = ins;
             }
             // create cashier
@@ -158,6 +160,7 @@ namespace G24_BWallet_Backend.Repository
                 cas.UserId = cashier.ID;
                 cas.Name = cashier.UserName;
                 cas.Role = 3;
+                cas.Phone = await GetPhoneByUserId(cashier.ID);
                 param.Cashier = cas;
             }
 
@@ -187,20 +190,6 @@ namespace G24_BWallet_Backend.Repository
                 list.Add(i);
             }
             return list;
-        }
-
-        private async Task<List<EventUser>> SortOwnerFirst(List<EventUser> eventUsers)
-        {
-            EventUser eventUser = new EventUser();
-            foreach (var item in eventUsers)
-            {
-                if (item.UserRole == 1)
-                    eventUser = item;
-            }
-            eventUsers.Remove(eventUser);
-            eventUsers.Add(eventUser);
-            eventUsers.Reverse();
-            return eventUsers;
         }
 
         // current id là mình, user id là từng thằng trong list member
@@ -259,5 +248,27 @@ namespace G24_BWallet_Backend.Repository
                .FirstOrDefaultAsync(u => u.ID == useriD);
             return user.Account.PhoneNumber;
         }
+
+        public async Task<int> GetRole(int eventId, int userId)
+        {
+            EventUser eventUser = await context.EventUsers
+                .FirstOrDefaultAsync(e => e.EventID == eventId && e.UserID == userId);
+            return eventUser.UserRole;
+        }
+
+        public async Task<List<EventUser>> SortOwnerFirst(List<EventUser> eventUsers)
+        {
+            EventUser eventUser = new EventUser();
+            foreach (var item in eventUsers)
+            {
+                if (item.UserRole == 1)
+                    eventUser = item;
+            }
+            eventUsers.Remove(eventUser);
+            eventUsers.Add(eventUser);
+            eventUsers.Reverse();
+            return eventUsers;
+        }
+
     }
 }

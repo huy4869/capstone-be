@@ -107,6 +107,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string Avatar { get; set; }
         public string Name { get; set; }
         public string Phone { get; set; }
+        public int Role { get; set; }
     }
 
     public class UserDebtReturn
@@ -173,6 +174,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string Avatar { get; set; }
         public string Name { get; set; }
         public int Role { get; set; }
+        public string Phone { get; set; }
     }
     public class IdAvatarNamePhone
     {
@@ -222,6 +224,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string Avatar { get; set; }
         public string Name { get; set; }
         public string Phone { get; set; }
+        public int Role { get; set; }
         public double TotalAmount { get; set; }
         public string TotalAmountFormat { get; set; }
     }
@@ -278,6 +281,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string Avatar { get; set; }
         public string Name { get; set; }
         public string Phone { get; set; }
+        public int Role { get; set; }
         public string Money { get; set; }
     }
     public class TotalMoneyUser
