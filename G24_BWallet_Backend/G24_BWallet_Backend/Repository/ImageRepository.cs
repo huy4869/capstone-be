@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Web;
 using G24_BWallet_Backend.Models;
 using ImageMagick;
+using System.Linq;
 
 namespace G24_BWallet_Backend.Repository
 {
@@ -108,6 +109,21 @@ namespace G24_BWallet_Backend.Repository
             await context.SaveChangesAsync();
 
             return listAdd;
+        }
+
+        public async Task<string> DeleteS3FileByLink(string link)
+        {
+            string AWSS3AccessKeyId = _configuration["AWSS3:DeleteKey"];
+            string AWSS3SecretAccessKey = _configuration["AWSS3:DeleteSecretKey"];
+            var client = new AmazonS3Client(AWSS3AccessKeyId, AWSS3SecretAccessKey, RegionEndpoint.APSoutheast1);
+
+            string[] linkParts = link.Split('/');
+            var respone = await client.DeleteObjectAsync(new Amazon.S3.Model.DeleteObjectRequest()
+            {
+                BucketName = "bwallets3bucket/"+ linkParts[linkParts.Length - 2],
+                Key = linkParts[linkParts.Length - 1]
+            });
+            return respone.DeleteMarker;
         }
 
 

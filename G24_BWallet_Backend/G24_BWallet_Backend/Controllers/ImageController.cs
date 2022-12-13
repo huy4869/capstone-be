@@ -22,7 +22,7 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpPost("{folder}")]
-        public async Task<Respond<string>> saveIMG(string folder, [FromForm] IFormFile imgFile)
+        public async Task<Respond<string>> SaveIMG(string folder, [FromForm] IFormFile imgFile)
         {
             DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             string fileName = VNDateTime.ToString("yyyyMMddHHmmss") + imgFile.FileName;
@@ -37,19 +37,20 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
-        [HttpPut("{folder}")]
-        public async Task<Respond<string>> UpdateIMG(string folder, [FromForm] IFormFile imgFile)
+        [HttpDelete()]
+        public async Task<Respond<string>> DeleteIMGS(ListURL deleteList)
         {
-            DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
-            string fileName = VNDateTime.ToString("yyyyMMddHHmmss") + imgFile.FileName;
-            var imglinks = imageRepo.SaveIMMGFile(folder, imgFile, fileName);
+            foreach (string url in deleteList.listUrl)
+            {
+                await imageRepo.DeleteS3FileByLink(url);
+            }
 
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "lưu ảnh thành công",
-                Data = await imglinks
+                Message = "xóa ảnh thành công",
+                Data = null
             };
         }
     }
