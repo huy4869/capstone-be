@@ -134,26 +134,38 @@ namespace G24_BWallet_Backend.Repository
             return listFriends.OrderBy(m => m.UserName).ToList();
         }
 
-        public async Task<List<Member>> SearchFriendToAdd(int userID, string phone)
+        public async Task<List<searchFriendToAdd>> SearchFriendToAdd(int userID, string phone)
         {
             //all user can be add friend
             var ListUsers = context.Users.Include(u => u.Account)
                 .Where(u => u.Account.PhoneNumber.Contains(phone))
                 .Where(u => u.AllowAddFriendStatus == 1)
-                .Select(u => new Member(u.ID, u.UserName, u.Avatar, u.Account.PhoneNumber))
+                .Select(u => new searchFriendToAdd()
+                {
+                     UserId = u.ID,
+                     UserName = u.UserName,
+                     UserAvatar = u.Avatar,
+                     UserPhone = u.Account.PhoneNumber,
+                     AllowAddFriendStatus = u.AllowAddFriendStatus
+                })
                 .ToListAsync();
             var searchResult = await ListUsers;
-            var listFriend = GetFriendsAsync(userID);
-            searchResult = searchResult.Except(await listFriend).ToList();
+            
+            //bỏ bạn của mình
+            var listFriendID = context.Friends.Where(f => f.UserID == userID).Select(f => f.UserFriendID).ToList();
+            listFriendID.AddRange(context.Friends.Where(f => f.UserFriendID == userID).Select(f => f.UserID).ToList());
+
+            searchResult = searchResult.Where(sr => !listFriendID.Contains(sr.UserId) ).ToList();
             return searchResult;
         }
 
         public async Task<string> SendFriendRequestAsync(int userID, int friendID)
         {
-            if (userID == friendID) throw new Exception("không kết bạn được với bản thân"); 
+            if (userID == friendID) throw new Exception("không kết bạn được với bản thân");
             var user = context.Users.Where(u => u.ID == friendID).FirstOrDefault();
             if (user == null) throw new Exception("lỗi không tìm thấy người dùng");
-            else if (user.AllowAddFriendStatus == 0) throw new Exception("Không kết bạn được với người này");
+            else if (user.AllowAddFriendStatus == 0) throw new Exception("Không thể kết bạn được với người này");
+            else if (CountFriend(friendID) >= 499) throw new Exception("người này đang có quá nhiều bạn");
 
             var friend = context.Friends
                 .Where(f => (f.UserID == userID && f.UserFriendID == friendID) 
@@ -198,7 +210,11 @@ namespace G24_BWallet_Backend.Repository
             if (friend == null)
             {
                 return "lời kết bạn này không tồn tại";
-            }else if (respone.status == 0)
+            }else if (CountFriend(yourID) >= 499)
+            {
+                return "số bạn bè của bạn đang vượt quá giới hạn";
+            }
+            else if (respone.status == 0)
             {
                 context.Friends.Remove(friend);
                 await context.SaveChangesAsync();
@@ -256,6 +272,14 @@ namespace G24_BWallet_Backend.Repository
             await context.SaveChangesAsync();
 
             return "đã xóa khỏi danh sách bạn bè";
+        }
+
+        public int CountFriend(int userID)
+        {
+            return context.Friends.
+                Where(f => (f.UserID == userID ||  f.UserFriendID == userID)
+                && f.status == 1)
+                .Distinct().Count();
         }
     }
 }

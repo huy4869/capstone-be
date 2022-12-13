@@ -1,4 +1,8 @@
-﻿using G24_BWallet_Backend.DBContexts;
+﻿using Amazon.Runtime.Internal.Util;
+using Amazon.S3.Model;
+using Amazon.S3.Transfer;
+using Amazon.S3;
+using G24_BWallet_Backend.DBContexts;
 using G24_BWallet_Backend.Models;
 using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository.Interface;
@@ -19,6 +23,7 @@ using System.Threading.Tasks;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using static System.Net.WebRequestMethods;
+using Amazon;
 
 namespace G24_BWallet_Backend.Repository
 {
@@ -229,14 +234,33 @@ namespace G24_BWallet_Backend.Repository
             return Task.FromResult(regex.IsMatch(phone.Trim()));
         }
 
-        public async Task UpdateUserProfile(UserAvatarName avatarName, int userId)
+        public async Task UpdateUserProfile(User userEditInfo, int userId)
         {
             User user = await context.Users.FirstOrDefaultAsync(u => u.ID == userId);
-            if (avatarName.Avatar.Trim().Length != 0)
-                user.Avatar = avatarName.Avatar.Trim();
-            if (avatarName.Name.Trim().Length != 0)
-                user.UserName = avatarName.Name.Trim();
+            if (!userEditInfo.Avatar.IsNullOrEmpty())
+            {
+                await DeleteS3FileByLink(user.Avatar);
+                user.Avatar = userEditInfo.Avatar.Trim();
+            }
+
+            if (!userEditInfo.Avatar.IsNullOrEmpty())
+                user.UserName = userEditInfo.UserName.Trim();
+            user.AllowAddFriendStatus = userEditInfo.AllowAddFriendStatus;
+            user.AllowInviteEventStatus = userEditInfo.AllowInviteEventStatus;
             await context.SaveChangesAsync();
+        }
+        public async Task DeleteS3FileByLink(string link)
+        {
+            string AWSS3AccessKeyId = _configuration["AWSS3:DeleteKey"];
+            string AWSS3SecretAccessKey = _configuration["AWSS3:DeleteSecretKey"];
+            var client = new AmazonS3Client(AWSS3AccessKeyId, AWSS3SecretAccessKey, RegionEndpoint.APSoutheast1);
+
+            var respone = await client.DeleteObjectAsync(new Amazon.S3.Model.DeleteObjectRequest()
+            {
+                BucketName = "bwallets3bucket/user",
+                Key = link.Split('/').Last()
+            });
+            var isdelete = respone.DeleteMarker;
         }
     }
 }
