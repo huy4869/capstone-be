@@ -27,6 +27,7 @@ namespace G24_BWallet_Backend.Controllers
             return int.Parse(this.User.Claims.First(i => i.Type == "UserId").Value);
         }
 
+        // show ra danh sách bạn bè để add vào nhóm
         [HttpGet("add-member")]
         public async Task<Respond<List<Member>>> ListFriendAddToEvent([FromQuery] string phone)
         {
@@ -41,6 +42,7 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
+        // thêm bạn vào nhóm
         [HttpPost("add-member")]
         public async Task<Respond<string>> AddFriendToEvent(EventFriendParam e)
         {
@@ -55,6 +57,7 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
+        // lấy danh sách bạn bè
         [HttpGet]
         public async Task<Respond<IEnumerable<Member>>> GetFriends([FromQuery] string phonenumber)
         {
@@ -135,6 +138,21 @@ namespace G24_BWallet_Backend.Controllers
                 Error = "",
                 Message = await result,
                 Data = friendID + ""
+            };
+        }
+
+        // trả ra số lời mới kết bạn đang chờ mình accept(nghĩa là status = 0 )
+        [HttpGet("request-count")]
+        public async Task<Respond<int>> CountFriendRequest()
+        {
+            int userId = GetUserId();
+            var result = await repo.GetListFriendRequest(userId, null);
+            return new Respond<int>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "",
+                Data = result.Count
             };
         }
     }

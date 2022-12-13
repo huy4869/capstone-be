@@ -11,9 +11,6 @@ using Amazon;
 using System.Threading.Tasks;
 using System.Web;
 using G24_BWallet_Backend.Models;
-using Amazon.S3.Model;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Twilio.Http;
 using ImageMagick;
 
 namespace G24_BWallet_Backend.Repository
