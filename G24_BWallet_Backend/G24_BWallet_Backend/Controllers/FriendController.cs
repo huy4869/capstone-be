@@ -73,11 +73,11 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpGet("search-friend")]
-        public async Task<Respond<IEnumerable<Member>>> SearchAddFriend([FromQuery] string phonenumber)
+        public async Task<Respond<IEnumerable<searchFriendToAdd>>> SearchAddFriend([FromQuery] string phonenumber)
         {
             int userId = GetUserId();
             var friends = repo.SearchFriendToAdd(userId, phonenumber);
-            return new Respond<IEnumerable<Member>>()
+            return new Respond<IEnumerable<searchFriendToAdd>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",

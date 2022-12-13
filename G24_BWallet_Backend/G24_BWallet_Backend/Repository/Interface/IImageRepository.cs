@@ -10,5 +10,7 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<string> SaveIMMGFile(string folder, IFormFile file, string fileName);
 
         Task<List<ProofImage>> AddIMGLinksDB(string ImageType, int modelId, List<string> links);
+
+        Task<string> DeleteS3FileByLink(string link);
     }
 }
