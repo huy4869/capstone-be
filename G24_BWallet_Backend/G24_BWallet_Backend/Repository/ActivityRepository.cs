@@ -95,7 +95,7 @@ namespace G24_BWallet_Backend.Repository
             Event e = await context.Events.FirstOrDefaultAsync(e => e.ID == eventId);
             string content = string.Format("Yêu cầu trả {0} của bạn trong sự kiện {1} đang chờ duyệt"
                 , totalMoney, e.EventName);
-            await AddActivity(userId, content, "paiddebt");
+            await AddActivity(userId, content, "paidDebt");
         }
 
         public async Task CreatorPaidDebtApprovedActivity(int paidid, int userId, int status)
@@ -106,7 +106,7 @@ namespace G24_BWallet_Backend.Repository
             string statuss = (status == 2) ? "được phê duyệt" : "bị từ chối";
             string content = string.Format("Yêu cầu trả {0} của bạn trong sự kiện {1} đã {2}"
                 , paidDept.TotalMoney, paidDept.Event.EventName, status);
-            await AddActivity(userId, content, "paiddebt");
+            await AddActivity(userId, content, "paidDebt");
         }
 
         public async Task InspectorPaidDebtApprovedActivity(int paidid, int userId, int status)
@@ -118,7 +118,50 @@ namespace G24_BWallet_Backend.Repository
             string statuss = (status == 2) ? "phê duyệt" : "từ chối";
             string content = string.Format("Bạn đã {0} yêu cầu trả {1} của {2} trong nhóm {3}"
                 , statuss, paidDept.TotalMoney, paidDept.User.UserName, paidDept.Event.EventName);
-            await AddActivity(userId, content, "paiddebt");
+            await AddActivity(userId, content, "paidDebt");
+        }
+
+        // activity của event
+        public async Task EventActivity(int status, int userId, string eventName)
+        {
+            string content = "";
+            // sẽ có 3 activity: 1 là tạo event, 2 là đóng event, 3 là thoát
+            if (status == 1)
+                content = string.Format("Bạn đã tạo sự kiện <b>{0}</b>.", eventName);
+            else if (status == 2)
+                content = string.Format("Bạn đã đóng sự kiện <b>{0}</b>.", eventName);
+            else if (status == 3)
+                content = string.Format("Bạn đã rời sự kiện <b>{0}</b>.", eventName);
+            await AddActivity(userId, content, "event");
+        }
+
+        // activity của request
+        public async Task RequestActivity(int status, int acceptStatus, int userId, string eventName
+            , int creatorId)
+        {
+            User user = null;
+            if (creatorId != -1)
+                user = await context.Users.Include(u => u.Account)
+                    .FirstOrDefaultAsync(a => a.ID == creatorId);
+            string content = "";
+            // sẽ có 3 status: 1 là tạo request, 2 là thằng owner phê duyệt or từ chối,
+            // 3 là thằng tạo nhận đc phản hồi phê duyệt or từ chối
+            if (status == 1)
+                content = string.Format("Yêu cầu tham gia sự kiện <b>{0}</b>" +
+                    " đang chờ duyệt.", eventName);
+            else if (status == 2 && acceptStatus == 1)
+                content = string.Format("Bạn đã đồng ý yêu cầu tham gia sự kiện <b>{0}</b>" +
+                    " của <b>{1}_{2}</b>", eventName, user.UserName, user.Account.PhoneNumber);
+            else if (status == 2 && acceptStatus == 0)
+                content = string.Format("Bạn đã từ chối yêu cầu tham gia sự kiện <b>{0}</b>" +
+                    " của <b>{1}_{2}</b>", eventName, user.UserName, user.Account.PhoneNumber);
+            else if (status == 3 && acceptStatus == 1)
+                content = string.Format("Yêu cầu tham gia sự kiện <b>{0}</b>" +
+                    "đã được chấp thuận.", eventName);
+            else if (status == 3 && acceptStatus == 0)
+                content = string.Format("Yêu cầu tham gia sự kiện <b>{0}</b>" +
+                    "đã bị từ chối.", eventName);
+            await AddActivity(userId, content, "request");
         }
     }
 }
