@@ -18,7 +18,7 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task SaveOTPAsync(string phone, string otp, string jwt);
         Task<string> EncryptAsync(string password);
         Task<string> DecryptAsync(string password);
-        Task ChangePassword(string phone, string newPassword);
+        Task<int> ChangePassword(int userId, PasswordChangeParam p);
         Task<User> GetUserAsync(Account account);
         Task<List<User>> GetAllUserAsync();
         Task<bool> CheckPhoneFormat(string phone);
