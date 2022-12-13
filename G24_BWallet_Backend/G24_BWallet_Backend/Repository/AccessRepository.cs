@@ -198,12 +198,19 @@ namespace G24_BWallet_Backend.Repository
 
         }
 
-        public async Task ChangePassword(string phone, string newPassword)
+        // đổi mật khẩu: return 0 là đổi thành công, 1 là mật khẩu hiện tại sai,
+        // 2 là 2 cái mật khẩu mới không trùng nhau
+        public async Task<int> ChangePassword(int userId, PasswordChangeParam p)
         {
-            Account account = await context.Accounts.FirstOrDefaultAsync(a =>
-                a.PhoneNumber.Equals(phone));
-            account.Password = newPassword;
+            User user = await context.Users.Include(u => u.Account)
+                .FirstOrDefaultAsync(u => u.ID == userId);
+            if (!user.Account.Password.Equals(p.CurrentPassword))
+                return 1;
+            if (!p.NewPassword.Equals(p.NewPasswordAgain))
+                return 2;
+            user.Account.Password = p.NewPassword;
             await context.SaveChangesAsync();
+            return 0;
         }
 
         public async Task<User> GetUserAsync(Account account)
