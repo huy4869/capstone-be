@@ -187,7 +187,6 @@ namespace G24_BWallet_Backend.Controllers
                 Message = "Chi tiết các yêu cầu trả tiền khi click vào",
                 Data = p
             };
-
         }
 
         // danh sách các yêu cầu trả tiền cá nhân mình đã gửi: cả 3 trạng thái:
@@ -203,6 +202,29 @@ namespace G24_BWallet_Backend.Controllers
                 Error = "",
                 Message = "Các yêu cầu trả tiền mình đã gửi trong event này",
                 Data = list
+            };
+        }
+
+        // kiểm tra yêu cầu trả tiền trước đấy đã duyệt chưa, nếu chưa thì không được tạo thêm 
+        // yêu cầu trả tiền
+        [HttpGet("paid-check/EventId={eventId}")]
+        public async Task<Respond<string>> PaidCheck(int eventId)
+        {
+            bool check = await paidDeptRepo.PaidCheck(eventId, GetUserId());
+            if (check == false)
+                return new Respond<string>()
+                {
+                    StatusCode = HttpStatusCode.NotAcceptable,
+                    Error = "",
+                    Message = "Yêu cầu trả tiền của bạn đang chờ duyệt!",
+                    Data = "Yêu cầu trả tiền của bạn đang chờ duyệt!"
+                };
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Có thể tạo yêu cầu trả tiền!",
+                Data = "Có thể tạo yêu cầu trả tiền!"
             };
         }
     }
