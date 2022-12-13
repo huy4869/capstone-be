@@ -1,4 +1,5 @@
-﻿using G24_BWallet_Backend.Models.ObjectType;
+﻿using G24_BWallet_Backend.Models;
+using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -14,11 +15,11 @@ namespace G24_BWallet_Backend.Controllers
     [Authorize]
     public class UserController : ControllerBase
     {
-        private readonly IAccessRepository repo;
+        private readonly IAccessRepository accessRepo;
 
         public UserController(IAccessRepository repo)
         {
-            this.repo = repo;
+            this.accessRepo = repo;
         }
         protected int GetUserId()
         {
@@ -28,13 +29,15 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
-            return Ok(await repo.GetAllUserAsync());
+            return Ok(GetUserId()/*await accessRepo.GetAllUserAsync()*/);
         }
 
+
         [HttpPost]
-        public async Task<Respond<string>> EditUserProfile(UserAvatarName avatarName)
+        public async Task<Respond<string>> EditUserProfile(User userEditInfo)
         {
-            await repo.UpdateUserProfile(avatarName,GetUserId());
+            await accessRepo.UpdateUserProfile(userEditInfo,GetUserId());
+
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.Accepted,

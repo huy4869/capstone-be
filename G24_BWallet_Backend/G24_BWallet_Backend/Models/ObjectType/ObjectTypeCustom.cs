@@ -316,4 +316,18 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public DateTime CreatedAt { get; set; }
         public Member Reporter { get; set; }
     }
+
+    public class ListURL
+    {
+        public List<string> listUrl { get; set; }
+    }
+
+    public class searchFriendToAdd
+    {
+        public int UserId { get; set; }
+        public string UserName { get; set; }
+        public string UserAvatar { get; set; }
+        public string UserPhone { get; set; }
+        public int AllowAddFriendStatus { get; set; }
+    }
 }
