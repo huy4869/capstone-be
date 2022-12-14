@@ -28,23 +28,24 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         // show ra danh sách bạn bè để add vào nhóm
-        [HttpGet("add-member")]
-        public async Task<Respond<List<Member>>> ListFriendAddToEvent([FromQuery] string phone)
+        [HttpPost("add-member/EventId={eventId}")]
+        public async Task<Respond<List<Member>>> ListFriendToAddEvent(int eventId, [FromBody]
+        Search search)
         {
             int UserId = GetUserId();
-            var list = repo.SearchFriendToInvite(UserId, phone);
+            var list = repo.SearchFriendToInvite(UserId, search.SearchText, eventId);
             return new Respond<List<Member>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Danh sách người mời vào nhóm",
+                Message = "Danh sách bạn bè để mời vào nhóm",
                 Data = await list
             };
         }
 
         // thêm bạn vào nhóm
         [HttpPost("add-member")]
-        public async Task<Respond<string>> AddFriendToEvent(EventFriendParam e)
+        public async Task<Respond<string>> InviteFriendToEvent(EventFriendParam e)
         {
             e.UserId = GetUserId();
             await repo.AddInvite(e);
@@ -100,7 +101,7 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
         [HttpPost("friend-request")]
-        public async Task<Respond<string>> SendFriendRequest([FromBody]Friend friend)
+        public async Task<Respond<string>> SendFriendRequest([FromBody] Friend friend)
         {
             int userId = GetUserId();
             var sendRequest = repo.SendFriendRequestAsync(userId, friend.UserFriendID);
@@ -131,7 +132,7 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<string>> DeleteFriend(int friendID)
         {
             int userId = GetUserId();
-            var result = repo.DeleteFriendAsync(userId,friendID);
+            var result = repo.DeleteFriendAsync(userId, friendID);
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.Accepted,

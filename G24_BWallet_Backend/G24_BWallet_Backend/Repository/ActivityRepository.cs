@@ -219,5 +219,39 @@ namespace G24_BWallet_Backend.Repository
                     friend.Account.PhoneNumber);
             await AddActivity(userId, content, "friend");
         }
+
+        // activity của invite
+        public async Task InviteActivity(int status, int acceptStatus, int currentId, int otherId,
+            int eventId)
+        {
+            string content = "";
+            Event eventt = await context.Events.FirstOrDefaultAsync(e => e.ID == eventId);
+            User user = await context.Users.Include(u => u.Account)
+                .FirstOrDefaultAsync(u => u.ID == currentId);
+            User friend = await context.Users.Include(u => u.Account)
+                  .FirstOrDefaultAsync(u => u.ID == otherId);
+            // sẽ có 4 status: 1 là thằng mời, 2 là thằng được mời nhận thông báo,
+            // 3 là thằng đc mời chấp nhận hay từ chối,
+            // 4 là thằng mời nhận phản hồi chấp nhận or từ chối
+            if (status == 1)
+                content = string.Format("Bạn đã mời <b>{0}_{1}</b> tham gia sự kiện <b>{2}</b>.",
+                    friend.UserName, friend.Account.PhoneNumber, eventt.EventName);
+            else if (status == 2)
+                content = string.Format("<b>{0}_{1}</b> đã mời bạn tham gia sự kiện <b>{2}</b>."
+                    , friend.UserName, friend.Account.PhoneNumber, eventt.EventName);
+            else if (status == 3 && acceptStatus == 0)
+                content = string.Format("Bạn đã từ chối tham gia sự kiện <b>{0}</b>."
+                    , eventt.EventName);
+            else if (status == 3 && acceptStatus == 1)
+                content = string.Format("Bạn đã tham gia sự kiện <b>{0}</b>."
+                    , eventt.EventName);
+            else if (status == 4 && acceptStatus == 0)
+                content = string.Format("<b>{0}_{1}</b> đã từ chối tham gia sự kiện <b>{2}</b>."
+                    , friend.UserName, friend.Account.PhoneNumber, eventt.EventName);
+            else if (status == 4 && acceptStatus == 1)
+                content = string.Format("<b>{0}_{1}</b> đã tham gia sự kiện <b>{2}</b>."
+                    , friend.UserName, friend.Account.PhoneNumber, eventt.EventName);
+            await AddActivity(currentId, content, "invite");
+        }
     }
 }
