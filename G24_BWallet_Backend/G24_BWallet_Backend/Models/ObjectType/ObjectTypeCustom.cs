@@ -330,4 +330,9 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string UserPhone { get; set; }
         public int AllowAddFriendStatus { get; set; }
     }
+
+    public class Search
+    {
+        public string SearchText { get; set; }
+    }
 }

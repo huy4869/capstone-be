@@ -163,5 +163,95 @@ namespace G24_BWallet_Backend.Repository
                     "đã bị từ chối.", eventName);
             await AddActivity(userId, content, "request");
         }
+
+        // activity của report
+        public async Task ReportActivity(int status, int acceptStatus, int userId, string receiptName,
+            string eventName)
+        {
+            string content = "";
+            // sẽ có 3 status: 1 là tạo report, 2 là thằng owner phê duyệt or từ chối,
+            // 3 là thằng tạo nhận đc phản hồi phê duyệt or từ chối
+            if (status == 1)
+                content = string.Format("Báo cáo hoá đơn <b>{0}</b> trong sự kiện <b>{1}</b>" +
+                    " đang chờ duyệt.", receiptName, eventName);
+            else if (status == 2 && acceptStatus == 1)
+                content = string.Format("Bạn đã đồng ý báo cáo <b>{0}</b>" +
+                    " trong sự kiện <b>{1}</b>.", receiptName, eventName);
+            else if (status == 2 && acceptStatus == 0)
+                content = string.Format("Bạn đã từ chối báo cáo <b>{0}</b>" +
+                    " trong sự kiện <b>{1}</b>.", receiptName, eventName);
+            else if (status == 3 && acceptStatus == 1)
+                content = string.Format("Báo cáo hoá đơn <b>{0}</b> trong sự kiện <b>{1}</b>" +
+                    " đã được duyệt.", receiptName, eventName);
+            else if (status == 3 && acceptStatus == 0)
+                content = string.Format("Báo cáo hoá đơn <b>{0}</b> trong sự kiện <b>{1}</b>" +
+                    " đã bị từ chối.", receiptName, eventName);
+            await AddActivity(userId, content, "report");
+        }
+
+        // activity của friend
+        public async Task FriendActivity(int status, int acceptStatus, int userId, int friendId)
+        {
+            string content = "";
+            User user = await context.Users.Include(u => u.Account)
+                .FirstOrDefaultAsync(u => u.ID == userId);
+            User friend = await context.Users.Include(u => u.Account)
+               .FirstOrDefaultAsync(u => u.ID == friendId);
+            // sẽ có 4 status: 1 là gửi lời mời kết bạn, 2 là thằng bạn chấp thuận or từ chối,
+            // 3 là thằng gửi nhận đc phản hồi chấp thuận or từ chối, 4 là xoá bạn
+            if (status == 1)
+                content = string.Format("Đã gửi lời mời kết bạn đến <b>{0}_{1}</b>.", friend.UserName,
+                    friend.Account.PhoneNumber);
+            else if (status == 2 && acceptStatus == 1)
+                content = string.Format("Bạn đã đồng ý kết bạn với <b>{0}_{1}</b>.",
+                    friend.UserName, friend.Account.PhoneNumber);
+            else if (status == 2 && acceptStatus == 0)
+                content = string.Format("Bạn đã từ chối kết bạn với <b>{0}_{1}</b>.", friend.UserName
+                    , friend.Account.PhoneNumber);
+            else if (status == 3 && acceptStatus == 1)
+                content = string.Format("<b>{0}_{1}</b> đã chấp nhận lời mời kết bạn.", friend.UserName,
+                    friend.Account.PhoneNumber);
+            else if (status == 3 && acceptStatus == 0)
+                content = string.Format("<b>{0}_{1}</b> đã từ chối lời mời kết bạn.", friend.UserName,
+                    friend.Account.PhoneNumber);
+            else if (status == 4)
+                content = string.Format("Đã huỷ kết bạn với <b>{0}_{1}</b>.", friend.UserName,
+                    friend.Account.PhoneNumber);
+            await AddActivity(userId, content, "friend");
+        }
+
+        // activity của invite
+        public async Task InviteActivity(int status, int acceptStatus, int currentId, int otherId,
+            int eventId)
+        {
+            string content = "";
+            Event eventt = await context.Events.FirstOrDefaultAsync(e => e.ID == eventId);
+            User user = await context.Users.Include(u => u.Account)
+                .FirstOrDefaultAsync(u => u.ID == currentId);
+            User friend = await context.Users.Include(u => u.Account)
+                  .FirstOrDefaultAsync(u => u.ID == otherId);
+            // sẽ có 4 status: 1 là thằng mời, 2 là thằng được mời nhận thông báo,
+            // 3 là thằng đc mời chấp nhận hay từ chối,
+            // 4 là thằng mời nhận phản hồi chấp nhận or từ chối
+            if (status == 1)
+                content = string.Format("Bạn đã mời <b>{0}_{1}</b> tham gia sự kiện <b>{2}</b>.",
+                    friend.UserName, friend.Account.PhoneNumber, eventt.EventName);
+            else if (status == 2)
+                content = string.Format("<b>{0}_{1}</b> đã mời bạn tham gia sự kiện <b>{2}</b>."
+                    , friend.UserName, friend.Account.PhoneNumber, eventt.EventName);
+            else if (status == 3 && acceptStatus == 0)
+                content = string.Format("Bạn đã từ chối tham gia sự kiện <b>{0}</b>."
+                    , eventt.EventName);
+            else if (status == 3 && acceptStatus == 1)
+                content = string.Format("Bạn đã tham gia sự kiện <b>{0}</b>."
+                    , eventt.EventName);
+            else if (status == 4 && acceptStatus == 0)
+                content = string.Format("<b>{0}_{1}</b> đã từ chối tham gia sự kiện <b>{2}</b>."
+                    , friend.UserName, friend.Account.PhoneNumber, eventt.EventName);
+            else if (status == 4 && acceptStatus == 1)
+                content = string.Format("<b>{0}_{1}</b> đã tham gia sự kiện <b>{2}</b>."
+                    , friend.UserName, friend.Account.PhoneNumber, eventt.EventName);
+            await AddActivity(currentId, content, "invite");
+        }
     }
 }

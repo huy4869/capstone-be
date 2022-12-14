@@ -36,7 +36,7 @@ namespace G24_BWallet_Backend.Controllers
             var userID = GetUserId();
             User user = await repo.GetUserById(userID);
             List<Request> requestPending = await repo.GetRequestPending(userID);
-            List<Request> invitePending = await repo.GetInvitePending(userID);
+            List<Invite> invitePending = await repo.GetInvitePending(userID);
             // 2 cái list trên là đang lấy hết, ở đây mình chỉ cần đếm các list có status
             // là đang chờ thôi
             int requestCount = 0;
@@ -100,7 +100,7 @@ namespace G24_BWallet_Backend.Controllers
             if (isAccept == false)
                 return new Respond<string>()
                 {
-                    StatusCode = HttpStatusCode.Accepted,
+                    StatusCode = HttpStatusCode.NotAcceptable,
                     Error = "",
                     Message = "Từ chối tham gia event này",
                     Data = null
@@ -119,7 +119,7 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<int>> CountInviteRequest()
         {
             var userID = GetUserId();
-            List<Request> invitePending = await repo.GetInvitePending(userID);
+            List<Invite> invitePending = await repo.GetInvitePending(userID);
             int inviteCount = 0;
             invitePending.ForEach(i =>
             {
