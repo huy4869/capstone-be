@@ -19,15 +19,18 @@ namespace G24_BWallet_Backend.Repository
         private readonly MyDBContext context;
         private readonly Format format;
         private readonly IMemberRepository memberRepository;
+        private readonly ActivityRepository activity;
 
         public EventRepository(MyDBContext myDB, IMemberRepository memberRepository)
         {
             this.context = myDB;
             this.format = new Format();
             this.memberRepository = memberRepository;
+            activity = new ActivityRepository(myDB);
         }
 
-        public async Task<int> AddEventAsync(Event e)
+        // thêm mới 1 event
+        public async Task<int> AddEventAsync(Event e, int userId)
         {
             DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             e.EventStatus = 1;
@@ -35,6 +38,7 @@ namespace G24_BWallet_Backend.Repository
             e.UpdatedAt = VNDateTime;
             await context.Events.AddAsync(e);
             await context.SaveChangesAsync();
+            await activity.EventActivity(1, userId, e.EventName);
             return e.ID;
         }
 
@@ -396,12 +400,15 @@ namespace G24_BWallet_Backend.Repository
 
         public async Task<string> SendJoinRequest(EventUserID eventUserID)
         {
+            Event eventt = await context.Events
+                .FirstOrDefaultAsync(e => e.ID == eventUserID.EventId);
             EventUser eu = await context.EventUsers
                 .FirstOrDefaultAsync(e => e.UserID == eventUserID.UserId
                 && e.EventID == eventUserID.EventId);
             if (eu != null) return "Bạn đã ở trong event này rồi";
 
-            DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now,
+                TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             Request r = new Request();
             r.UserID = eventUserID.UserId;
             r.EventID = eventUserID.EventId;
@@ -418,10 +425,12 @@ namespace G24_BWallet_Backend.Repository
                 request.Status = 3;
                 request.UpdatedAt = VNDateTime;
                 await context.SaveChangesAsync();
+                await activity.RequestActivity(1, 0, eu.UserID, eventt.EventName, -1);
                 return "Gửi lại yêu cầu gia nhập nhóm thành công, đang chờ duyệt";
             }
             await context.Requests.AddAsync(r);
             await context.SaveChangesAsync();
+            await activity.RequestActivity(1, 0,eventUserID.UserId, eventt.EventName,-1);
             return "Gửi yêu cầu gia nhập nhóm thành công, đang chờ duyệt";
         }
 
@@ -457,17 +466,28 @@ namespace G24_BWallet_Backend.Repository
             await context.SaveChangesAsync();
         }
 
-        public async Task ApproveEventJoinRequest(ListIdStatus list)
+        // chấp thuận hoặc từ chối các yêu cầu tham gia nhóm
+        public async Task ApproveEventJoinRequest(ListIdStatus list, int userId)
         {
             foreach (int item in list.ListId)
             {
-                Request request = await context.Requests.FirstOrDefaultAsync(p => p.Id == item);
+                Request request = await context.Requests
+                    .Include(x => x.User).Include(x => x.Event)
+                    .FirstOrDefaultAsync(p => p.Id == item);
                 request.Status = list.Status;
                 await context.SaveChangesAsync();
                 if (list.Status == 4)
                 {
                     // accept
+                    await activity.RequestActivity(2, 1, userId, request.Event.EventName, request.User.ID);
+                    await activity.RequestActivity(3, 1, request.UserID, request.Event.EventName, -1);
                     await AddUserToEvent(request);
+                }
+                else
+                {
+                    // từ chối
+                    await activity.RequestActivity(2, 0, userId, request.Event.EventName, request.User.ID);
+                    await activity.RequestActivity(3, 0, request.UserID, request.Event.EventName, -1);
                 }
             }
         }
@@ -514,6 +534,7 @@ namespace G24_BWallet_Backend.Repository
             return result;
         }
 
+        // đóng hoặc thoát sự kiện
         public async Task<string> CloseEvent(int userId, int eventId)
         {
             EventUser eventUser = await context.EventUsers
@@ -541,15 +562,17 @@ namespace G24_BWallet_Backend.Repository
                    .FirstOrDefaultAsync(r => r.EventId == eventId && r.Status == 2 && r.UserId == userId);
             if (paidDeptActive != null) return "Bạn còn khoản nợ chưa trả!";
             // đủ điều kiện thì có thể out hoặc đóng event 
+            Event e = await context.Events.FirstOrDefaultAsync(ev => ev.ID == eventId);
             if (eventUser.UserRole == 1)
             { // owner sẽ close event
-                Event e = await context.Events.FirstOrDefaultAsync(ev => ev.ID == eventId);
+                await activity.EventActivity(2, userId, e.EventName);
                 e.EventStatus = 0;
                 await context.SaveChangesAsync();
                 return "Đóng sự kiện thành công";
             }
             // các member còn lại thì xoá khỏi bảng EventUser là xong
             context.EventUsers.Remove(eventUser);
+            await activity.EventActivity(3, userId, e.EventName);
             await context.SaveChangesAsync();
             return "Rời sự kiện thành công";
         }

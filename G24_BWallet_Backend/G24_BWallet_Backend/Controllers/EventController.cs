@@ -93,7 +93,7 @@ namespace G24_BWallet_Backend.Controllers
                 EventDescript = newEvent.EventDescript,
                 EventLogo = newEvent.EventLogo
             };
-            int eventID = await repo.AddEventAsync(e);
+            int eventID = await repo.AddEventAsync(e, GetUserId());
             await repo.AddEventMember(eventID, newEvent.MemberIDs);
             string eventUrl = await repo.CreateEventUrl(eventID);
             return new Respond<string>()
@@ -272,7 +272,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost("event-approve")]
         public async Task<Respond<string>> JoinEventApprove(ListIdStatus list)
         {
-            await repo.ApproveEventJoinRequest(list);
+            await repo.ApproveEventJoinRequest(list,GetUserId());
             if (list.Status == 4)
                 return new Respond<string>()
                 {
