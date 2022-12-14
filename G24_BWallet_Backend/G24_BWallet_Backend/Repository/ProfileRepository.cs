@@ -12,21 +12,29 @@ namespace G24_BWallet_Backend.Repository
     public class ProfileRepository : IProfileRepository
     {
         private readonly MyDBContext context;
+        private readonly ActivityRepository activity;
 
         public ProfileRepository(MyDBContext myDB)
         {
             this.context = myDB;
+            this.activity = new ActivityRepository(myDB);
         }
 
+        // chấp nhận hay từ chối lời mời tham gia vào nhóm
         public async Task<bool> ChangeStatusInvite(InviteRespondParam ip, int userId)
         {
-            Invite invite = await context.Invites.FirstOrDefaultAsync(i => i.ID == ip.InviteId);
-            if (ip.Status == 2)
+            Invite invite = await context.Invites
+                .Include(i => i.Event)
+                .FirstOrDefaultAsync(i => i.ID == ip.InviteId);
+            if (ip.Status == 2)// từ chối
             {
                 invite.Status = 2;
                 await context.SaveChangesAsync();
+                await activity.InviteActivity(3, 0, userId, -1, invite.EventID);
+                await activity.InviteActivity(4, 0, invite.UserID, userId, invite.EventID);
                 return false;
             }
+            // chấp nhận
             invite.Status = 1;
             // add user vao event
             EventUser eu = new EventUser();
@@ -35,14 +43,17 @@ namespace G24_BWallet_Backend.Repository
             eu.UserRole = 2;
             await context.EventUsers.AddAsync(eu);
             await context.SaveChangesAsync();
+            await activity.InviteActivity(3, 1, userId, -1, invite.EventID);
+            await activity.InviteActivity(4, 1, invite.UserID, userId, invite.EventID);
             return true;
         }
 
-        // lấy các request mà nhóm mời mình vào,status = 0,1,2
-        public async Task<List<Request>> GetInvitePending(int userId)
+        // lấy các invite mà nhóm mời mình vào,status = 0,1,2
+        public async Task<List<Invite>> GetInvitePending(int userId)
         {
-            return await context.Requests.Where(r =>
-            r.UserID == userId && (r.Status == 0 || r.Status == 1 || r.Status == 2))
+            return await context.Invites.Where(r =>
+            (r.UserID == userId || r.FriendId == userId)
+            && (r.Status == 0 || r.Status == 1 || r.Status == 2))
                 .ToListAsync();
         }
 

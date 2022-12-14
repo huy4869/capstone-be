@@ -22,12 +22,14 @@ namespace G24_BWallet_Backend.Repository
             this.activity = new ActivityRepository(myDB);
         }
 
-        public async Task<List<Member>> SearchFriendToInvite(int userID, string phone = null)
+        // show ra danh sách bạn bè chưa tham gia nhóm để mời
+        public async Task<List<Member>> SearchFriendToInvite(int userID,
+            string search, int eventId)
         {
             IQueryable<Member> list1;
             IQueryable<Member> list2;
 
-            if (phone == null)
+            if (search == null)
             {
                 //list friend in friendID (mình là cột userID)
                 list1 = from f in context.Friends
@@ -42,41 +44,92 @@ namespace G24_BWallet_Backend.Repository
                         select (new Member(u.ID, u.UserName, u.Avatar, u.Account.PhoneNumber));
             }
 
-            //tim theo phonenumber
+            //tim theo phonenumber hoặc friend name
             else
             {
-                //list friend in friendID (mình là cột userID)
+                //list friend in friendID (mình là cột userID), tìm theo phone
                 list1 = from f in context.Friends
                         join u in context.Users.Include(u => u.Account) on f.UserFriendID equals u.ID
                         where f.UserID == userID
-                        && u.Account.PhoneNumber.Contains(phone)
+                        && u.Account.PhoneNumber.Contains(search)
                         && f.status == 1
                         && u.AllowInviteEventStatus == 1
                         select (new Member(u.ID, u.UserName, u.Avatar, u.Account.PhoneNumber));
 
-                //list friend in userID (mình là cột UserFriendID)
+                //list friend in userID (mình là cột UserFriendID), tìm theo phone
                 list2 = from f in context.Friends
                         join u in context.Users.Include(u => u.Account) on f.UserID equals u.ID
                         where f.UserFriendID == userID
-                        && u.Account.PhoneNumber.Contains(phone)
+                        && u.Account.PhoneNumber.Contains(search)
                         && f.status == 1
                         && u.AllowInviteEventStatus == 1
                         select (new Member(u.ID, u.UserName, u.Avatar, u.Account.PhoneNumber));
+                if (list1 != null && list1.Count() <= 0) // search theo tên
+                {
+                    list1 = from f in context.Friends
+                            join u in context.Users.Include(u => u.Account) on f.UserFriendID equals u.ID
+                            where f.UserID == userID
+                            && u.UserName.Contains(search)
+                            && f.status == 1
+                            && u.AllowInviteEventStatus == 1
+                            select (new Member(u.ID, u.UserName, u.Avatar, u.Account.PhoneNumber));
+                }
+                if (list2 != null && list2.Count() <= 0)// search theo tên
+                {
+                    list2 = from f in context.Friends
+                            join u in context.Users.Include(u => u.Account) on f.UserID equals u.ID
+                            where f.UserFriendID == userID
+                            && u.UserName.Contains(search)
+                            && f.status == 1
+                            && u.AllowInviteEventStatus == 1
+                            select (new Member(u.ID, u.UserName, u.Avatar, u.Account.PhoneNumber));
+                }
+                if (list1 != null && list1.Count() <= 0 && list2 != null && list2.Count() <= 0)
+                {
+                    //list friend in friendID (mình là cột userID)
+                    list1 = from f in context.Friends
+                            join u in context.Users.Include(u => u.Account) on f.UserFriendID equals u.ID
+                            where f.UserID == userID && f.status == 1 && u.AllowInviteEventStatus == 1
+                            select (new Member(u.ID, u.UserName, u.Avatar, u.Account.PhoneNumber));
+
+                    //list friend as userID (mình là cột UserFriendID)
+                    list2 = from f in context.Friends
+                            join u in context.Users.Include(u => u.Account) on f.UserID equals u.ID
+                            where f.UserFriendID == userID && f.status == 1 && u.AllowInviteEventStatus == 1
+                            select (new Member(u.ID, u.UserName, u.Avatar, u.Account.PhoneNumber));
+                }
             }
 
             List<Member> listFriends = list1.ToList();
             listFriends.AddRange(list2);
-
+            // mình chỉ lấy những thằng friend mà chưa tham gia event hiện tại thôi
+            listFriends = await GetFriendNotAttendedEvent(listFriends, eventId);
             return listFriends.OrderBy(m => m.UserName).ToList();
         }
 
+        private async Task<List<Member>> GetFriendNotAttendedEvent(List<Member> listFriends, int eventId)
+        {
+            List<Member> list = new List<Member>();
+            foreach (Member member in listFriends)
+            {
+                EventUser eventUser = await context.EventUsers
+                    .FirstOrDefaultAsync(m => m.EventID == eventId && m.UserID == member.UserId);
+                if (eventUser == null)
+                    list.Add(member);
+            }
+            return list;
+        }
+
+        // mời bạn bè vào nhóm
         public async Task AddInvite(EventFriendParam e)
         {
-            DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now,
+                TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             foreach (int friendId in e.MemberIDs)
             {
                 // kiểm tra xem bạn bè đã ở trong event này chưa, nếu chưa thì mới add vào
                 EventUser eu = await context.EventUsers
+                    .Include(e => e.Event)
                     .FirstOrDefaultAsync(er => er.EventID == e.EventId && er.UserID == friendId);
                 if (eu == null)// bạn bè chưa ở trong event-> tạo invite
                 {
@@ -89,6 +142,8 @@ namespace G24_BWallet_Backend.Repository
                     invite.UpdateAt = VNDateTime;
                     await context.Invites.AddAsync(invite);
                     await context.SaveChangesAsync();
+                    await activity.InviteActivity(1, 0, e.UserId, friendId, e.EventId);
+                    await activity.InviteActivity(2, 0, friendId, e.UserId, e.EventId);
                 }
             }
         }

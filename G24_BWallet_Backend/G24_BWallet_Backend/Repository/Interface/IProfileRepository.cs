@@ -8,7 +8,7 @@ namespace G24_BWallet_Backend.Repository.Interface
     public interface IProfileRepository
     {
         Task<bool> ChangeStatusInvite(InviteRespondParam i,int userId);
-        Task<List<Request>> GetInvitePending(int userId);
+        Task<List<Invite>> GetInvitePending(int userId);
         Task<List<Request>> GetRequestPending(int userId);
         Task<User> GetUserById(int userId);
         Task<List<InviteJoinParam>> ShowInviteJoinEvent(int userID);
