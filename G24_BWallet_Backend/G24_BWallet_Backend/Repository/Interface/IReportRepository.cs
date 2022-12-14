@@ -11,6 +11,6 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<List<ReportReturn>> GetListReport(int eventId);
         Task<List<ReportReturn>> GetSolvedReports(int eventId);
         Task<Report> createReport(int receiptID, int userID, string reason);
-        Task<Report> responeReport(int reportId, int status);
+        Task<Report> responeReport(int reportId, int status,int userId);
     }
 }

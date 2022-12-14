@@ -69,7 +69,7 @@ namespace G24_BWallet_Backend.Repository
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], _configuration["Jwt:Audience"],
-                claims, expires: DateTime.UtcNow.AddDays(3), signingCredentials: signIn);
+                claims, expires: DateTime.UtcNow.AddMonths(6), signingCredentials: signIn);
             var tokenHandler = new JwtSecurityTokenHandler().WriteToken(token);
             return await Task.FromResult(tokenHandler);
         }
