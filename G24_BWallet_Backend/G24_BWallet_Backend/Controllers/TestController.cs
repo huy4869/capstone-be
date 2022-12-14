@@ -169,11 +169,13 @@ namespace G24_BWallet_Backend.Controllers
             //var VietNamTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
 
             //double money = 12345689.324;
-            Format f = new Format();
+            /*Format f = new Format();
             //string formatmoney = f.MoneyFormat(money);
             string formatmoney = money.ToString("C10");
-            money = (int)(money / 1);
-            return new { money };
+            money = (int)(money / 1);*/
+            Format f = new Format();
+            //return await f.EncryptAsync("ZGvCyihrgbk9SLnQBneji11YhULzqLCXB4md5jNZ");
+            return null;
         }
 
         class Product

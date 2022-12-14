@@ -50,8 +50,9 @@ namespace G24_BWallet_Backend.Repository
                 throw new IOException("File ảnh khống đúng định dạng");
             }
 
-            string AWSS3AccessKeyId = _configuration["AWSS3:AccessKeyId"];
-            string AWSS3SecretAccessKey = _configuration["AWSS3:SecretAccessKey"];
+            Format f = new Format();
+            string AWSS3AccessKeyId = await f.DecryptAsync(_configuration["AWSS3:AccessKeyId"]);
+            string AWSS3SecretAccessKey = await f.DecryptAsync(_configuration["AWSS3:SecretAccessKey"]);
             MemoryStream memStream = new MemoryStream();
 
             //heic to jpeg stream
@@ -113,15 +114,16 @@ namespace G24_BWallet_Backend.Repository
 
         public async Task<string> DeleteS3FileByLink(string link)
         {
-            string AWSS3AccessKeyId = _configuration["AWSS3:DeleteKey"];
-            string AWSS3SecretAccessKey = _configuration["AWSS3:DeleteSecretKey"];
+            Format f = new Format();
+            string AWSS3AccessKeyId = await f.DecryptAsync(_configuration["AWSS3:DeleteKey"]);
+            string AWSS3SecretAccessKey = await f.DecryptAsync(_configuration["AWSS3:DeleteSecretKey"]);
             var client = new AmazonS3Client(AWSS3AccessKeyId, AWSS3SecretAccessKey, RegionEndpoint.APSoutheast1);
 
             string[] linkParts = link.Split('/');
             var respone = await client.DeleteObjectAsync(new Amazon.S3.Model.DeleteObjectRequest()
             {
                 BucketName = "bwallets3bucket/"+ linkParts[linkParts.Length - 2],
-                Key = linkParts[linkParts.Length - 1]
+                Key = HttpUtility.UrlDecode(linkParts[linkParts.Length - 1])
             });
             return respone.DeleteMarker;
         }
