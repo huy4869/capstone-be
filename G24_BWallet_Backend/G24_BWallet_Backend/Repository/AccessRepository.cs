@@ -24,6 +24,7 @@ using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using static System.Net.WebRequestMethods;
 using Amazon;
+using System.Web;
 
 namespace G24_BWallet_Backend.Repository
 {
@@ -251,14 +252,15 @@ namespace G24_BWallet_Backend.Repository
         }
         public async Task DeleteS3FileByLink(string link)
         {
-            string AWSS3AccessKeyId = _configuration["AWSS3:DeleteKey"];
-            string AWSS3SecretAccessKey = _configuration["AWSS3:DeleteSecretKey"];
+            Format f = new Format();
+            string AWSS3AccessKeyId = await f.DecryptAsync(_configuration["AWSS3:DeleteKey"]);
+            string AWSS3SecretAccessKey = await f.DecryptAsync(_configuration["AWSS3:DeleteSecretKey"]);
             var client = new AmazonS3Client(AWSS3AccessKeyId, AWSS3SecretAccessKey, RegionEndpoint.APSoutheast1);
 
             var respone = await client.DeleteObjectAsync(new Amazon.S3.Model.DeleteObjectRequest()
             {
                 BucketName = "bwallets3bucket/user",
-                Key = link.Split('/').Last()
+                Key = HttpUtility.UrlDecode(link.Split('/').Last())
             });
             var isdelete = respone.DeleteMarker;
         }
