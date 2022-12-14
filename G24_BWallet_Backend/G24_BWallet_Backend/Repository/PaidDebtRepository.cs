@@ -415,6 +415,14 @@ namespace G24_BWallet_Backend.Repository
             return user.Account.PhoneNumber;
         }
 
-
+        // kiểm tra yêu cầu trả tiền trước đấy đã duyệt chưa, nếu chưa thì không được tạo thêm 
+        // yêu cầu trả tiền
+        public async Task<bool> PaidCheck(int eventId, int userId)
+        {
+            PaidDept paid = await context.PaidDepts
+                .FirstOrDefaultAsync(p => p.EventId == eventId && p.UserId == userId
+                && p.Status == 1);
+            return paid == null;
+        }
     }
 }
