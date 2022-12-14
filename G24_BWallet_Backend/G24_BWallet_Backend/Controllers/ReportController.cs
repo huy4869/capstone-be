@@ -66,7 +66,7 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<Report>> createReport([FromBody] Report reportInfo)
         {
             int userID = GetUserId();
-            
+
             if (reportInfo.ReportReason.IsNullOrEmpty() || reportInfo.ReceiptId == 0)
             {
                 return new Respond<Report>()
@@ -78,7 +78,7 @@ namespace G24_BWallet_Backend.Controllers
                 };
             }
             var result = await reportRepo.createReport(reportInfo.ReceiptId, userID, reportInfo.ReportReason);
-            
+
             return new Respond<Report>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -94,15 +94,15 @@ namespace G24_BWallet_Backend.Controllers
             int userID = GetUserId();
             int eventID = reportRepo.GetReportByID(reportInfo.ID).Result.EventId;
 
-           /* if (!await memberRepo.IsOwner(eventID, userID))
-                return new Respond<Report>()
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Error = "",
-                    Message = "bạn không có quyền xử lý báo cáo",
-                    Data = null
-                };*/
-            var result = await reportRepo.responeReport(reportInfo.ID, reportInfo.ReportStatus);
+            /* if (!await memberRepo.IsOwner(eventID, userID))
+                 return new Respond<Report>()
+                 {
+                     StatusCode = HttpStatusCode.BadRequest,
+                     Error = "",
+                     Message = "bạn không có quyền xử lý báo cáo",
+                     Data = null
+                 };*/
+            var result = await reportRepo.responeReport(reportInfo.ID, reportInfo.ReportStatus, userID);
 
             return new Respond<Report>()
             {

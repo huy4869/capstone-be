@@ -356,9 +356,12 @@ namespace G24_BWallet_Backend.Repository
             userCreate.Role = await memberRepository.GetRole(receipt.EventID, creator.ID);
             userCreate.TotalAmount = receipt.ReceiptAmount - totalDebt;
             userCreate.TotalAmountFormat = format.MoneyFormat(userCreate.TotalAmount);
-            userDepts.Add(userCreate);
-            userDepts.Reverse();
-
+            // nhưng mà nếu tiền của nó mà bằng 0 thì cũng không hiện nữa
+            if (receipt.ReceiptAmount - totalDebt > 0)
+            {
+                userDepts.Add(userCreate);
+                userDepts.Reverse();
+            }
             result.UserDepts = userDepts;
             result.ImgLink = await GetListImg("receipt", receiptId);
             result.ReceiptStatus = receipt.ReceiptStatus;
