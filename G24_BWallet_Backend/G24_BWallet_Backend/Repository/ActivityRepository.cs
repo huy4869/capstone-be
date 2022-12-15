@@ -15,10 +15,12 @@ namespace G24_BWallet_Backend.Repository
     public class ActivityRepository : IActivityRepository
     {
         private readonly MyDBContext context;
+        private readonly Format format;
 
         public ActivityRepository(MyDBContext myDB)
         {
             this.context = myDB;
+            format = new Format();
         }
 
         public async Task AddActivity(int userId, string content, string iconType)
@@ -69,7 +71,7 @@ namespace G24_BWallet_Backend.Repository
             string receiptName, string eventName)
         {
             string statuss = (status == 2) ? "phê duyệt" : "từ chối";
-            string content = "Bạn đã " + statuss + " chứng từ [" + receiptName + "] nhóm [" + eventName + "]";
+            string content = "Bạn đã " + statuss + " chứng từ <b>" + receiptName + "</b> nhóm <b>" + eventName + "</b>.";
             await AddActivity(userId, content, "receipt");
         }
 
@@ -77,7 +79,7 @@ namespace G24_BWallet_Backend.Repository
             string receiptName, string eventName)
         {
             string statuss = (status == 2) ? "được phê duyệt" : "bị từ chối";
-            string content = string.Format("Chứng từ [{0}] trong nhóm [{1}] của bạn đã {2}", receiptName,
+            string content = string.Format("Chứng từ <b>{0}</b> trong nhóm <b>{1}</b> của bạn đã {2}.", receiptName,
                 eventName, statuss);
             await AddActivity(userId, content, "receipt");
         }
@@ -85,16 +87,17 @@ namespace G24_BWallet_Backend.Repository
         public async Task AddReceiptActivity(int userID, string receiptName, int eventID)
         {
             Event e = await context.Events.FirstOrDefaultAsync(e => e.ID == eventID);
-            string content = string.Format("Chứng từ [{0}] trong nhóm [{1}]" +
-                " bạn mới thêm đang chờ duyệt", receiptName, e.EventName);
+            string content = string.Format("Chứng từ <b>{0}</b> trong nhóm <b>{1}<b>" +
+                " bạn mới thêm đang chờ duyệt.", receiptName, e.EventName);
             await AddActivity(userID, content, "receipt");
         }
 
         public async Task CreatorPaidDebtActivity(int userId, double totalMoney, int eventId)
         {
             Event e = await context.Events.FirstOrDefaultAsync(e => e.ID == eventId);
-            string content = string.Format("Yêu cầu trả {0} của bạn trong sự kiện {1} đang chờ duyệt"
-                , totalMoney, e.EventName);
+            string content = string.Format("Yêu cầu trả <b>{0}</b> của bạn trong sự kiện <b>{1}</b> đang" +
+                " chờ duyệt."
+                , format.MoneyFormat(totalMoney), e.EventName);
             await AddActivity(userId, content, "paidDebt");
         }
 
@@ -104,8 +107,9 @@ namespace G24_BWallet_Backend.Repository
                 .Include(p => p.Event)
                 .FirstOrDefaultAsync(p => p.Id == paidid);
             string statuss = (status == 2) ? "được phê duyệt" : "bị từ chối";
-            string content = string.Format("Yêu cầu trả {0} của bạn trong sự kiện {1} đã {2}"
-                , paidDept.TotalMoney, paidDept.Event.EventName, status);
+            string content = string.Format("Yêu cầu trả <b>{0}</b> của bạn trong sự kiện <b>{1}</b>" +
+                " đã {2}."
+                , format.MoneyFormat(paidDept.TotalMoney), paidDept.Event.EventName, status);
             await AddActivity(userId, content, "paidDebt");
         }
 
@@ -116,8 +120,10 @@ namespace G24_BWallet_Backend.Repository
                  .Include(p => p.User)
                  .FirstOrDefaultAsync(p => p.Id == paidid);
             string statuss = (status == 2) ? "phê duyệt" : "từ chối";
-            string content = string.Format("Bạn đã {0} yêu cầu trả {1} của {2} trong nhóm {3}"
-                , statuss, paidDept.TotalMoney, paidDept.User.UserName, paidDept.Event.EventName);
+            string content = string.Format("Bạn đã {0} yêu cầu trả <b>{1}</b> của <b>{2}</b> " +
+                "trong nhóm <b>{3}</b>"
+                , statuss, format.MoneyFormat(paidDept.TotalMoney), paidDept.User.UserName, 
+                paidDept.Event.EventName);
             await AddActivity(userId, content, "paidDebt");
         }
 
