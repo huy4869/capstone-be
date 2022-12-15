@@ -98,9 +98,9 @@ namespace G24_BWallet_Backend.Models.ObjectType
 
     public class PasswordChangeParam
     {
-        public string CurrentPassword { get; set; }
-        public string NewPassword { get; set; }
-        public string NewPasswordAgain { get; set; }
+        public string password { get; set; }
+        public string new_password { get; set; }
+        public string password_confirmation { get; set; }
     }
 
     public class UserAvatarName

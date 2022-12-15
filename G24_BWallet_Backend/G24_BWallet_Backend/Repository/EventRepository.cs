@@ -387,14 +387,25 @@ namespace G24_BWallet_Backend.Repository
                 .Where(e => e.EventID == eventId).ToListAsync();
             // săp xếp cho thằng owner lên đầu danh sách
             eu = await memberRepository.SortOwnerFirst(eu);
-            eu.ForEach(async item => result.Add(
-                new UserAvatarName
-                {
-                    Avatar = item.User.Avatar,
-                    Name = item.User.UserName,
-                    Phone = await memberRepository.GetPhoneByUserId(item.User.ID),
-                    Role = await memberRepository.GetRole(eventId, item.User.ID)
-                }));
+            //eu.ForEach(async item => result.Add(
+            //    new UserAvatarName
+            //    {
+            //        Avatar = item.User.Avatar,
+            //        Name = item.User.UserName,
+            //        Phone = await memberRepository.GetPhoneByUserId(item.User.ID),
+            //        Role = await memberRepository.GetRole(eventId, item.User.ID)
+            //    }));
+            foreach (EventUser item in eu)
+            {
+                result.Add(
+                        new UserAvatarName
+                        {
+                            Avatar = item.User.Avatar,
+                            Name = item.User.UserName,
+                            Phone = await memberRepository.GetPhoneByUserId(item.User.ID),
+                            Role = await memberRepository.GetRole(eventId, item.User.ID)
+                        });
+            }
             return result;
         }
 
@@ -430,7 +441,7 @@ namespace G24_BWallet_Backend.Repository
             }
             await context.Requests.AddAsync(r);
             await context.SaveChangesAsync();
-            await activity.RequestActivity(1, 0,eventUserID.UserId, eventt.EventName,-1);
+            await activity.RequestActivity(1, 0, eventUserID.UserId, eventt.EventName, -1);
             return "Gửi yêu cầu gia nhập nhóm thành công, đang chờ duyệt";
         }
 
