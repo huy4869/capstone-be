@@ -210,11 +210,11 @@ namespace G24_BWallet_Backend.Repository
         {
             User user = await context.Users.Include(u => u.Account)
                 .FirstOrDefaultAsync(u => u.ID == userId);
-            if (!user.Account.Password.Equals(p.CurrentPassword))
+            if (!user.Account.Password.Equals(p.password))
                 return 1;
-            if (!p.NewPassword.Equals(p.NewPasswordAgain))
+            if (!p.new_password.Equals(p.password_confirmation))
                 return 2;
-            user.Account.Password = p.NewPassword;
+            user.Account.Password = p.new_password;
             await context.SaveChangesAsync();
             return 0;
         }
