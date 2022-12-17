@@ -82,6 +82,19 @@ namespace G24_BWallet_Backend.Repository
             return await Task.FromResult((otp.OtpCode.Trim().Equals(enter.Trim())));
         }
 
+        // kiểm tra otp còn hạn hay ko
+        public async Task<bool> CheckOTPTimeAsync(string phone, int minute)
+        {
+            var otp = await context.Otps.OrderBy(o => o.OtpID)
+                 .LastOrDefaultAsync(o => o.Phone.Equals(phone.Trim()));
+            DateTime createTime = otp.CreatedAt;
+            DateTime now = DateTime.Now;
+            TimeSpan diffResult = now.Subtract(createTime);
+            if (diffResult.Minutes > minute)
+                return false;
+            return true;
+        }
+
         public async Task<bool> SendOtpTwilioAsync(string phone, string otp)
         {
             // Find your Account SID and Auth Token at twilio.com/console
@@ -136,9 +149,11 @@ namespace G24_BWallet_Backend.Repository
             context.SaveChanges();
         }
 
+        // lưu otp vào db
         public async Task SaveOTPAsync(string phone, string otpCode, string jwt)
         {
-            DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now,
+                TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             Otp otp = new Otp();
             otp.Phone = phone;
             otp.OtpCode = otpCode;
@@ -264,5 +279,7 @@ namespace G24_BWallet_Backend.Repository
             });
             var isdelete = respone.DeleteMarker;
         }
+
+
     }
 }

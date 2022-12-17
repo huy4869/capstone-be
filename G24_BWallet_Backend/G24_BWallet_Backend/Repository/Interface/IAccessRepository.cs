@@ -23,5 +23,6 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<List<User>> GetAllUserAsync();
         Task<bool> CheckPhoneFormat(string phone);
         Task UpdateUserProfile(User userEditInfo, int userId);
+        Task<bool> CheckOTPTimeAsync(string phone, int minute);
     }
 }
