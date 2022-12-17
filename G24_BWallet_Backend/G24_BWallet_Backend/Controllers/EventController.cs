@@ -105,12 +105,26 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
-        [HttpPost("join/eventId={eventId}")]
-        public async Task<Respond<IDictionary>> CheckJoinByUrl(string eventId)
+        [HttpGet("join")]
+        public async Task<Respond<IDictionary>> CheckJoinByUrl([FromQuery] string eventId)
         {
             // event Id lúc này đang bị mã hoá, mình phải giải mã và chuyển về int
             Format format = new Format();
-            int eventIdInt = Convert.ToInt32(await format.DecryptAsync(eventId));
+            int eventIdInt = 0;
+            try
+            {
+                eventIdInt = Convert.ToInt32(await format.DecryptAsync(eventId));
+            }
+            catch(Exception ex)
+            {
+                return new Respond<IDictionary>()
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Error = "",
+                    Message = "Đường dẫn sự kiện sai!",
+                    Data = null
+                };
+            }
             EventUserID eu = new EventUserID { EventId = eventIdInt, UserId = GetUserId() };
             bool isJoin = await repo.CheckUserJoinEvent(eu);
             IDictionary<string, int> result = new Dictionary<string, int>
@@ -172,7 +186,7 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         // gửi yêu cầu tham gia event
-        [HttpPost("JoinRequest/EventId={eventId}")]
+        [HttpGet("joinRequest/eventId={eventId}")]
         public async Task<Respond<string>> SendJoinRequest(int eventId)
         {
             bool isMax = await repo.IsMaxMember(eventId);
@@ -194,7 +208,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Yêu cầu tham gia sự kiện đang chờ duyệt",
+                Message = "",
                 Data = check
             };
         }
@@ -272,7 +286,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost("event-approve")]
         public async Task<Respond<string>> JoinEventApprove(ListIdStatus list)
         {
-            await repo.ApproveEventJoinRequest(list,GetUserId());
+            await repo.ApproveEventJoinRequest(list, GetUserId());
             if (list.Status == 4)
                 return new Respond<string>()
                 {

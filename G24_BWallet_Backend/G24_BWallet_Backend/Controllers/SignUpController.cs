@@ -97,20 +97,30 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost("check-otp")]
         public async Task<Respond<bool>> CheckOtp(OtpParam o)
         {
+            // check thời gian 1 otp là 10 phút
+            bool timeCheck = await repo.CheckOTPTimeAsync(o.Phone,10);
+            if (timeCheck == false)
+                return new Respond<bool>()
+                {
+                    StatusCode = HttpStatusCode.RequestTimeout,// 408
+                    Error = "",
+                    Message = "Mã OTP đã hết hạn!",
+                    Data = false
+                };
             bool check = await repo.CheckOTPAsync(o.Phone, o.Enter);
             if(check)
                 return new Respond<bool>()
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
-                    Message = "OTP is correct!",
+                    Message = "Mã OTP chính xác!",
                     Data = true
                 };
             return new Respond<bool>()
             {
                 StatusCode = HttpStatusCode.NotAcceptable,
                 Error = "",
-                Message = "OTP is wrong!",
+                Message = "Mã OTP sai!",
                 Data = false
             };
         }
