@@ -186,10 +186,13 @@ namespace G24_BWallet_Backend.Repository
             // số lượng yêu cầu trả tiền chờ duyêt : cashier
             int paidNum = (await myDB.PaidDepts
                 .Where(p => p.EventId == eventID && p.Status == 1).ToListAsync()).Count;
+            // số lượng báo cáo chờ duyệt status == 0
+            int reportNum = (await myDB.Reports
+                .Where(r => r.EventId == eventID && r.ReportStatus == 0).ToListAsync()).Count;
             // kiểm tra role user
             if (await IsOwner(eventID, userID))
             {
-                return requestNum;
+                return requestNum + receiptNum + paidNum + reportNum;
             }
             if (await IsInspector(eventID, userID))
             {
