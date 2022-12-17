@@ -105,8 +105,8 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
-        [HttpPost("join/eventId={eventId}")]
-        public async Task<Respond<IDictionary>> CheckJoinByUrl(string eventId)
+        [HttpGet("join")]
+        public async Task<Respond<IDictionary>> CheckJoinByUrl([FromQuery] string eventId)
         {
             // event Id lúc này đang bị mã hoá, mình phải giải mã và chuyển về int
             Format format = new Format();
@@ -172,7 +172,7 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         // gửi yêu cầu tham gia event
-        [HttpPost("JoinRequest/EventId={eventId}")]
+        [HttpGet("joinRequest/eventId={eventId}")]
         public async Task<Respond<string>> SendJoinRequest(int eventId)
         {
             bool isMax = await repo.IsMaxMember(eventId);
@@ -194,7 +194,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Yêu cầu tham gia sự kiện đang chờ duyệt",
+                Message = "",
                 Data = check
             };
         }

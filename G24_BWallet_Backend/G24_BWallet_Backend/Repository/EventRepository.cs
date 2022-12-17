@@ -70,7 +70,7 @@ namespace G24_BWallet_Backend.Repository
         {
             // mã hoá event id
             string eventIdEncrypt = await format.EncryptAsync(eventID.ToString());
-            string eventUrl = "/event/join/eventId=" + eventIdEncrypt;
+            string eventUrl = "/event?join/eventId=" + eventIdEncrypt;
             Event e = await context.Events.FirstOrDefaultAsync(e => e.ID == eventID);
             e.EventLink = eventUrl;
             await context.SaveChangesAsync();
