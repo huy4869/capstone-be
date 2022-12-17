@@ -41,8 +41,8 @@ namespace G24_BWallet_Backend.Controllers
                 return new Respond<JwtParam>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
-                    Error = "Login fail!",
-                    Message = "This phone number is not registed!",
+                    Error = "Đăng nhập thất bại!",
+                    Message = "Số điện thoại chưa được đăng ký!",
                     Data = null
                 };
             var account = await repo.GetAccountAsync(acc.PhoneNumber, encrypt);
@@ -51,8 +51,8 @@ namespace G24_BWallet_Backend.Controllers
                 return new Respond<JwtParam>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
-                    Error = "Login fail!",
-                    Message = "This password is wrong!",
+                    Error = "Đăng nhập thất bại!",
+                    Message = "Mật khẩu không đúng!",
                     Data = null
                 };
             var user = await repo.GetUserAsync(account);
@@ -62,7 +62,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Login success!",
+                Message = "Đăng nhập thành công!",
                 //Data = new ArrayList { new JWT(await jwt),await user}
                 //Data = new Dictionary<object, object>()
                 Data = JWTToken
