@@ -57,11 +57,14 @@ namespace G24_BWallet_Backend.Repository
             await context.SaveChangesAsync();
         }
 
+        // kiểm tra xem user đã ở trong event chưa
         public async Task<bool> CheckUserJoinEvent(EventUserID eu)
         {
             EventUser eventUser = await context.EventUsers.FirstOrDefaultAsync(e =>
             e.EventID == eu.EventId && e.UserID == eu.UserId);
-            if (eventUser == null)
+            // nếu chưa ở trong event hoặc đã ở trong event nhưng đang inactive thì coi như 
+            // chưa ở trong event
+            if (eventUser == null || (eventUser != null && eventUser.UserRole == 4))
                 return false;
             return true;
         }
@@ -386,7 +389,7 @@ namespace G24_BWallet_Backend.Repository
             List<EventUser> eu = await context.EventUsers.Include(e => e.User)
                 .Where(e => e.EventID == eventId).ToListAsync();
             // săp xếp cho thằng owner lên đầu danh sách
-            eu = await memberRepository.SortOwnerFirst(eu);
+            eu = await memberRepository.SortList(eu);
             //eu.ForEach(async item => result.Add(
             //    new UserAvatarName
             //    {
@@ -451,6 +454,7 @@ namespace G24_BWallet_Backend.Repository
             List<UserJoinRequestWaiting> request = new List<UserJoinRequestWaiting>();
             List<Request> requests = await context.Requests
                 .Include(request => request.User)
+                .OrderByDescending(r => r.UpdatedAt)
                 .Where(request => request.EventID == eventId
                 && request.Status == 3).ToListAsync();
             foreach (Request item in requests)
@@ -486,6 +490,7 @@ namespace G24_BWallet_Backend.Repository
                     .Include(x => x.User).Include(x => x.Event)
                     .FirstOrDefaultAsync(p => p.Id == item);
                 request.Status = list.Status;
+                request.UpdatedAt = DateTime.Now;
                 await context.SaveChangesAsync();
                 if (list.Status == 4)
                 {
@@ -503,10 +508,12 @@ namespace G24_BWallet_Backend.Repository
             }
         }
 
+        // thêm thành viên vào nhóm
         private async Task AddUserToEvent(Request request)
         {
             EventUser e = await context.EventUsers
                 .FirstOrDefaultAsync(e => e.EventID == request.EventID && e.UserID == request.UserID);
+            // nếu thằng này chưa từng ở trong nhóm thì mới add vào
             if (e == null)
             {
                 EventUser eventUser = new EventUser
@@ -518,6 +525,12 @@ namespace G24_BWallet_Backend.Repository
                 await context.EventUsers.AddAsync(eventUser);
                 await context.SaveChangesAsync();
             }
+            // còn nếu nó đang inactive trong event thì chỉ cần active lại là xong
+            else
+            {
+                e.UserRole = 0;
+                await context.SaveChangesAsync();
+            }
         }
 
         // lịch sử yêu cầu tham gia
@@ -527,7 +540,7 @@ namespace G24_BWallet_Backend.Repository
             // lấy các request đã chấp nhận hoặc từ chối
             List<Request> requests = await context.Requests
                 .Include(request => request.User)
-                .OrderByDescending(request => request.Id)
+                .OrderByDescending(request => request.UpdatedAt)
                 .Where(request => request.EventID == eventId && request.Status != 0
                 && request.Status != 3).ToListAsync();
             foreach (Request item in requests)
@@ -581,8 +594,9 @@ namespace G24_BWallet_Backend.Repository
                 await context.SaveChangesAsync();
                 return "Đóng sự kiện thành công";
             }
-            // các member còn lại thì xoá khỏi bảng EventUser là xong
-            context.EventUsers.Remove(eventUser);
+            // các member còn lại thì chuyển status thành inactive(4) là xong
+            eventUser.UserRole = 4;
+            //context.EventUsers.Remove(eventUser);
             await activity.EventActivity(3, userId, e.EventName);
             await context.SaveChangesAsync();
             return "Rời sự kiện thành công";

@@ -87,7 +87,7 @@ namespace G24_BWallet_Backend.Repository
         public async Task AddReceiptActivity(int userID, string receiptName, int eventID)
         {
             Event e = await context.Events.FirstOrDefaultAsync(e => e.ID == eventID);
-            string content = string.Format("Chứng từ <b>{0}</b> trong nhóm <b>{1}<b>" +
+            string content = string.Format("Chứng từ <b>{0}</b> trong nhóm <b>{1}</b>" +
                 " bạn mới thêm đang chờ duyệt.", receiptName, e.EventName);
             await AddActivity(userID, content, "receipt");
         }
@@ -119,11 +119,13 @@ namespace G24_BWallet_Backend.Repository
                  .Include(p => p.Event)
                  .Include(p => p.User)
                  .FirstOrDefaultAsync(p => p.Id == paidid);
+            User user = await context.Users.Include(u => u.Account)
+                .FirstOrDefaultAsync(u => u.ID == paidDept.UserId);
             string statuss = (status == 2) ? "phê duyệt" : "từ chối";
-            string content = string.Format("Bạn đã {0} yêu cầu trả <b>{1}</b> của <b>{2}</b> " +
-                "trong nhóm <b>{3}</b>"
-                , statuss, format.MoneyFormat(paidDept.TotalMoney), paidDept.User.UserName, 
-                paidDept.Event.EventName);
+            string content = string.Format("Bạn đã {0} yêu cầu trả <b>{1}</b> của <b>{2}({3})</b> " +
+                "trong nhóm <b>{4}</b>"
+                , statuss, format.MoneyFormat(paidDept.TotalMoney), paidDept.User.UserName,
+                user.Account.PhoneNumber, paidDept.Event.EventName);
             await AddActivity(userId, content, "paidDebt");
         }
 
@@ -157,10 +159,10 @@ namespace G24_BWallet_Backend.Repository
                     " đang chờ duyệt.", eventName);
             else if (status == 2 && acceptStatus == 1)
                 content = string.Format("Bạn đã đồng ý yêu cầu tham gia sự kiện <b>{0}</b>" +
-                    " của <b>{1}_{2}</b>", eventName, user.UserName, user.Account.PhoneNumber);
+                    " của <b>{1}({2})</b>", eventName, user.UserName, user.Account.PhoneNumber);
             else if (status == 2 && acceptStatus == 0)
                 content = string.Format("Bạn đã từ chối yêu cầu tham gia sự kiện <b>{0}</b>" +
-                    " của <b>{1}_{2}</b>", eventName, user.UserName, user.Account.PhoneNumber);
+                    " của <b>{1}({2})</b>", eventName, user.UserName, user.Account.PhoneNumber);
             else if (status == 3 && acceptStatus == 1)
                 content = string.Format("Yêu cầu tham gia sự kiện <b>{0}</b>" +
                     "đã được chấp thuận.", eventName);
@@ -206,22 +208,22 @@ namespace G24_BWallet_Backend.Repository
             // sẽ có 4 status: 1 là gửi lời mời kết bạn, 2 là thằng bạn chấp thuận or từ chối,
             // 3 là thằng gửi nhận đc phản hồi chấp thuận or từ chối, 4 là xoá bạn
             if (status == 1)
-                content = string.Format("Đã gửi lời mời kết bạn đến <b>{0}_{1}</b>.", friend.UserName,
+                content = string.Format("Đã gửi lời mời kết bạn đến <b>{0}({1})</b>.", friend.UserName,
                     friend.Account.PhoneNumber);
             else if (status == 2 && acceptStatus == 1)
-                content = string.Format("Bạn đã đồng ý kết bạn với <b>{0}_{1}</b>.",
+                content = string.Format("Bạn đã đồng ý kết bạn với <b>{0}({1})</b>.",
                     friend.UserName, friend.Account.PhoneNumber);
             else if (status == 2 && acceptStatus == 0)
-                content = string.Format("Bạn đã từ chối kết bạn với <b>{0}_{1}</b>.", friend.UserName
+                content = string.Format("Bạn đã từ chối kết bạn với <b>{0}({1})</b>.", friend.UserName
                     , friend.Account.PhoneNumber);
             else if (status == 3 && acceptStatus == 1)
-                content = string.Format("<b>{0}_{1}</b> đã chấp nhận lời mời kết bạn.", friend.UserName,
+                content = string.Format("<b>{0}({1})</b> đã chấp nhận lời mời kết bạn.", friend.UserName,
                     friend.Account.PhoneNumber);
             else if (status == 3 && acceptStatus == 0)
-                content = string.Format("<b>{0}_{1}</b> đã từ chối lời mời kết bạn.", friend.UserName,
+                content = string.Format("<b>{0}({1})</b> đã từ chối lời mời kết bạn.", friend.UserName,
                     friend.Account.PhoneNumber);
             else if (status == 4)
-                content = string.Format("Đã huỷ kết bạn với <b>{0}_{1}</b>.", friend.UserName,
+                content = string.Format("Đã huỷ kết bạn với <b>{0}({1})</b>.", friend.UserName,
                     friend.Account.PhoneNumber);
             await AddActivity(userId, content, "friend");
         }
@@ -240,10 +242,10 @@ namespace G24_BWallet_Backend.Repository
             // 3 là thằng đc mời chấp nhận hay từ chối,
             // 4 là thằng mời nhận phản hồi chấp nhận or từ chối
             if (status == 1)
-                content = string.Format("Bạn đã mời <b>{0}_{1}</b> tham gia sự kiện <b>{2}</b>.",
+                content = string.Format("Bạn đã mời <b>{0}({1})</b> tham gia sự kiện <b>{2}</b>.",
                     friend.UserName, friend.Account.PhoneNumber, eventt.EventName);
             else if (status == 2)
-                content = string.Format("<b>{0}_{1}</b> đã mời bạn tham gia sự kiện <b>{2}</b>."
+                content = string.Format("<b>{0}({1})</b> đã mời bạn tham gia sự kiện <b>{2}</b>."
                     , friend.UserName, friend.Account.PhoneNumber, eventt.EventName);
             else if (status == 3 && acceptStatus == 0)
                 content = string.Format("Bạn đã từ chối tham gia sự kiện <b>{0}</b>."
@@ -252,10 +254,10 @@ namespace G24_BWallet_Backend.Repository
                 content = string.Format("Bạn đã tham gia sự kiện <b>{0}</b>."
                     , eventt.EventName);
             else if (status == 4 && acceptStatus == 0)
-                content = string.Format("<b>{0}_{1}</b> đã từ chối tham gia sự kiện <b>{2}</b>."
+                content = string.Format("<b>{0}({1})</b> đã từ chối tham gia sự kiện <b>{2}</b>."
                     , friend.UserName, friend.Account.PhoneNumber, eventt.EventName);
             else if (status == 4 && acceptStatus == 1)
-                content = string.Format("<b>{0}_{1}</b> đã tham gia sự kiện <b>{2}</b>."
+                content = string.Format("<b>{0}({1})</b> đã tham gia sự kiện <b>{2}</b>."
                     , friend.UserName, friend.Account.PhoneNumber, eventt.EventName);
             await AddActivity(currentId, content, "invite");
         }

@@ -50,7 +50,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Lấy thông tin sự kiện thành công",
+                Message = "Lấy thông tin sự kiện thành công!",
                 Data = await events
             };
         }
@@ -64,7 +64,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Get event success",
+                Message = "",
                 Data = await events
             };
         }
@@ -77,7 +77,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Event status: 1 Open _ 0 Close",
+                Message = "Trạng thái sự kiện: 1 đang hoạt động _ 0 đã đóng.",
                 Data = status
             };
         }
@@ -100,7 +100,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Thêm event thành công",
+                Message = "Thêm sự kiện thành công!",
                 Data = eventUrl
             };
         }
@@ -136,14 +136,14 @@ namespace G24_BWallet_Backend.Controllers
                 {
                     StatusCode = HttpStatusCode.NotAcceptable,
                     Error = "",
-                    Message = "Bạn chưa tham gia event",
+                    Message = "Bạn chưa tham gia sự kiện này!",
                     Data = (IDictionary)result
                 };
             return new Respond<IDictionary>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Bạn đã tham gia event",
+                Message = "Bạn đã tham gia sự kiện này!",
                 Data = (IDictionary)result
             };
         }
@@ -157,7 +157,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Lấy link event đã tạo để share",
+                Message = "Lấy link event đã tạo để share.",
                 Data = link
             };
         }
@@ -180,7 +180,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Lấy thông tin event và các thành viên để xin join",
+                Message = "Lấy thông tin sự kiện và các thành viên để xin tham gia.",
                 Data = (IDictionary)result
             };
         }
@@ -196,7 +196,7 @@ namespace G24_BWallet_Backend.Controllers
                     StatusCode = HttpStatusCode.NotAcceptable,
                     Error = "",
                     Message = "",
-                    Data = "Không thế tham gia được vì nhóm đã có đủ 500 thành viên"
+                    Data = "Không thế tham gia được vì sự kiện đã có đủ 500 thành viên!"
                 };
             EventUserID eventUserID = new EventUserID
             {
@@ -264,7 +264,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Lấy thông tin chi tiết trong event",
+                Message = "Lấy thông tin chi tiết trong sự kiện.",
                 Data = (IDictionary)result
             };
         }
@@ -277,7 +277,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Chỉnh sửa thông tin event thành công",
+                Message = "Chỉnh sửa thông tin sự kiện thành công!",
                 Data = null
             };
         }
@@ -292,15 +292,15 @@ namespace G24_BWallet_Backend.Controllers
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
-                    Message = "Chấp thuận các yêu cầu tham gia sự kiện",
-                    Data = "Chấp thuận các yêu cầu tham gia sự kiện"
+                    Message = "Chấp thuận các yêu cầu tham gia sự kiện!",
+                    Data = "Chấp thuận các yêu cầu tham gia sự kiện!"
                 };
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.NotAcceptable,
                 Error = "",
-                Message = "Từ chối các yêu cầu tham gia sự kiện",
-                Data = "Từ chối các yêu cầu tham gia sự kiện"
+                Message = "Từ chối các yêu cầu tham gia sự kiện!",
+                Data = "Từ chối các yêu cầu tham gia sự kiện!"
             };
         }
 
@@ -312,7 +312,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Lịch sử các request của event này",
+                Message = "Lịch sử các yêu cầu tham gia của sự kiện này.",
                 Data = list
             };
         }
@@ -325,7 +325,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Các request join đang chờ accept của event này",
+                Message = "Các yêu cầu tham gia đang chờ duyệt của sự kiện này.",
                 Data = list
             };
         }

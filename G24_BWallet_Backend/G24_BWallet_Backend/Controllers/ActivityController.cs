@@ -37,7 +37,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Các hoạt động của mình",
+                Message = "Các hoạt động của mình.",
                 Data = list
             };
         }

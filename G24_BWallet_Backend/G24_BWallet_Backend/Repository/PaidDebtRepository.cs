@@ -158,7 +158,7 @@ namespace G24_BWallet_Backend.Repository
             // lấy hết paiddebt trong event này
             List<PaidDept> paidDepts = await context.PaidDepts
                 .Include(p => p.User)
-                .OrderByDescending(p => p.Id)
+                .OrderByDescending(p => p.UpdatedAt)
                 .Where(p => p.EventId == eventId).ToListAsync();
             User cashier = await GetCashier(eventId);
 
@@ -217,7 +217,7 @@ namespace G24_BWallet_Backend.Repository
             // lấy hết paiddebt của mình trong event này
             List<PaidDept> paidDepts = await context.PaidDepts
                 .Include(p => p.User)
-                .OrderByDescending(p => p.Id)
+                .OrderByDescending(p => p.UpdatedAt)
                 .Where(p => p.EventId == eventId && p.UserId == userId).ToListAsync();
             User cashier = await GetCashier(eventId);
             foreach (PaidDept item in paidDepts)
@@ -295,12 +295,14 @@ namespace G24_BWallet_Backend.Repository
             return result;
         }
 
+        // duyệt hoặc từ chối các yêu cầu trả tiền
         public async Task PaidDebtApprove(ListIdStatus paid, int userId)
         {
             foreach (int paidid in paid.ListId)
             {
                 PaidDept paidDept = await context.PaidDepts.FirstOrDefaultAsync(p => p.Id == paidid);
                 paidDept.Status = paid.Status;
+                paidDept.UpdatedAt = DateTime.Now;
                 if (paid.Status == 2)// duyệt
                 {
                     await ChangeDebtLeft(paidDept);
@@ -423,6 +425,13 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(p => p.EventId == eventId && p.UserId == userId
                 && p.Status == 1);
             return paid == null;
+        }
+
+        public async Task<bool> IsCodeExist(string code)
+        {
+            PaidDept paidDept = await context.PaidDepts
+                .FirstOrDefaultAsync(p => p.Equals(code));
+            return (paidDept != null);
         }
     }
 }

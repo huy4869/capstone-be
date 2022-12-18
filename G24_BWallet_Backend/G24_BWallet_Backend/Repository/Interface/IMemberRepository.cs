@@ -21,6 +21,6 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<int> GetRole(int eventId, int userId);
         Task<List<IdAvatarNamePhone>> ListPromote(int eventId, int v);
         Task<string> GetPhoneByUserId(int useriD);
-        Task<List<EventUser>> SortOwnerFirst(List<EventUser> eventUsers);
+        Task<List<EventUser>> SortList(List<EventUser> eventUsers);
     }
 }

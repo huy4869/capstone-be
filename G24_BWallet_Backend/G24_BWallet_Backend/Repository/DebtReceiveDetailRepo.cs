@@ -111,7 +111,7 @@ namespace G24_BWallet_Backend.Repository
             {
                 UserDept userDept = await context.UserDepts
                     .FirstOrDefaultAsync(u => u.UserId == userId && u.ReceiptId == receipt.Id
-                    && u.DeptStatus == 2 && u.DebtLeft > 0);
+                    && (u.DeptStatus == 2 || u.DeptStatus == 4) && u.DebtLeft > 0);
                 if (userDept != null)
                 {
                     // lấy ra người tạo receipt này(nghĩa là mình đang nợ thằng tạo này)
@@ -198,7 +198,7 @@ namespace G24_BWallet_Backend.Repository
                 user.TotalAmount = item.Debt;
                 user.TotalAmountFormat = format.MoneyFormat(item.Debt);
                 user.Phone = await memberRepository.GetPhoneByUserId(item.UserId);
-                user.Role = await memberRepository.GetRole(receipt.EventID,item.UserId);
+                user.Role = await memberRepository.GetRole(receipt.EventID, item.UserId);
                 userDepts.Add(user);
             }
             result.UserDepts = userDepts;

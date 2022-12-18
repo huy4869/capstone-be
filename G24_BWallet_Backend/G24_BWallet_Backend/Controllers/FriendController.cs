@@ -38,7 +38,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Danh sách bạn bè để mời vào nhóm",
+                Message = "Danh sách bạn bè để mời vào nhóm.",
                 Data = await list
             };
         }
@@ -53,7 +53,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Đã mời bạn bè vào event này, chờ họ tham gia",
+                Message = "Đã mời bạn bè vào sự kiện này, chờ họ tham gia.",
                 Data = null
             };
         }
@@ -68,7 +68,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Get friends success",
+                Message = "Lấy danh sách bạn bè thành công!",
                 Data = await friends
             };
         }
