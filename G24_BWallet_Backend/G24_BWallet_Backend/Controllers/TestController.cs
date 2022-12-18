@@ -175,7 +175,8 @@ namespace G24_BWallet_Backend.Controllers
             money = (int)(money / 1);*/
             Format f = new Format();
             //return await f.EncryptAsync("ZGvCyihrgbk9SLnQBneji11YhULzqLCXB4md5jNZ");
-            return null;
+            //return context.Friends;//Include(f => f.UserID);
+            return context.PaidDebtLists;//.Include(pdl => pdl.Paid);
         }
 
         class Product
