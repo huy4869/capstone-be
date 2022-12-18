@@ -386,7 +386,7 @@ namespace G24_BWallet_Backend.Repository
             List<ReceiptSentParam> list = new List<ReceiptSentParam>();
             // lấy tất cả chứng từ trong event này
             List<Receipt> receipts = await myDB.Receipts.Include(r => r.User)
-                .OrderByDescending(r => r.Id)
+                .OrderByDescending(r => r.UpdatedAt)
                 .Where(r => r.EventID == eventId)
                 .ToListAsync();
 
@@ -429,7 +429,7 @@ namespace G24_BWallet_Backend.Repository
         {
             List<ReceiptSentParam> list = new List<ReceiptSentParam>();
             List<Receipt> receipts = await myDB.Receipts.Include(r => r.User)
-               .OrderByDescending(r => r.Id)
+               .OrderByDescending(r => r.UpdatedAt)
                .Where(r => r.EventID == eventId && r.UserID == userId)
                .ToListAsync();
             foreach (Receipt receipt in receipts)
@@ -490,6 +490,8 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(ee => ee.EventID == eventId && ee.UserID == userId);
             return eu.UserRole == 1;
         }
+
+        // duyệt chứng từ
         public async Task ReceiptApprove(ListIdStatus list, int userId)
         {
             foreach (int item in list.ListId)
@@ -499,6 +501,7 @@ namespace G24_BWallet_Backend.Repository
                     .Include(r => r.Event)
                     .FirstOrDefaultAsync(r => r.Id == item);
                 receipt.ReceiptStatus = list.Status;
+                receipt.UpdatedAt = DateTime.Now;
                 // Add activity
                 await activity.InspectorReceiptApproveActivity(list.Status, userId, receipt.ReceiptName
                     , receipt.Event.EventName);

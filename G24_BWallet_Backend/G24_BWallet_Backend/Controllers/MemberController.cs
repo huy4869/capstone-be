@@ -55,15 +55,15 @@ namespace G24_BWallet_Backend.Controllers
                     {
                         StatusCode = HttpStatusCode.Accepted,
                         Error = "",
-                        Message = "Thêm người kiểm duyệt chứng từ thành công",
-                        Data = "Thêm người kiểm duyệt chứng từ thành công"
+                        Message = "Thêm người kiểm duyệt chứng từ thành công!",
+                        Data = "Thêm người kiểm duyệt chứng từ thành công!"
                     };
                 return new Respond<string>() // cashier
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
-                    Message = "Thêm người thu ngân thành công",
-                    Data = "Thêm người thu ngân thành công"
+                    Message = "Thêm người thu ngân thành công!",
+                    Data = "Thêm người thu ngân thành công!"
                 };
             }
             return new Respond<string>()
@@ -87,16 +87,16 @@ namespace G24_BWallet_Backend.Controllers
                     {
                         StatusCode = HttpStatusCode.NotAcceptable,
                         Error = "",
-                        Message = "Xoá phân quyền thất bại",
-                        Data = "Xoá phân quyền thất bại"
+                        Message = "Xoá phân quyền thất bại!",
+                        Data = "Xoá phân quyền thất bại!"
                     };
                 await repo.DeletePromoteMemberRole(e);
                 return new Respond<string>()
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
-                    Message = "Xoá phân quyền thành công",
-                    Data = "Xoá phân quyền thành công"
+                    Message = "Xoá phân quyền thành công!",
+                    Data = "Xoá phân quyền thành công!"
                 };
             }
             return new Respond<string>()
@@ -121,7 +121,7 @@ namespace G24_BWallet_Backend.Controllers
                     {
                         StatusCode = HttpStatusCode.NotAcceptable,
                         Error = "",
-                        Message = "Bạn không thể ẩn chính mình",
+                        Message = "Bạn không thể ẩn chính mình!",
                         Data = null
                     };
                 }
@@ -131,22 +131,22 @@ namespace G24_BWallet_Backend.Controllers
                     {
                         StatusCode = HttpStatusCode.NotAcceptable,
                         Error = "",
-                        Message = "Còn chứng từ chưa xử lý",
-                        Data = "Còn chứng từ chưa xử lý"
+                        Message = "Còn chứng từ chưa xử lý!",
+                        Data = "Còn chứng từ chưa xử lý!"
                     };
                 if (check == 11)
                     return new Respond<string>()
                     {
                         StatusCode = HttpStatusCode.NotAcceptable,
                         Error = "",
-                        Message = "Còn khoản nợ chưa xử lý",
-                        Data = "Còn khoản nợ chưa xử lý"
+                        Message = "Còn khoản nợ chưa xử lý!",
+                        Data = "Còn khoản nợ chưa xử lý!"
                     };
                 return new Respond<string>()
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
-                    Message = "Ẩn thành viên thành công",
+                    Message = "Ẩn thành viên thành công!",
                     Data = null
                 };
             }
@@ -154,7 +154,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.NotAcceptable,
                 Error = "",
-                Message = "Bạn không phải chủ sự kiện",
+                Message = "Bạn không phải chủ sự kiện!",
                 Data = null
             };
         }
@@ -193,7 +193,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Danh sách các thành viên có thể phân quyền",
+                Message = "Danh sách các thành viên có thể phân quyền.",
                 Data = list
             };
         }

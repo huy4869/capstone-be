@@ -168,13 +168,14 @@ namespace G24_BWallet_Backend.Repository
             return param;
         }
 
+        // lấy ra danh sách tất cả các thành viên trong event này, kể cả active hay không
         private async Task<List<IdAvatarNamePhone>> GetListMember(int eventId, int currentId)
         {
             List<IdAvatarNamePhone> list = new List<IdAvatarNamePhone>();
             List<EventUser> eventUsers = await context.EventUsers
                 .Where(e => e.EventID == eventId).ToListAsync();
-            // sắp xếp thằng owner lên đầu danh sách
-            eventUsers = await SortOwnerFirst(eventUsers);
+            // sắp xếp thằng owner lên đầu danh sách, cho mấy thằng inactive xuống cuối
+            eventUsers = await SortList(eventUsers);
             foreach (EventUser user in eventUsers)
             {
                 User u = await context.Users.Include(uu => uu.Account)
@@ -256,8 +257,11 @@ namespace G24_BWallet_Backend.Repository
             return eventUser.UserRole;
         }
 
-        public async Task<List<EventUser>> SortOwnerFirst(List<EventUser> eventUsers)
+        // sắp xếp thằng owner lên đầu danh sách, cho mấy thằng inactive xuống cuối
+        public async Task<List<EventUser>> SortList(List<EventUser> eventUsers)
         {
+            // đầu tiên là cho mấy thằng inactive lên đầu, tí nữa mới đảo lại
+            eventUsers = eventUsers.OrderByDescending(u => u.UserRole).ToList();
             EventUser eventUser = new EventUser();
             foreach (var item in eventUsers)
             {
@@ -265,7 +269,9 @@ namespace G24_BWallet_Backend.Repository
                     eventUser = item;
             }
             eventUsers.Remove(eventUser);
+            // lúc này thằng owner đang ở cuối, chỗ inactive đang trên cùng
             eventUsers.Add(eventUser);
+            // đảo lại theo đúng trật tự: owner đầu tiên, inactive cuối cùng
             eventUsers.Reverse();
             return eventUsers;
         }

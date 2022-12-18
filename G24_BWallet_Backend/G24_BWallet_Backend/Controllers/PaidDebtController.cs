@@ -47,7 +47,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Danh sách các hoá đơn mình còn nợ trong event này",
+                Message = "Danh sách các hoá đơn mình còn nợ trong sự kiện này",
                 //Data = new ArrayList { new JWT(await jwt),await user}
                 Data = userDepts
             };
@@ -78,7 +78,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Đã ghi chú khoản trả",
+                Message = "Tạo yêu cầu trả tiền thành công!",
                 Data = null
             };
 
@@ -88,11 +88,17 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet("paid-code")]
         public async Task<Respond<string>> GetCodePaidDebt()
         {
+            string code = "";
             Random random = new Random();
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            var code = new string(Enumerable.Repeat(chars, 8)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
-
+            // vòng lặp check xem code đã tồn tại trong bảng paiddebt chưa
+            while (true)
+            {
+                code = new string(Enumerable.Repeat(chars, 8)
+                   .Select(s => s[random.Next(s.Length)]).ToArray());
+                if (await paidDeptRepo.IsCodeExist(code) == false)// chưa tồn tại thì ok
+                    break;
+            }
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.Accepted,
