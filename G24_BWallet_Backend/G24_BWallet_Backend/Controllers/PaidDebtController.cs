@@ -58,22 +58,36 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost("paidDebt")]
         public async Task<Respond<PaidDept>> CreatePaidDebt(PaidDebtParam paidParam)
         {
-            paidParam.UserId = GetUserId();
-            if (!paidParam.IMGLinks.Any())
+            try
+            {
+                paidParam.UserId = GetUserId();
+                if (!paidParam.IMGLinks.Any())
+                {
+                    return new Respond<PaidDept>()
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Error = "Khoản trả không có ảnh chứng minh",
+                        Message = "",
+                        Data = null
+                    };
+                }
+
+                var paid = await paidDeptRepo.PaidDebtInEvent(paidParam);
+
+                await imageRepo.AddIMGLinksDB("paidDept", paid.Id, paidParam.IMGLinks);
+
+
+            }
+            catch (Exception ex)
             {
                 return new Respond<PaidDept>()
                 {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Error = "Khoản trả không có ảnh chứng minh",
-                    Message = "",
+                    StatusCode = HttpStatusCode.Accepted,
+                    Error = "",
+                    Message = "Inner exception: " + ex.InnerException.Message,
                     Data = null
                 };
             }
-
-            var paid = await paidDeptRepo.PaidDebtInEvent(paidParam);
-
-            await imageRepo.AddIMGLinksDB("paidDept", paid.Id, paidParam.IMGLinks);
-
             return new Respond<PaidDept>()
             {
                 StatusCode = HttpStatusCode.Accepted,
@@ -81,7 +95,6 @@ namespace G24_BWallet_Backend.Controllers
                 Message = "Tạo yêu cầu trả tiền thành công!",
                 Data = null
             };
-
         }
 
         // lấy code trả tiền
