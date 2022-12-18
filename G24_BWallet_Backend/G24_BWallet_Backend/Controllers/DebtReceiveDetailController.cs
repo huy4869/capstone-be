@@ -37,7 +37,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Chi tiết khoản nợ của mình",
+                Message = "Chi tiết khoản nợ của mình.",
                 Data = result
             };
         }
@@ -51,7 +51,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Chi tiết khoản thu của mình",
+                Message = "Chi tiết khoản thu của mình.",
                 Data = result
             };
         }
@@ -64,7 +64,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Chi tiết chứng từ",
+                Message = "Chi tiết chứng từ.",
                 Data = result
             };
         }
@@ -78,23 +78,23 @@ namespace G24_BWallet_Backend.Controllers
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
-                    Message = "Gửi tin nhắn nhắc trả tiền",
-                    Data = "Có lỗi xảy ra"
+                    Message = "Gửi tin nhắn nhắc trả tiền.",
+                    Data = "Có lỗi xảy ra!"
                 };
             if (check == null)
                 return new Respond<string>()
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
-                    Message = "Gửi tin nhắn nhắc trả tiền",
-                    Data = "Gửi tin nhắn thành công"
+                    Message = "",
+                    Data = "Gửi tin nhắn thành công!"
                 };
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.NotAcceptable,
                 Error = "",
-                Message = "Gửi tin nhắn nhắc trả tiền",
-                Data = "Bạn đã gửi vào lúc " + check + "! Mỗi lần gửi phải cách nhau 12 tiếng !"
+                Message = "",
+                Data = "Bạn đã gửi vào lúc " + check + "! Mỗi lần gửi phải cách nhau 12 tiếng!"
             };
         }
     }
