@@ -263,8 +263,9 @@ namespace G24_BWallet_Backend.Repository
                 user.Avatar = userEditInfo.Avatar.Trim();
             }
 
-            if (!userEditInfo.Avatar.IsNullOrEmpty())
+            if (!userEditInfo.UserName.IsNullOrEmpty())
                 user.UserName = userEditInfo.UserName.Trim();
+
             user.AllowAddFriendStatus = userEditInfo.AllowAddFriendStatus;
             user.AllowInviteEventStatus = userEditInfo.AllowInviteEventStatus;
             await context.SaveChangesAsync();

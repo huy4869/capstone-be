@@ -82,7 +82,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "search friend to add",
+                Message = "Tìm kiếm bạn bè",
                 Data = await friends
             };
         }
