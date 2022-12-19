@@ -4,18 +4,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace G24_BWallet_Backend.Models
 {
-    [Table("Report")]
+    [Table("report")]
     public class Report
     {
         [Key]
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
-        [ForeignKey("Event")]
+        [ForeignKey("event")]
         public int EventId { get; set; }
-        [ForeignKey("Receipt")]
+        [ForeignKey("receipt")]
         public int ReceiptId { get; set; }
-        [ForeignKey("User")]
+        [ForeignKey("user")]
         public int UserId { get; set; }
 
         public string ReportReason { get; set; }

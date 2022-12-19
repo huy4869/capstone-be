@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace G24_BWallet_Backend.Models
 {
-    [Table("ActivityIcon")]
+    [Table("activityicon")]
     public class ActivityIcon
     {
         [Key]

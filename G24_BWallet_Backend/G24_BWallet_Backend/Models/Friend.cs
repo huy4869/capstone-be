@@ -4,13 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace G24_BWallet_Backend.Models
 {
-    [Table("Friend")]
+    [Table("friend")]
     public class Friend
     {
-        [ForeignKey("User")]
+        [ForeignKey("user")]
         [Column(Order = 1)]
         public int UserID { get; set; }
-        [ForeignKey("User")]
+        [ForeignKey("user")]
         [Column(Order = 2)]
         public int UserFriendID { get; set; }
         public int status { get; set; }
