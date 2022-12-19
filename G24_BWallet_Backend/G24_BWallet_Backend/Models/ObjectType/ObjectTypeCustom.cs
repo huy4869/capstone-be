@@ -328,11 +328,19 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string UserName { get; set; }
         public string UserAvatar { get; set; }
         public string UserPhone { get; set; }
-        public int AllowAddFriendStatus { get; set; }
+        public int FriendStatus { get; set; }
     }
 
     public class Search
     {
         public string SearchText { get; set; }
     }
+
+    public class Base64Data
+    {
+        public string FileName { get; set; }
+        public string Folder { get; set; }
+        public string Base64String { get; set; }
+    }
+        
 }

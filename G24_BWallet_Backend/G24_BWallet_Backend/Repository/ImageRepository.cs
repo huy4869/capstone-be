@@ -13,6 +13,9 @@ using System.Web;
 using G24_BWallet_Backend.Models;
 using ImageMagick;
 using System.Linq;
+using Amazon.Runtime.Internal.Util;
+using static System.Net.WebRequestMethods;
+using System.Text.RegularExpressions;
 
 namespace G24_BWallet_Backend.Repository
 {
@@ -70,7 +73,7 @@ namespace G24_BWallet_Backend.Repository
                     image.Write(memStream);
                     //throw new IOException(memStream.ToString());
                 }
-                fileName = fileName.Replace(".heic", ".jpeg");
+                fileName = Regex.Replace(fileName, ".heic", ".jpeg", RegexOptions.IgnoreCase);
             }
             else
             {
@@ -92,6 +95,59 @@ namespace G24_BWallet_Backend.Repository
 
             return _configuration["AWSS3:ImgLink"] + folder + '/' + HttpUtility.UrlEncode(fileName);
         }
+
+        //save base64 IMG to aws-------------------------------------------------------------------------------------------
+        public async Task<string> SaveIMGBase64(string folder, string base64, string fileName)
+        {
+            string fileType = fileName.Split('.').Last();
+            if (base64 == null ||
+                (!string.Equals(fileType, "jpg", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(fileType, "jpeg", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(fileType, "heic", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(fileType, "png", StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new IOException("File ảnh khống đúng định dạng!");
+            }
+
+
+            Format f = new Format();
+            string AWSS3AccessKeyId = await f.DecryptAsync(_configuration["AWSS3:AccessKeyId"]);
+            string AWSS3SecretAccessKey = await f.DecryptAsync(_configuration["AWSS3:SecretAccessKey"]);
+            
+            //save stringg base64 to memory stream  
+            byte[] bytes = Convert.FromBase64String(base64);
+            MemoryStream memStream = new MemoryStream(bytes);
+
+            //convert if content are from heic file
+            if (string.Equals(fileType, "heic", StringComparison.OrdinalIgnoreCase))
+            {
+                /*var fileBytes = memStream.ToArray();
+                string s = Convert.ToBase64String(fileBytes);*/
+
+                using (MagickImage image = new MagickImage(bytes))
+                {
+                    image.Format = MagickFormat.Jpeg;
+                    image.Write(memStream);
+                }
+                fileName = Regex.Replace(fileName,".heic", ".jpeg", RegexOptions.IgnoreCase);
+
+            }
+
+            using (var client = new AmazonS3Client(AWSS3AccessKeyId, AWSS3SecretAccessKey, RegionEndpoint.APSoutheast1))
+            {
+                var uploadRequest = new TransferUtilityUploadRequest
+                {
+                    InputStream = memStream,
+                    Key = fileName,
+                    BucketName = "bwallets3bucket/" + folder
+                };
+                var fileTransferUtility = new TransferUtility(client);
+                await fileTransferUtility.UploadAsync(uploadRequest);
+
+            }
+
+            return _configuration["AWSS3:ImgLink"] + folder + '/' + HttpUtility.UrlEncode(fileName);
+        } 
 
         public async Task<List<ProofImage>> AddIMGLinksDB(string ImageType, int modelId, List<string> links)
         {

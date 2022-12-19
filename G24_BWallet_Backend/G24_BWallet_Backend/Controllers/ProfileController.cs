@@ -52,6 +52,8 @@ namespace G24_BWallet_Backend.Controllers
             IDictionary<string, object> dictionary = new Dictionary<string, object>();
             dictionary.Add("Avatar", user.Avatar);
             dictionary.Add("UserName", user.UserName);
+            dictionary.Add("AllowAddFriendStatus", user.AllowAddFriendStatus);
+            dictionary.Add("AllowInviteEventStatus", user.AllowInviteEventStatus);
             dictionary.Add("PhoneNumber", user.Account.PhoneNumber);
             dictionary.Add("RequestPending", requestCount);
             dictionary.Add("InvitePending", inviteCount);
