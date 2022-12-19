@@ -102,8 +102,11 @@ namespace G24_BWallet_Backend.Repository
             // and set the environment variables. See http://twil.io/secure
             string accountSid = _configuration["Twilio:accountSid"];
             string authToken = _configuration["Twilio:authToken"];
+            string apiKey = _configuration["Twilio:ApiKeySid"];
+            string apiSecret = _configuration["Twilio:ApiKeySecret"];
 
-            TwilioClient.Init(accountSid, authToken);
+            //TwilioClient.Init(accountSid, authToken);
+            TwilioClient.Init(apiKey, apiSecret, accountSid);
             try
             {
                 var message = await MessageResource.CreateAsync(
@@ -260,8 +263,9 @@ namespace G24_BWallet_Backend.Repository
                 user.Avatar = userEditInfo.Avatar.Trim();
             }
 
-            if (!userEditInfo.Avatar.IsNullOrEmpty())
+            if (!userEditInfo.UserName.IsNullOrEmpty())
                 user.UserName = userEditInfo.UserName.Trim();
+
             user.AllowAddFriendStatus = userEditInfo.AllowAddFriendStatus;
             user.AllowInviteEventStatus = userEditInfo.AllowInviteEventStatus;
             await context.SaveChangesAsync();
