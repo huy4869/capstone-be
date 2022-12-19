@@ -18,14 +18,16 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Twilio;
 using Twilio.Http;
+using Twilio.Rest.Api.V2010.Account;
 using Twilio.Rest.Chat.V2.Service.User;
 using Twilio.TwiML.Voice;
+using static System.Net.WebRequestMethods;
 
 namespace G24_BWallet_Backend.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
     [ApiController]
     public class TestController : ControllerBase
     {
@@ -232,6 +234,34 @@ namespace G24_BWallet_Backend.Controllers
             var a = await format.EncryptAsync("123");
             var b = await format.DecryptAsync(a);
             return Ok($"a:{a}   b:{b}");
+        }
+
+        [HttpGet("sms")]
+        public async Task<IActionResult> SendSms([FromQuery] string phone, [FromQuery] string content)
+        {
+            // Find your Account SID and Auth Token at twilio.com/console
+            // and set the environment variables. See http://twil.io/secure
+            string accountSid = _configuration["Twilio:accountSid"];
+            string authToken = _configuration["Twilio:authToken"];
+
+            TwilioClient.Init(accountSid, authToken);
+            try
+            {
+                var message = await MessageResource.CreateAsync(
+                               body: "Twilio test: " + content,
+                               from: new Twilio.Types.PhoneNumber(_configuration["Twilio:from"]),
+                               to: new Twilio.Types.PhoneNumber("+" + phone)
+                           );
+            }
+            catch (Exception ex)
+            {
+
+                return Ok("Exception: " + ex.Message + "." +
+                    "\nNếu không nhận được tin nhắn thì kiểm tra 2 thứ: 1 là số điện thoại," +
+                    " 2 là mã authen trên twilio đã bị thay đổi(fix trong file appsetting.json)!");
+            }
+            return Ok("Nếu không nhận được tin nhắn thì kiểm tra 2 thứ: 1 là số điện thoại phải có" +
+                " +84...., 2 là mã authen trên twilio đã bị thay đổi!");
         }
     }
 }
