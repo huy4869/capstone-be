@@ -242,8 +242,11 @@ namespace G24_BWallet_Backend.Controllers
             // and set the environment variables. See http://twil.io/secure
             string accountSid = _configuration["Twilio:accountSid"];
             string authToken = _configuration["Twilio:authToken"];
+            string apiKey = _configuration["Twilio:ApiKeySid"];
+            string apiSecret = _configuration["Twilio:ApiKeySecret"];
 
-            TwilioClient.Init(accountSid, authToken);
+            //TwilioClient.Init(accountSid, authToken);
+            TwilioClient.Init(apiKey, apiSecret,accountSid);
             try
             {
                 var message = await MessageResource.CreateAsync(
