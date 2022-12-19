@@ -95,6 +95,7 @@ namespace G24_BWallet_Backend.Repository
             return true;
         }
 
+        // gửi tin nhắn về số điện thoại
         public async Task<bool> SendOtpTwilioAsync(string phone, string otp)
         {
             // Find your Account SID and Auth Token at twilio.com/console
