@@ -103,6 +103,11 @@ namespace G24_BWallet_Backend.Repository
                 eh.EventStatus = eventt.EventStatus;
                 eh.Debt = await GetDebtMoney(eventt.ID, userID);
                 eh.Receive = await GetReceiveMoney(eventt.ID, userID);
+                if (eh.Receive.Money.Amount == eh.Debt.Money.Amount)
+                {
+                    eh.Debt = null;
+                    eh.Receive = null;
+                }
                 eh.TotalMoney = await GetTotalMoney(eh.Debt, eh.Receive);
                 eh.ReceiptCount = await ReceiptCount(eventt.ID);
                 events.Add(eh);
