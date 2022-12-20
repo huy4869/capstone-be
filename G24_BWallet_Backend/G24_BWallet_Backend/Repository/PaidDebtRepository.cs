@@ -17,12 +17,15 @@ namespace G24_BWallet_Backend.Repository
         private readonly ActivityRepository activity;
         private readonly Format format;
         private readonly IMemberRepository memberRepository;
-        public PaidDebtRepository(MyDBContext myDB, IMemberRepository memberRepository)
+        private readonly IEventRepository eventRepository;
+        public PaidDebtRepository(MyDBContext myDB, IMemberRepository memberRepository,
+            IEventRepository eventRepository)
         {
             this.context = myDB;
             activity = new ActivityRepository(myDB);
             format = new Format();
             this.memberRepository = memberRepository;
+            this.eventRepository = eventRepository;
         }
         public async Task<List<Receipt>> GetReceipts(int eventId, int status)
         {
@@ -110,6 +113,8 @@ namespace G24_BWallet_Backend.Repository
             return paidDept;
         }
 
+
+        // sau khi accept yêu cầu trả tiền thì tiến hành trừ tiền
         private async Task ChangeDebtLeft(PaidDept paidDept)
         {
             List<PaidDebtList> paidDebtLists = await context.PaidDebtLists
@@ -127,6 +132,62 @@ namespace G24_BWallet_Backend.Repository
                 // kiểm tra nếu tất cả userdept có chung 1 receipt id mà trả hết rồi(status =0)
                 // thì chuyển status của receipt đó thành đã trả hết(cũng = 0 luôn)
                 await ChangeReceiptStatus(userDebt.ReceiptId);
+            }
+            // sau khi cập nhật xong xuôi hết thì mình cần kiểm tra xem tổng mình nợ 
+            // và tổng phải thu của mình trong event nếu bằng nhau, thì cho tất cả 
+            // receipt mình tạo(đuwong nhiên là có cả các userdept của nó)
+            // và userdept của mình bằng 0 (đã thu và đã trả hêt)
+            await CheckReceiptUserDebt(paidDept);
+        }
+
+
+        // sau khi cập nhật xong xuôi hết thì mình cần kiểm tra xem tổng mình nợ 
+        // và tổng phải thu của mình trong event nếu bằng nhau, thì cho tất cả 
+        // receipt mình tạo(đương nhiên là có cả các userdept của nó)
+        // và userdept của mình bằng 0 (đã thu và đã trả hêt)
+        private async Task CheckReceiptUserDebt(PaidDept paidDept)
+        {
+            // đầu tiên là lấy tổng tiền mình nợ
+            double totalDebt = (await eventRepository
+                .GetDebtMoney(paidDept.EventId, paidDept.UserId)).Money.Amount;
+            // xong là lấy tổng tiền mình cần nhận lại
+            double totalReceive = (await eventRepository
+                .GetReceiveMoney(paidDept.EventId, paidDept.UserId)).Money.Amount;
+            // nếu 2 thằng trên mà bằng nhau thì cho hết những thứ liên quan thành đã trả hết
+            if (totalDebt != totalReceive)
+                return;
+            // đầu tiên là duyệt tất cả các receipt trong event, cái nào mình tạo thì cho thành đã trả
+            // hết(cả userdept trong đấy), cái nào mình nợ thì cái userdept đấy thành đã trả hết
+            List<Receipt> receipts = await context.Receipts.Include(r => r.UserDepts)
+                .Where(r => r.EventID == paidDept.EventId && (r.ReceiptStatus == 2 || r.ReceiptStatus == 4))
+                .ToListAsync();
+            foreach (Receipt receipt in receipts)
+            {
+                // nếu là mình tạo
+                if (receipt.UserID == paidDept.UserId)
+                {
+                    receipt.ReceiptStatus = 0;
+                    await context.SaveChangesAsync();
+                    List<UserDept> userDepts = receipt.UserDepts;
+                    foreach (UserDept userDept in userDepts)
+                    {
+                        userDept.DeptStatus = 0;
+                        await context.SaveChangesAsync();
+                    }
+                    continue;
+                }
+                // còn nếu receipt này ko phải mình tạo thì check xem mình có nợ không, nếu
+                // mình có nợ thì cái userdept đấy thành đã trả hết luôn
+                List<UserDept> userDeptss = receipt.UserDepts;
+                foreach (UserDept userDept in userDeptss)
+                {
+                    if(userDept.UserId == paidDept.UserId)
+                    {
+                        userDept.DeptStatus = 0;
+                        await context.SaveChangesAsync();
+                        break;
+                    }
+                }
             }
         }
 
