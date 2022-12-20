@@ -80,12 +80,13 @@ namespace G24_BWallet_Backend.Repository
             return eventUrl;
         }
 
+        // lấy tất cả các event mà mình tham gia
         public async Task<List<EventHome>> GetAllEventsAsync(int userID, string name)
         {
             List<EventHome> events = new List<EventHome>();
             // lấy tất cả các event mà mình tham gia
             var listEvent = await context.EventUsers
-                .Where(eu => eu.UserID == userID)
+                .Where(eu => eu.UserID == userID && eu.UserRole != 4)
                 .Select(eu => eu.Event)
                 .OrderByDescending(eu => eu.ID)
                 .ToListAsync();
@@ -589,14 +590,14 @@ namespace G24_BWallet_Backend.Repository
             EventUser eventUser = await context.EventUsers
                 .FirstOrDefaultAsync(e => e.EventID == eventId && e.UserID == userId);
             // inspector muốn out nhóm thì phải check ko còn 1 hoá đơn nào chờ duyệt
-            if (eventUser.UserRole == 2)
+            if (eventUser.UserRole == 2 || eventUser.UserRole == 1)
             {
                 Receipt receipt = await context.Receipts
                     .FirstOrDefaultAsync(r => r.EventID == eventId && r.ReceiptStatus == 1);
                 if (receipt != null) return "Còn chứng từ chưa duyệt!";
             }
             // cashier muốn out nhóm thì phải check ko còn 1 paiddebt  nào chờ duyệt
-            if (eventUser.UserRole == 3)
+            if (eventUser.UserRole == 3 || eventUser.UserRole == 1)
             {
                 PaidDept paidDept = await context.PaidDepts
                    .FirstOrDefaultAsync(r => r.EventId == eventId && r.Status == 1);
@@ -607,9 +608,9 @@ namespace G24_BWallet_Backend.Repository
                     .FirstOrDefaultAsync(r => r.EventID == eventId && r.ReceiptStatus == 2
                     && r.UserID == userId);
             if (receiptActive != null) return "Bạn còn chứng từ chưa thu đủ tiền!";
-            PaidDept paidDeptActive = await context.PaidDepts
-                   .FirstOrDefaultAsync(r => r.EventId == eventId && r.Status == 2 && r.UserId == userId);
-            if (paidDeptActive != null) return "Bạn còn khoản nợ chưa trả!";
+            // kiểm tra xem mình còn nợ gì trong event này không, còn nợ là true
+            bool isDebtInEvent = await IsDebtInEvent(eventId, userId);
+            if (isDebtInEvent == true) return "Bạn còn khoản nợ chưa trả!";
             // đủ điều kiện thì có thể out hoặc đóng event 
             Event e = await context.Events.FirstOrDefaultAsync(ev => ev.ID == eventId);
             if (eventUser.UserRole == 1)
@@ -625,6 +626,27 @@ namespace G24_BWallet_Backend.Repository
             await activity.EventActivity(3, userId, e.EventName);
             await context.SaveChangesAsync();
             return "Rời sự kiện thành công";
+        }
+
+        // kiểm tra xem mình còn nợ gì trong event này không, còn nợ là true, hết nợ là false
+        private async Task<bool> IsDebtInEvent(int eventId, int userId)
+        {
+            // lấy ra hết các receipt đang trả (nghĩa là ko phải mình tạo ý)
+            List<Receipt> receipts = await context.Receipts.Include(r => r.UserDepts)
+                .Where(r => r.EventID == eventId && r.UserID != userId
+                && (r.ReceiptStatus == 2 || r.ReceiptStatus == 4)).ToListAsync();
+            foreach (Receipt receipt in receipts)
+            {
+                List<UserDept> userDepts = receipt.UserDepts;
+                // kiểm tra trong list userdept này có cái nào của mình mà chưa trả xong ko
+                foreach (UserDept userDept in userDepts)
+                {
+                    if (userDept.UserId == userId && userDept.DebtLeft > 0 && (userDept.DeptStatus == 2
+                        || userDept.DeptStatus == 4))
+                        return true;
+                }
+            }
+            return false;
         }
 
         public async Task<bool> IsMaxMember(int eventId)

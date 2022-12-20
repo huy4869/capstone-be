@@ -524,7 +524,7 @@ namespace G24_BWallet_Backend.Repository
         public async Task<bool> IsCodeExist(string code)
         {
             PaidDept paidDept = await context.PaidDepts
-                .FirstOrDefaultAsync(p => p.Equals(code));
+                .FirstOrDefaultAsync(p => p.Code.Equals(code));
             return (paidDept != null);
         }
     }
