@@ -522,8 +522,8 @@ namespace G24_BWallet_Backend.Repository
             double totalReceive = (await GetReceiveMoney(eventID, userID)).Money.Amount;
             double diff = totalDebt - totalReceive;
             if (diff < 0) diff = diff * (-1);
-            // nếu chênh lệch khoảng hơn 5k thì không tính nữa
-            if (diff > 5000) return;
+            // nếu chênh lệch khoảng hơn 2k thì không tính nữa
+            if (diff > 2000) return;
             // tất cả các chứng từ mình tạo sẽ chuyển trạng thái thành đã trả hết
             List<Receipt> receipts = await myDB.Receipts
                 .Include(r => r.UserDepts)
