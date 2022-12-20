@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace G24_BWallet_Backend.Models
 {
 
-    [Table("ProofImage")]
+    [Table("proofimage")]
     public class ProofImage
     {
         [Key]

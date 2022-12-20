@@ -4,17 +4,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace G24_BWallet_Backend.Models
 {
-    [Table("Activity")]
+    [Table("activity")]
     public class Activity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
         [Column(Order = 1)]
-        [ForeignKey("User")]
+        [ForeignKey("user")]
         public int UserID { get; set; }
         [Column(Order = 2)]
-        [ForeignKey("ActivityIcon")]
+        [ForeignKey("activityicon")]
         public int? ActivityIconId { get; set; }
         public string Content { get; set; }
         public DateTime CreatedAt { get; set; }

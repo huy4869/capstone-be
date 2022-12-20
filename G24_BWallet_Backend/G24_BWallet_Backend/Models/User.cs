@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace G24_BWallet_Backend.Models
 {
-    [Table("User")]
+    [Table("user")]
     public class User
     {
         [Key]
@@ -17,7 +17,7 @@ namespace G24_BWallet_Backend.Models
         public int AllowAddFriendStatus { get; set; }
         public int AllowInviteEventStatus { get; set; }
 
-        [ForeignKey("Account")]
+        [ForeignKey("account")]
         public int AccountID { get; set; }
         public virtual Account? Account { get; set; }
         public DateTime CreatedAt { get; set; }

@@ -4,16 +4,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace G24_BWallet_Backend.Models
 {
-    [Table("Request")]
+    [Table("request")]
     public class Request
     {
         [Key]
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [ForeignKey("User")]
+        [ForeignKey("user")]
         public int UserID { get; set; }
-        [ForeignKey("Event")]
+        [ForeignKey("event")]
         public int EventID { get; set; }
         public int Status { get; set; }
         public DateTime CreatedAt { get; set; }
