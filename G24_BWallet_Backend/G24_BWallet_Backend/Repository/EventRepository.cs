@@ -162,7 +162,7 @@ namespace G24_BWallet_Backend.Repository
         }
 
         // tiền người ta nợ mình trong event này
-        private async Task<NumberMoney> GetReceiveMoney(int eventId, int userID)
+        public async Task<NumberMoney> GetReceiveMoney(int eventId, int userID)
         {
             NumberMoney number = new NumberMoney();
             MoneyColor moneyColor = new MoneyColor();
@@ -177,7 +177,7 @@ namespace G24_BWallet_Backend.Repository
             {
                 List<UserDept> userDepts = await context.UserDepts
                     .Where(u => u.ReceiptId == receipt.Id
-                    && u.DeptStatus == 2 && u.DebtLeft > 0).ToListAsync();
+                    && (u.DeptStatus == 2 || u.DeptStatus == 4) && u.DebtLeft > 0).ToListAsync();
                 foreach (var userDept in userDepts)
                 {
                     if (userDept != null)
@@ -197,7 +197,7 @@ namespace G24_BWallet_Backend.Repository
         }
 
         // tiền mình nợ trong event này
-        private async Task<NumberMoney> GetDebtMoney(int eventId, int userID)
+        public async Task<NumberMoney> GetDebtMoney(int eventId, int userID)
         {
             NumberMoney number = new NumberMoney();
             MoneyColor moneyColor = new MoneyColor();
@@ -211,7 +211,7 @@ namespace G24_BWallet_Backend.Repository
             {
                 UserDept userDept = await context.UserDepts
                     .FirstOrDefaultAsync(u => u.UserId == userID && u.ReceiptId == receipt.Id
-                    && u.DeptStatus == 2 && u.DebtLeft > 0);
+                    && (u.DeptStatus == 2 || u.DeptStatus == 4) && u.DebtLeft > 0);
                 if (userDept != null)
                 {
                     mon += userDept.DebtLeft;
