@@ -181,12 +181,45 @@ namespace G24_BWallet_Backend.Repository
                 List<UserDept> userDeptss = receipt.UserDepts;
                 foreach (UserDept userDept in userDeptss)
                 {
-                    if(userDept.UserId == paidDept.UserId)
+                    if (userDept.UserId == paidDept.UserId)
                     {
                         userDept.DeptStatus = 0;
                         await context.SaveChangesAsync();
                         break;
                     }
+                }
+            }
+            // cuối cùng là kiểm tra trong event này, tất cả các user dept của cái nào mà trả hết rồi
+            // thì chuyển receipt status thành 0
+            await ChangeAllReceiptStatusInEvent(paidDept.EventId);
+        }
+
+        // kiểm tra trong event này, tất cả các user dept của cái nào mà trả hết rồi
+        // thì chuyển receipt status thành 0
+        private async Task ChangeAllReceiptStatusInEvent(int eventId)
+        {
+            List<Receipt> receipts = await context.Receipts.Include(r => r.UserDepts)
+                .Where(r => r.EventID == eventId && (r.ReceiptStatus == 2 || r.ReceiptStatus == 4))
+                .ToListAsync();
+            foreach (Receipt receipt in receipts)
+            {
+                bool allUserDeptDone = true;
+                // duyệt hết userdept của receipt này
+                List<UserDept> userDepts = receipt.UserDepts;
+                foreach (UserDept userDept in userDepts)
+                {
+                    if (userDept.DeptStatus == 2 || userDept.DeptStatus == 4)
+                    {
+                        allUserDeptDone = false;
+                        break;
+                    }
+
+                }
+                // nếu biến kia là true nghĩa là tất cả các userdept đã trả hết rồi=> receipt = 0
+                if (allUserDeptDone)
+                {
+                    receipt.ReceiptStatus = 0;
+                    await context.SaveChangesAsync();
                 }
             }
         }
