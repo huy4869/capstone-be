@@ -4,6 +4,8 @@ using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -28,12 +30,24 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         // show ra danh sách bạn bè để add vào nhóm
-        [HttpPost("add-member/EventId={eventId}")]
-        public async Task<Respond<List<Member>>> ListFriendToAddEvent(int eventId, [FromBody]
-        Search search)
+        [HttpGet("add-member")]
+        public async Task<Respond<List<Member>>> ListFriendToAddEvent( [FromQuery] string eventId, [FromQuery] string search)
         {
+            int eventIdNumber;
+            if (eventId.IsNullOrEmpty() || !Int32.TryParse(eventId,out eventIdNumber) )
+            {
+                return new Respond<List<Member>>()
+                {
+                    StatusCode = HttpStatusCode.Accepted,
+                    Error = "",
+                    Message = "Nhóm này không tồn tại!",
+                    Data = null
+                };
+            }
+
             int UserId = GetUserId();
-            var list = repo.SearchFriendToInvite(UserId, search.SearchText, eventId);
+
+            var list = repo.SearchFriendToInvite(UserId, eventIdNumber, search);
             return new Respond<List<Member>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
