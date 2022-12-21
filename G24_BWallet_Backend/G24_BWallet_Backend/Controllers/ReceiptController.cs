@@ -61,7 +61,7 @@ namespace G24_BWallet_Backend.Controllers
                 return new Respond<EventReceiptsInfo>()
                 {
                     StatusCode = HttpStatusCode.NotFound,
-                    Error = "lỗi không tìm thấy event",
+                    Error = "Không tìm thấy sự kiện!",
                     Message = "",
                     Data = eventReceiptsInfo
                 };
@@ -71,7 +71,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "lấy thông tin event và chính từ thành công",
+                Message = "Lấy thông tin sự kiện và các chứng từ thành công!",
                 Data = eventReceiptsInfo
             };
         }
@@ -116,7 +116,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "lấy danh sách thành viên trong event thành công",
+                Message = "Lấy danh sách thành viên trong sự kiện thành công!",
                 Data = await eventUsers
             };
         }
@@ -131,7 +131,7 @@ namespace G24_BWallet_Backend.Controllers
                 return new Respond<Receipt>()
                 {
                     StatusCode = HttpStatusCode.BadRequest,
-                    Error = "Chứng từ thiếu thông tin",
+                    Error = "Chứng từ thiếu thông tin!",
                     Message = "",
                     Data = null
                 };
@@ -141,7 +141,7 @@ namespace G24_BWallet_Backend.Controllers
                 return new Respond<Receipt>()
                 {
                     StatusCode = HttpStatusCode.BadRequest,
-                    Error = "Chứng từ không có ảnh chứng minh",
+                    Error = "Chứng từ không có ảnh chứng minh!",
                     Message = "",
                     Data = null
                 };
@@ -152,7 +152,7 @@ namespace G24_BWallet_Backend.Controllers
                 return new Respond<Receipt>()
                 {
                     StatusCode = HttpStatusCode.BadRequest,
-                    Error = "Chia không đúng số tiền tổng",
+                    Error = "Chia không đúng số tiền tổng!",
                     Message = "",
                     Data = null
                 };
@@ -174,12 +174,15 @@ namespace G24_BWallet_Backend.Controllers
             }
 
             createdReceipt.UserDepts = null;
-
+            string message = "Tạo chứng từ thành công, đang chờ duyệt!";
+            if (await memberRepo.IsOwner(receipt.EventID, userID) ||
+                await memberRepo.IsInspector(receipt.EventID, userID))
+                message = "Tạo chứng từ thành công!";
             return new Respond<Receipt>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "tạo chứng từ xong chờ chấp thuận",
+                Message = message,
                 Data = createdReceipt
             };
         }
