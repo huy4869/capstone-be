@@ -5,6 +5,7 @@ using G24_BWallet_Backend.Models.ObjectType;
 using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,10 +19,12 @@ namespace G24_BWallet_Backend.Repository
     public class MemberRepository : IMemberRepository
     {
         private readonly MyDBContext context;
+        private readonly IEventRepository eventRepository;
 
-        public MemberRepository(MyDBContext myDB)
+        public MemberRepository(MyDBContext myDB, IEventRepository eventRepository)
         {
             this.context = myDB;
+            this.eventRepository = eventRepository;
         }
 
         // xoá phân quyền
@@ -108,25 +111,39 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(ee => ee.EventID == e.EventId && ee.UserID == e.UserId);
             // trước khi inactive phải xem thằng này còn hoá đơn hoặc nợ chưa giải quyết không
             // lấy các hoá đơn đang chờ hoặc đang trả trong event: status = 1,2,4
-            List<Receipt> receipts = await context.Receipts
-                .Where(r => r.EventID == e.EventId && (r.ReceiptStatus == 1
-                || r.ReceiptStatus == 2 || r.ReceiptStatus == 4)).ToListAsync();
-            foreach (Receipt receipt in receipts)
+            //List<Receipt> receipts = await context.Receipts
+            //    .Where(r => r.EventID == e.EventId && (r.ReceiptStatus == 1
+            //    || r.ReceiptStatus == 2 || r.ReceiptStatus == 4)).ToListAsync();
+            //foreach (Receipt receipt in receipts)
+            //{
+            //    // nếu receipt này của user này tạo thì return luôn
+            //    if (receipt.UserID == e.UserId)
+            //        return 10;
+            //    // nếu không tạo receipt thì xem nó có trong danh sách nợ chưa trả của
+            //    // receipt này không, nếu có thì return luôn
+            //    List<UserDept> userDepts = await context.UserDepts
+            //        .Where(u => u.ReceiptId == receipt.Id && u.UserId == e.UserId
+            //        && (u.DeptStatus == 1 || u.DeptStatus == 2 || u.DeptStatus == 4)
+            //        && u.DebtLeft > 0).ToListAsync();
+            //    if (userDepts != null && userDepts.Count > 0)
+            //    {
+            //        // nợ vẫn chưa trả xong
+            //        return 11;
+            //    }
+            //}
+
+            // đoạn này check đơn giản bằng cách lấy tổng mình nợ trong event,
+            // và tổng mình cần thu trong event, cái nào lớn hơn thì chưa inactive đc,
+            // bằng nhau thì đc inactive
+            double allDebt = (await eventRepository.GetDebtMoney(e.EventId, e.UserId)).Money.Amount;
+            double allReceive = (await eventRepository.GetReceiveMoney(e.EventId, e.UserId)).Money.Amount;
+            if (allReceive > allDebt)
             {
-                // nếu receipt này của user này tạo thì return luôn
-                if (receipt.UserID == e.UserId)
-                    return 10;
-                // nếu không tạo receipt thì xem nó có trong danh sách nợ chưa trả của
-                // receipt này không, nếu có thì return luôn
-                List<UserDept> userDepts = await context.UserDepts
-                    .Where(u => u.ReceiptId == receipt.Id && u.UserId == e.UserId
-                    && (u.DeptStatus == 1 || u.DeptStatus == 2 || u.DeptStatus == 4)
-                    && u.DebtLeft > 0).ToListAsync();
-                if (userDepts != null && userDepts.Count > 0)
-                {
-                    // nợ vẫn chưa trả xong
-                    return 11;
-                }
+                return 10;
+            }
+            else if (allReceive < allDebt)
+            {
+                return 11;
             }
             eu.UserRole = 4;
             await context.SaveChangesAsync();
