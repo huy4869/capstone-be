@@ -42,7 +42,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "danh sách báo cáo chờ duyệt",
+                Message = "Danh sách báo cáo chờ duyệt.",
                 Data = await listReport
             };
         }
@@ -57,7 +57,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "danh sách báo cáo đã duyệt",
+                Message = "Danh sách báo cáo đã duyệt.",
                 Data = await listReport
             };
         }
@@ -73,7 +73,7 @@ namespace G24_BWallet_Backend.Controllers
                 {
                     StatusCode = HttpStatusCode.BadRequest,
                     Error = "",
-                    Message = "báo cáo thiếu thông tin",
+                    Message = "Báo cáo thiếu thông tin!",
                     Data = null
                 };
             }
@@ -83,7 +83,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "đã báo cáo chứng từ thành công",
+                Message = result,
                 Data = null
             };
         }
@@ -99,7 +99,7 @@ namespace G24_BWallet_Backend.Controllers
                  {
                      StatusCode = HttpStatusCode.BadRequest,
                      Error = "",
-                     Message = "bạn không có quyền xử lý báo cáo",
+                     Message = "Bạn không có quyền xử lý báo cáo!",
                      Data = null
                  };*/
             var result = await reportRepo.responeReport(reportInfo.ID, reportInfo.ReportStatus, userID);
