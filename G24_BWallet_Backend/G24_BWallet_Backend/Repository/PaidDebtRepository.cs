@@ -503,7 +503,7 @@ namespace G24_BWallet_Backend.Repository
             current.Role = await memberRepository.GetRole(paidDept.EventId, paidDept.UserId);
             current.TotalAmount = paidDept.TotalMoney;
             current.TotalAmountFormat = format.MoneyFormat(paidDept.TotalMoney);
-            userList.Add(current);
+            paid.User = current;
 
             // lấy ra tất cả các thằng chủ nợ mà mình trả tiền
             List<PaidDebtList> paidDebtLists = await context.PaidDebtLists
