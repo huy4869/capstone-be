@@ -84,7 +84,7 @@ namespace G24_BWallet_Backend.Controllers
 
         // thêm mới 1 event
         [HttpPost]
-        public async Task<Respond<string>> AddEvent(NewEvent newEvent)
+        public async Task<Respond<IDictionary>> AddEvent(NewEvent newEvent)
         {
             newEvent.MemberIDs.Add(GetUserId());
             Event e = new Event
@@ -96,12 +96,15 @@ namespace G24_BWallet_Backend.Controllers
             int eventID = await repo.AddEventAsync(e, GetUserId());
             await repo.AddEventMember(eventID, newEvent.MemberIDs);
             string eventUrl = await repo.CreateEventUrl(eventID);
-            return new Respond<string>()
+            IDictionary<string, object> dictionary = new Dictionary<string, object>();
+            dictionary.Add("EventUrl", eventUrl);
+            dictionary.Add("EventId", eventID);
+            return new Respond<IDictionary>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
                 Message = "Thêm sự kiện thành công!",
-                Data = eventUrl
+                Data = (IDictionary)dictionary
             };
         }
 
@@ -115,7 +118,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 eventIdInt = Convert.ToInt32(await format.DecryptAsync(eventId));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return new Respond<IDictionary>()
                 {
