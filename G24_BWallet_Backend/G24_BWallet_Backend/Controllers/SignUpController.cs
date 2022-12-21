@@ -42,7 +42,7 @@ namespace G24_BWallet_Backend.Controllers
                 {
                     StatusCode = HttpStatusCode.NotAcceptable,
                     Error = "",
-                    Message = "Số điện thoại này đã được đăng kí(đã có trong database)",
+                    Message = "Số điện thoại này đã được đăng kí!",
                     Data = false
                 };
             if (await repo.SendOtpTwilioAsync(phone, otp) == false)
@@ -133,7 +133,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Register success!",
+                Message = "Đăng ký thành công!",
                 Data = true
             };
         }
