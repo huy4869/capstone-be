@@ -154,8 +154,10 @@ namespace G24_BWallet_Backend.Repository
             // xong là lấy tổng tiền cần nhận lại
             double totalReceive = (await eventRepository
                 .GetReceiveMoney(eventId, userID)).Money.Amount;
+            double temp = totalDebt - totalReceive;
+            if (temp < 0) { temp = temp * (-1); }
             // nếu 3 thằng trên mà bằng nhau thì cho hết những thứ liên quan thành đã trả hết
-            if (totalDebt == paidAmount && totalReceive == paidAmount)
+            if ((totalDebt == paidAmount && totalReceive == paidAmount) || temp == paidAmount)
             {
 
                 // đầu tiên là duyệt tất cả các receipt trong event, cái nào mình tạo thì cho thành đã trả
