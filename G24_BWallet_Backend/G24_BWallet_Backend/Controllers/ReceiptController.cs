@@ -35,7 +35,9 @@ namespace G24_BWallet_Backend.Controllers
         private readonly IImageRepository imageRepo;
         private readonly IMemberRepository memberRepo;
 
-        public ReceiptController(IReceiptRepository InitReceiptRepo, IUserDeptRepository InitUserDeptRepo, IEventUserRepository InitEventUserRepo, IImageRepository InitImageRepo, IMemberRepository InitMemberRepo)
+        public ReceiptController(IReceiptRepository InitReceiptRepo,
+            IUserDeptRepository InitUserDeptRepo, IEventUserRepository InitEventUserRepo, 
+            IImageRepository InitImageRepo, IMemberRepository InitMemberRepo)
         {
             receiptRepo = InitReceiptRepo;
             userDeptRepo = InitUserDeptRepo;
