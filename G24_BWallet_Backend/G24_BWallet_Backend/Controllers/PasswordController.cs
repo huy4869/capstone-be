@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 namespace G24_BWallet_Backend.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
     [ApiController]
     public class PasswordController : ControllerBase
     {
@@ -25,11 +24,12 @@ namespace G24_BWallet_Backend.Controllers
             return int.Parse(this.User.Claims.First(i => i.Type == "UserId").Value);
         }
 
-        // gửi mã otp
+        // gửi mã otp khi quên mật khẩu
         [HttpPost("send-otp")]
         public async Task<Respond<string>> SendOtp(PhoneParam p)
         {
             var phone = p.Phone.Trim();
+            //kiểm tra có trong database chưa
             var checkPhone = repo.CheckPhoneNumberExistAsync(phone);
             var otp = repo.OTPGenerateAsync();
             if (await checkPhone == false)
@@ -84,6 +84,7 @@ namespace G24_BWallet_Backend.Controllers
 
         // đổi mật khẩu: return 0 là đổi thành công, 1 là mật khẩu hiện tại sai,
         // 2 là 2 cái mật khẩu mới không trùng nhau
+        [Authorize]
         [HttpPost("change-password")]
         public async Task<Respond<string>> ChangePassword(PasswordChangeParam p)
         {
@@ -110,6 +111,28 @@ namespace G24_BWallet_Backend.Controllers
                 Error = "",
                 Message = "Đổi mật khẩu thành công!",
                 Data = "Đổi mật khẩu thành công!"
+            };
+        }
+
+        // đặt lại pass khi quên
+        [HttpPost("new-password")]
+        public async Task<Respond<string>> NewPassword(NewPassword p)
+        {
+            int check = await repo.NewPassword(p);
+            if (check == 1)
+                return new Respond<string>()
+                {
+                    StatusCode = HttpStatusCode.NotAcceptable,
+                    Error = "",
+                    Message = "Hai mật khẩu mới không khớp nhau!",
+                    Data = "Hai mật khẩu mới không khớp nhau!"
+                };
+            return new Respond<string>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Đặt mật khẩu mới thành công!",
+                Data = "Đặt mật khẩu mới thành công!"
             };
         }
 
