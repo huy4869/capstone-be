@@ -285,6 +285,18 @@ namespace G24_BWallet_Backend.Repository
             var isdelete = respone.DeleteMarker;
         }
 
-
+        // đặt lại mật khẩu khi quên
+        public async Task<int> NewPassword(NewPassword p)
+        {
+            Account account = await context.Accounts
+                .FirstOrDefaultAsync(a => a.PhoneNumber.Equals(p.phone));
+            if (p.password.Equals(p.password_confirmation))
+            {
+                account.Password = p.password_confirmation;
+                await context.SaveChangesAsync();
+                return 0;
+            }
+            return 1;
+        }
     }
 }

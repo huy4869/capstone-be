@@ -103,6 +103,13 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string password_confirmation { get; set; }
     }
 
+    public class NewPassword
+    {
+        public string phone { get; set; }
+        public string password { get; set; }
+        public string password_confirmation { get; set; }
+    }
+
     public class UserAvatarName
     {
         public string Avatar { get; set; }
@@ -342,5 +349,5 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string Folder { get; set; }
         public string Base64String { get; set; }
     }
-        
+
 }
