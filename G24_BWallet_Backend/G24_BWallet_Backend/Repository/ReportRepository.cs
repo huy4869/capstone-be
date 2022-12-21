@@ -77,15 +77,15 @@ namespace G24_BWallet_Backend.Repository
         }
 
         // tạo report
-        public async Task<Report> createReport(int receiptID, int userID, string reason)
+        public async Task<string> createReport(int receiptID, int userID, string reason)
         {
             Report report = context.Reports.Where(re => re.ReceiptId == receiptID).FirstOrDefault();
-            if (report != null) throw new System.Exception("chứng từ này đã bị báo cáo");
+            if (report != null) return ("Chứng từ này đã bị báo cáo.");
 
             Receipt receipt = context.Receipts.Include(r => r.UserDepts).Include(r => r.Event)
                 .Where(r => r.Id == receiptID).FirstOrDefault();
-            if (receipt == null) throw new System.Exception("chứng từ này không còn tồn tại");
-            else if (receipt.ReceiptStatus == 0 || receipt.ReceiptStatus == 3) throw new System.Exception("không thể báo cáo chứng từ này");
+            if (receipt == null) return ("Chứng từ này không còn tồn tại!");
+            else if (receipt.ReceiptStatus != 2) return ("Không thể báo cáo! Chứng từ này đã được thanh toán.");
 
             Report addReport = new Report();
             addReport.EventId = receipt.EventID;
@@ -106,15 +106,15 @@ namespace G24_BWallet_Backend.Repository
             context.Receipts.Update(receipt);
             await activity.ReportActivity(1, 0, userID, receipt.ReceiptName, receipt.Event.EventName);
             await context.SaveChangesAsync();
-            return addReport;
+            return "Đã báo cáo chứng từ thành công";
         }
 
         // xủ lý chấp thuận hay từ chối báo cáo
-        public async Task<Report> responeReport(int reportId, int status, int userId)
+        public async Task<string> responeReport(int reportId, int status, int userId)
         {
             Report report = context.Reports.Where(re => re.ID == reportId).FirstOrDefault();
-            if (report == null) throw new System.Exception("bản báo cáo không còn tồn tại ");
-            else if (report.ReportStatus != 0) throw new System.Exception("bản báo cáo này đã được sử lý");
+            if (report == null) return ("Báo cáo không còn tồn tại!");
+            else if (report.ReportStatus != 0) return("Bản báo cáo này đã được xử lý!");
 
             Receipt receipt = context.Receipts.Include(r => r.UserDepts)
                 .Include(r => r.Event).Where(r => r.Id == report.ReceiptId).FirstOrDefault();
@@ -164,13 +164,13 @@ namespace G24_BWallet_Backend.Repository
                     await activity.ReportActivity(3, 0, report.UserId, receipt.ReceiptName, receipt.Event.EventName);
                     break;
 
-                default: throw new System.Exception("báo cáo xử lý bị lỗi");
+                default: throw new Exception("Báo cáo xử lý bị lỗi!");
             }
             report.ReportStatus = status;
             context.Reports.Update(report);
 
             await context.SaveChangesAsync();
-            return report;
+            return "đã xử lý báo cáo";
         }
     }
 }
