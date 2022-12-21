@@ -154,7 +154,8 @@ namespace G24_BWallet_Backend.Repository
             {
                 EventUser eventUser = await context.EventUsers
                     .Include(eu => eu.Event)
-                .FirstOrDefaultAsync(eu => eu.UserID == userID && eu.EventID == eventt.ID);
+                .FirstOrDefaultAsync(eu => eu.UserID == userID && eu.EventID == eventt.ID &&
+                eu.UserRole != 4);
                 if (eventUser != null)
                     userJoin.Add(eventUser.Event);
 
@@ -502,8 +503,7 @@ namespace G24_BWallet_Backend.Repository
             Event eventt = await GetEventById(e.EventId);
             if (e.EventName.Trim().Length != 0)
                 eventt.EventName = e.EventName.Trim();
-            if (e.EventDescript.Trim().Length != 0)
-                eventt.EventDescript = e.EventDescript.Trim();
+            eventt.EventDescript = e.EventDescript.Trim();
             await context.SaveChangesAsync();
         }
 

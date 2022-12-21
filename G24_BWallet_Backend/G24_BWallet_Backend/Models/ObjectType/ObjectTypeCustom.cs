@@ -309,6 +309,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
     {
         public string Code { get; set; }
         public DateTime Date { get; set; }
+        public UserAvatarNameMoney User { get; set; }
         public List<UserAvatarNameMoney> Users { get; set; }
         public string ImgLink { get; set; }
     }

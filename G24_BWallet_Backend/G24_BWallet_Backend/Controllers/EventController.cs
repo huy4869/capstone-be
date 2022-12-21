@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace G24_BWallet_Backend.Controllers
 {
@@ -111,6 +112,8 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet("join")]
         public async Task<Respond<IDictionary>> CheckJoinByUrl([FromQuery] string eventId)
         {
+            // cái url lúc này nó đang dạng encode, mình phải decode ra đã
+            eventId = HttpUtility.UrlDecode(eventId);
             // event Id lúc này đang bị mã hoá, mình phải giải mã và chuyển về int
             Format format = new Format();
             int eventIdInt = 0;
