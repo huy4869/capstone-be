@@ -604,14 +604,28 @@ namespace G24_BWallet_Backend.Repository
                 if (paidDept != null) return "Còn yêu cầu trả tiền chưa duyệt!";
             }
             // và tất cả mọi người muốn out nhóm thì phải ko còn nợ, và phải thu đủ tiền
-            Receipt receiptActive = await context.Receipts
-                    .FirstOrDefaultAsync(r => r.EventID == eventId && r.ReceiptStatus == 2
-                    && r.UserID == userId);
-            if (receiptActive != null) return "Bạn còn chứng từ chưa thu đủ tiền!";
-            // kiểm tra xem mình còn nợ gì trong event này không, còn nợ là true
-            bool isDebtInEvent = await IsDebtInEvent(eventId, userId);
-            if (isDebtInEvent == true) return "Bạn còn khoản nợ chưa trả!";
-            // đủ điều kiện thì có thể out hoặc đóng event 
+            // đoạn này check đơn giản bằng cách lấy tổng mình nợ trong event,
+            // và tổng mình cần thu trong event, cái nào lớn hơn thì chưa out đc, bằng nhau thì đc out
+            double allDebt = (await GetDebtMoney(eventId, userId)).Money.Amount;
+            double allReceive = (await GetReceiveMoney(eventId, userId)).Money.Amount;
+            if (allReceive > allDebt)
+            {
+                return "Bạn còn chứng từ chưa thu đủ tiền!";
+            }
+            else if (allReceive < allDebt)
+            {
+                return "Bạn còn khoản nợ chưa trả!";
+            }
+            //Receipt receiptActive = await context.Receipts
+            //        .FirstOrDefaultAsync(r => r.EventID == eventId && r.ReceiptStatus == 2
+            //        && r.UserID == userId);
+            //if (receiptActive != null) return "Bạn còn chứng từ chưa thu đủ tiền!";
+            //// kiểm tra xem mình còn nợ gì trong event này không, còn nợ là true
+            //bool isDebtInEvent = await IsDebtInEvent(eventId, userId);
+            //if (isDebtInEvent == true) return "Bạn còn khoản nợ chưa trả!";
+
+            // tổng mình nợ với tổng mình thu bằng nhau phía trên
+            // nghĩa là đủ điều kiện thì có thể out hoặc đóng event 
             Event e = await context.Events.FirstOrDefaultAsync(ev => ev.ID == eventId);
             if (eventUser.UserRole == 1)
             { // owner sẽ close event
