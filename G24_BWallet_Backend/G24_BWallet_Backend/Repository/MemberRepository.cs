@@ -19,12 +19,14 @@ namespace G24_BWallet_Backend.Repository
     public class MemberRepository : IMemberRepository
     {
         private readonly MyDBContext context;
-        private readonly IEventRepository eventRepository;
+        private readonly Format format;
+        //private readonly IEventRepository eventRepository;
 
-        public MemberRepository(MyDBContext myDB, IEventRepository eventRepository)
+        public MemberRepository(MyDBContext myDB)
         {
             this.context = myDB;
-            this.eventRepository = eventRepository;
+            this.format = new Format();
+            //this.eventRepository = eventRepository;
         }
 
         // xoá phân quyền
@@ -135,8 +137,8 @@ namespace G24_BWallet_Backend.Repository
             // đoạn này check đơn giản bằng cách lấy tổng mình nợ trong event,
             // và tổng mình cần thu trong event, cái nào lớn hơn thì chưa inactive đc,
             // bằng nhau thì đc inactive
-            double allDebt = (await eventRepository.GetDebtMoney(e.EventId, e.UserId)).Money.Amount;
-            double allReceive = (await eventRepository.GetReceiveMoney(e.EventId, e.UserId)).Money.Amount;
+            double allDebt = (await GetDebtMoney(e.EventId, e.UserId)).Money.Amount;
+            double allReceive = (await GetReceiveMoney(e.EventId, e.UserId)).Money.Amount;
             if (allReceive > allDebt)
             {
                 return 10;
@@ -291,6 +293,72 @@ namespace G24_BWallet_Backend.Repository
             // đảo lại theo đúng trật tự: owner đầu tiên, inactive cuối cùng
             eventUsers.Reverse();
             return eventUsers;
+        }
+
+        // tiền mình nợ trong event này
+        public async Task<NumberMoney> GetDebtMoney(int eventId, int userID)
+        {
+            NumberMoney number = new NumberMoney();
+            MoneyColor moneyColor = new MoneyColor();
+            double mon = 0;
+            int total = 0;
+            List<int> userIdList = new List<int>();
+            // lấy hết các receipt đang trả trong event này
+            List<Receipt> receiptList = await context.Receipts
+                .Where(r => r.EventID == eventId && r.ReceiptStatus == 2).ToListAsync();
+            foreach (Receipt receipt in receiptList)
+            {
+                UserDept userDept = await context.UserDepts
+                    .FirstOrDefaultAsync(u => u.UserId == userID && u.ReceiptId == receipt.Id
+                    && (u.DeptStatus == 2 || u.DeptStatus == 4) && u.DebtLeft > 0);
+                if (userDept != null)
+                {
+                    mon += userDept.DebtLeft;
+                    userIdList.Add(receipt.UserID);
+                }
+            }
+            total = userIdList.Distinct().Count();
+            moneyColor.Color = "Red";
+            moneyColor.Amount = mon;
+            moneyColor.AmountFormat = format.MoneyFormat(mon);
+            number.Money = moneyColor;
+            number.TotalPeople = total;
+            return number;
+        }
+
+        // tiền người ta nợ mình trong event này
+        public async Task<NumberMoney> GetReceiveMoney(int eventId, int userID)
+        {
+            NumberMoney number = new NumberMoney();
+            MoneyColor moneyColor = new MoneyColor();
+            double mon = 0;
+            int total = 0;
+            List<int> userIdList = new List<int>();
+            // lấy hết các receipt mình tạo trong event này mà vẫn đang trả
+            List<Receipt> receiptList = await context.Receipts
+                .Where(r => r.EventID == eventId && r.ReceiptStatus == 2
+                && r.UserID == userID).ToListAsync();
+            foreach (Receipt receipt in receiptList)
+            {
+                List<UserDept> userDepts = await context.UserDepts
+                    .Where(u => u.ReceiptId == receipt.Id
+                    && (u.DeptStatus == 2 || u.DeptStatus == 4) && u.DebtLeft > 0).ToListAsync();
+                foreach (var userDept in userDepts)
+                {
+                    if (userDept != null)
+                    {
+                        mon += userDept.DebtLeft;
+                        userIdList.Add(userDept.UserId);
+                    }
+                }
+            }
+            total = userIdList.Distinct().Count();
+            moneyColor.Color = "Green";
+            moneyColor.Amount = mon;
+            moneyColor.AmountFormat = format.MoneyFormat(mon);
+            number.Money = moneyColor;
+            number.TotalPeople = total;
+            return number;
         }
 
     }
