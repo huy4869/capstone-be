@@ -170,7 +170,7 @@ namespace G24_BWallet_Backend.Repository
             context.Reports.Update(report);
 
             await context.SaveChangesAsync();
-            return "đã xử lý báo cáo";
+            return "Đã xử lý báo cáo.";
         }
     }
 }
