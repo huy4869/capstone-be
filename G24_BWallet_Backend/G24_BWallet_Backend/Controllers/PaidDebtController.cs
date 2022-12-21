@@ -88,11 +88,15 @@ namespace G24_BWallet_Backend.Controllers
                     Data = null
                 };
             }
+            string message = "Tạo yêu cầu trả tiền thành công, đang chờ duyệt!";
+            if (await memberRepo.IsOwner(paidParam.EventId, GetUserId()) ||
+                await memberRepo.IsCashier(paidParam.EventId, GetUserId()))
+                message = "Tạo yêu cầu trả tiền thành công!";
             return new Respond<PaidDept>()
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Tạo yêu cầu trả tiền thành công!",
+                Message = message,
                 Data = null
             };
         }
@@ -142,7 +146,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Yêu cầu trả tiền đã xử lý",
+                Message = "Yêu cầu trả tiền đã xử lý!",
                 Data = list
             };
         }
@@ -167,7 +171,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Yêu cầu trả tiền đang chờ duyệt",
+                Message = "Yêu cầu trả tiền đang chờ duyệt!",
                 Data = list
             };
         }
@@ -182,15 +186,15 @@ namespace G24_BWallet_Backend.Controllers
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
-                    Message = "Đã phê duyệt các yêu cầu trả tiền",
-                    Data = "Đã phê duyệt các yêu cầu trả tiền"
+                    Message = "Đã phê duyệt các yêu cầu trả tiền!",
+                    Data = "Đã phê duyệt các yêu cầu trả tiền!"
                 };
             return new Respond<string>()
             {
                 StatusCode = HttpStatusCode.NotAcceptable,
                 Error = "",
-                Message = "Đã từ chối các yêu cầu trả tiền",
-                Data = "Đã từ chối các yêu cầu trả tiền"
+                Message = "Đã từ chối các yêu cầu trả tiền!",
+                Data = "Đã từ chối các yêu cầu trả tiền!"
             };
         }
 
@@ -203,7 +207,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Chi tiết các yêu cầu trả tiền khi click vào",
+                Message = "Chi tiết các yêu cầu trả tiền khi chọn.",
                 Data = p
             };
         }
@@ -219,7 +223,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Các yêu cầu trả tiền mình đã gửi trong event này",
+                Message = "Các yêu cầu trả tiền mình đã gửi trong sự kiện này.",
                 Data = list
             };
         }
@@ -235,8 +239,8 @@ namespace G24_BWallet_Backend.Controllers
                 {
                     StatusCode = HttpStatusCode.NotAcceptable,
                     Error = "",
-                    Message = "Yêu cầu trả tiền của bạn đang chờ duyệt!",
-                    Data = "Yêu cầu trả tiền của bạn đang chờ duyệt!"
+                    Message = "Bạn đã tạo yêu cầu trả tiền rồi, đang chờ duyệt!",
+                    Data = "Bạn đã tạo yêu cầu trả tiền rồi, đang chờ duyệt!"
                 };
             return new Respond<string>()
             {
