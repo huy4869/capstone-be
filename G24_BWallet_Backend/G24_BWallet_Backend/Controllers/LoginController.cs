@@ -35,8 +35,8 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<JwtParam>> Login(Account acc)
         {
             var checkPhone = await repo.CheckPhoneNumberExistAsync(acc.PhoneNumber);
-            //var encrypt = await repo.EncryptAsync(acc.Password);
-            var encrypt = acc.Password;
+            var encrypt = await repo.EncryptAsync(acc.Password);
+            //var encrypt = acc.Password;
             if (checkPhone == false)
                 return new Respond<JwtParam>()
                 {
