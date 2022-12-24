@@ -273,7 +273,7 @@ namespace G24_BWallet_Backend.Repository
                 }
                 else// chưa đủ 12 tiếng nên ko gửi tiếp được
                 {
-                    return userDept.RemindDate.ToString();
+                    return format.DateFormat(userDept.RemindDate);
                 }
             }
             catch (Exception)
