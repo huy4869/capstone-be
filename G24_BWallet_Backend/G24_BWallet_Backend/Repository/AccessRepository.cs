@@ -227,13 +227,14 @@ namespace G24_BWallet_Backend.Repository
         // 2 là 2 cái mật khẩu mới không trùng nhau
         public async Task<int> ChangePassword(int userId, PasswordChangeParam p)
         {
+            p.password = await EncryptAsync(p.password);
             User user = await context.Users.Include(u => u.Account)
                 .FirstOrDefaultAsync(u => u.ID == userId);
             if (!user.Account.Password.Equals(p.password))
                 return 1;
             if (!p.new_password.Equals(p.password_confirmation))
                 return 2;
-            user.Account.Password = p.new_password;
+            user.Account.Password = await EncryptAsync(p.new_password);
             await context.SaveChangesAsync();
             return 0;
         }
@@ -292,7 +293,7 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(a => a.PhoneNumber.Equals(p.phone));
             if (p.password.Equals(p.password_confirmation))
             {
-                account.Password = p.password_confirmation;
+                account.Password = await EncryptAsync(p.password_confirmation);
                 await context.SaveChangesAsync();
                 return 0;
             }

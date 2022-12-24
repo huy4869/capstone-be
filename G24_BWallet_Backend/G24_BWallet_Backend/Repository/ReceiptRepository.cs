@@ -126,7 +126,7 @@ namespace G24_BWallet_Backend.Repository
                     ReceiptAmount = r.ReceiptAmount,
                     ReceiptAmountFormat = format.MoneyFormat(r.ReceiptAmount),
                     ReceiptStatus = r.ReceiptStatus,
-                    CreatedAt = r.CreatedAt
+                    CreatedAt = format.DateFormat(r.CreatedAt)
                 })
                 .ToList();
             //eventInfo.TotalReceiptsAmount = listReceipt.Sum(r => r.ReceiptAmount);
@@ -322,7 +322,7 @@ namespace G24_BWallet_Backend.Repository
             Receipt receipt = await myDB.Receipts.Include(r => r.User)
                 .FirstOrDefaultAsync(r => r.Id == receiptId);
             result.ReceiptName = receipt.ReceiptName;
-            result.Date = receipt.CreatedAt.ToString();
+            result.Date = format.DateFormat(receipt.CreatedAt);
             // chỗ này phải lấy thằng tạo receipt chứ không phải thằng cashier
             //User cashier = await GetCashier(receipt.EventID);
             User creator = receipt.User;
@@ -394,7 +394,7 @@ namespace G24_BWallet_Backend.Repository
             {
                 ReceiptSentParam param = new ReceiptSentParam();
                 param.ReceiptId = receipt.Id;
-                param.Date = receipt.CreatedAt.ToString();
+                param.Date = format.DateFormat(receipt.CreatedAt);
                 param.ReceiptName = receipt.ReceiptName;
                 param.ReceiptAmount = receipt.ReceiptAmount;
                 param.ReceiptAmountFormat = format.MoneyFormat(receipt.ReceiptAmount);

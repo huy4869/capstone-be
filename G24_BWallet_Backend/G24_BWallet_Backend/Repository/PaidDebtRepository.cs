@@ -347,7 +347,7 @@ namespace G24_BWallet_Backend.Repository
                 debtPayment.PaidDebtId = item.Id;
                 debtPayment.TotalMoney = item.TotalMoney;
                 debtPayment.TotalMoneyFormat = format.MoneyFormat(item.TotalMoney);
-                debtPayment.Date = item.CreatedAt.ToString();
+                debtPayment.Date = format.DateFormat(item.CreatedAt);
                 debtPayment.Code = item.Code;
                 debtPayment.ImageLink = await context.ProofImages
                     .Where(p => p.ImageType.Equals("paidDept") && p.ModelId == item.Id)
@@ -490,7 +490,7 @@ namespace G24_BWallet_Backend.Repository
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.Id == paidid);
             paid.Code = paidDept.Code;
-            paid.Date = paidDept.CreatedAt;
+            paid.Date = format.DateFormat(paidDept.CreatedAt);
             paid.ImgLink = await context.ProofImages
                     .Where(p => p.ImageType.Equals("paidDept") && p.ModelId == paidid)
                     .Select(p => p.ImageLink).FirstOrDefaultAsync();

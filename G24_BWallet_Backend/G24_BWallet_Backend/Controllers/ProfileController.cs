@@ -75,7 +75,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Danh sách trạng thái các yêu cầu tham gia nhóm của user hiện tại",
+                Message = "Danh sách trạng thái các yêu cầu tham gia nhóm của người dùng hiện tại",
                 Data = list
             };
         }

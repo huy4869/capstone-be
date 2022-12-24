@@ -246,7 +246,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Danh sách chứng từ đang chờ xác nhân",
+                Message = "Danh sách chứng từ đang chờ xác nhận!",
                 Data = list
             };
         }

@@ -37,14 +37,24 @@ namespace G24_BWallet_Backend.Repository
         //    return Reverse(sb.ToString()) + " VND";
         //}
 
+        public  string DateFormat(DateTime dateTime)
+        {
+            // Theo văn hóa Việt Nam.
+            CultureInfo viVn = new CultureInfo("vi-VN");
+            // ==> 12/20/2015 (dd/MM/yyyy)
+            string dateStr = dateTime.ToString("f", viVn);
+            return dateStr;
+        }
+
         public string MoneyFormat(double money)
         {
             //return money.ToString("{0:c}") + " ₫";
             //var info = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
             //return String.Format(info, "{0:c}", money);
             NumberFormatInfo nfi = new CultureInfo("vi-VN", false).NumberFormat;
-            return money.ToString("C0",nfi);
+            return money.ToString("C0", nfi);
         }
+
         public string Reverse(string s)
         {
             char[] charArray = s.ToCharArray();

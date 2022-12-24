@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -228,12 +229,28 @@ namespace G24_BWallet_Backend.Controllers
         }
 
         [HttpGet("encrypt")]
-        public async Task<IActionResult> GetEncrypt()
+        public async Task<IActionResult> GetEncrypt([FromQuery] string text)
         {
             Format format = new Format();
-            var a = await format.EncryptAsync("123");
+            IDictionary<string, string> dictionary = new Dictionary<string, string>();
+            var a = await format.EncryptAsync(text);
             var b = await format.DecryptAsync(a);
-            return Ok($"a:{a}   b:{b}");
+            dictionary.Add($"Chuỗi ban đầu", text);
+            dictionary.Add($"Chuỗi đã mã hoá", a);
+            dictionary.Add($"Chuỗi đã giả mã", b);
+            return Ok(dictionary);
+        }
+
+        [HttpGet("formatDate")]
+        public async Task<IActionResult> FormatDate()
+        {
+            DateTime date = System.DateTime.Now;
+            //String d_formatString = date.ToString("d");
+            // Theo văn hóa Việt Nam.
+            CultureInfo viVn = new CultureInfo("vi-VN");
+            // ==> 12/20/2015 (dd/MM/yyyy)
+            string dateStr = date.ToString("f", viVn);
+            return Ok(dateStr);
         }
 
         [HttpGet("sms")]
@@ -247,7 +264,7 @@ namespace G24_BWallet_Backend.Controllers
             string apiSecret = _configuration["Twilio:ApiKeySecret"];
 
             //TwilioClient.Init(accountSid, authToken);
-            TwilioClient.Init(apiKey, apiSecret,accountSid);
+            TwilioClient.Init(apiKey, apiSecret, accountSid);
             try
             {
                 var message = await MessageResource.CreateAsync(
