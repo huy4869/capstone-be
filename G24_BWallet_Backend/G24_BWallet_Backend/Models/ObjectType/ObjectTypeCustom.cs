@@ -140,7 +140,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public int EventId { get; set; }
         public string EventLogo { get; set; }
         public string EventName { get; set; }
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
         public int Status { get; set; }
     }
 
@@ -150,7 +150,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string UserName { get; set; }
         public string EventLogo { get; set; }
         public string EventName { get; set; }
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
     }
 
     public class InviteRespondParam
@@ -302,13 +302,13 @@ namespace G24_BWallet_Backend.Models.ObjectType
     {
         public string? Link { get; set; }
         public string Content { get; set; }
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
     }
 
     public class PaidDebtDetailScreen
     {
         public string Code { get; set; }
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
         public UserAvatarNameMoney User { get; set; }
         public List<UserAvatarNameMoney> Users { get; set; }
         public string ImgLink { get; set; }
@@ -321,7 +321,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string ReportReceiptName { get; set; }
         public int ReportStatus { get; set; }
         public string ReportReason { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public string CreatedAt { get; set; }
         public Member Reporter { get; set; }
     }
 

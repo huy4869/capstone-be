@@ -72,12 +72,33 @@ namespace G24_BWallet_Backend.Repository
         public async Task<string> CreateEventUrl(int eventID)
         {
             // mã hoá event id
-            string eventIdEncrypt = await format.EncryptAsync(eventID.ToString());
-            string eventUrl = "/event/join?eventId=" + eventIdEncrypt;
+            //string eventIdEncrypt = await format.EncryptAsync(eventID.ToString());
+
+            // gen ra string ngẫu nhiên, ko trùng trong database
+            string code = "";
+            string eventUrl = "/event/join?eventId=";
+            Random random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            // vòng lặp check xem code đã tồn tại trong bảng paiddebt chưa
+            while (true)
+            {
+                code = new string(Enumerable.Repeat(chars, 12)
+                   .Select(s => s[random.Next(s.Length)]).ToArray());
+                eventUrl += code;
+                if (await IsEventLinkExist(eventUrl) == false)// chưa tồn tại thì ok
+                    break;
+            }
             Event e = await context.Events.FirstOrDefaultAsync(e => e.ID == eventID);
             e.EventLink = eventUrl;
             await context.SaveChangesAsync();
             return eventUrl;
+        }
+
+        // kiểm tra xem event url đã tồn tại trong db chưa, false là chưa
+        private async Task<bool> IsEventLinkExist(string eventUrl)
+        {
+            Event e = await context.Events.FirstOrDefaultAsync(ee => ee.EventLink.Equals(eventUrl.Trim()));
+            return e != null;
         }
 
         // lấy tất cả các event mà mình tham gia
@@ -572,7 +593,7 @@ namespace G24_BWallet_Backend.Repository
             foreach (Request item in requests)
             {
                 JoinRequestHistory u = new JoinRequestHistory();
-                u.Date = item.CreatedAt.ToString();
+                u.Date = format.DateFormat(item.CreatedAt);
                 u.Avatar = item.User.Avatar;
                 u.UserName = item.User.UserName;
                 Account acc = await context.Accounts.FirstOrDefaultAsync(acc =>
@@ -688,6 +709,14 @@ namespace G24_BWallet_Backend.Repository
             List<Report> reports = await context.Reports
                 .Where(r => r.EventId == eventId && r.ReportStatus == 0).ToListAsync();
             return reports;
+        }
+
+        // lấy event id từ event url
+        public async Task<int> GetEventIdByUrl(string eventId)
+        {
+            eventId = "/event/join?eventId=" + eventId;
+            Event e = await context.Events.FirstOrDefaultAsync(ee => ee.EventLink.Equals(eventId.Trim()));
+            return e.ID;
         }
     }
 }

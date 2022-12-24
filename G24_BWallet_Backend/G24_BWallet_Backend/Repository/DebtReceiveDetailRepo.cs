@@ -176,7 +176,7 @@ namespace G24_BWallet_Backend.Repository
             Receipt receipt = await context.Receipts.Include(r => r.User)
                 .FirstOrDefaultAsync(r => r.Id == receiptId);
             result.ReceiptName = receipt.ReceiptName;
-            result.Date = receipt.CreatedAt.ToString();
+            result.Date = format.DateFormat(receipt.CreatedAt);
             result.User = new UserAvatarNameMoney
             {
                 Avatar = receipt.User.Avatar,

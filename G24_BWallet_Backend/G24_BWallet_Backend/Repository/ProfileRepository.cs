@@ -13,11 +13,13 @@ namespace G24_BWallet_Backend.Repository
     {
         private readonly MyDBContext context;
         private readonly ActivityRepository activity;
+        private readonly Format format;
 
         public ProfileRepository(MyDBContext myDB)
         {
             this.context = myDB;
             this.activity = new ActivityRepository(myDB);
+            format = new Format();
         }
 
         // chấp nhận hay từ chối lời mời tham gia vào nhóm
@@ -83,7 +85,7 @@ namespace G24_BWallet_Backend.Repository
                 r.InviteId = item.ID;
                 r.EventLogo = item.Event.EventLogo;
                 r.EventName = item.Event.EventName;
-                r.Date = item.CreateAt;
+                r.Date = format.DateFormat(item.CreateAt);
                 var user = await GetUserById(item.UserID);
                 r.UserName = user.UserName;
                 list.Add(r);
@@ -102,7 +104,7 @@ namespace G24_BWallet_Backend.Repository
                 r.EventId = item.EventID;
                 r.EventLogo = item.Event.EventLogo;
                 r.EventName = item.Event.EventName;
-                r.Date = item.CreatedAt;
+                r.Date = format.DateFormat(item.CreatedAt);
                 r.Status = item.Status;
                 list.Add(r);
             }

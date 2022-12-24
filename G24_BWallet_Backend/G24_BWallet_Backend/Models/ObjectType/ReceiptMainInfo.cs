@@ -9,7 +9,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public double ReceiptAmount { get; set; }
         public string ReceiptAmountFormat { get; set; }
         public int ReceiptStatus { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public string CreatedAt { get; set; }
 
     }
 }

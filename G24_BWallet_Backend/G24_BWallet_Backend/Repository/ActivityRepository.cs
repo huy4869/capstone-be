@@ -61,7 +61,7 @@ namespace G24_BWallet_Backend.Repository
                 if (activity.ActivityIcon != null)
                     activityScreen.Link = activity.ActivityIcon.Link;
                 activityScreen.Content = activity.Content.ToString();
-                activityScreen.Date = activity.CreatedAt;
+                activityScreen.Date = format.DateFormat(activity.CreatedAt);
                 list.Add(activityScreen);
             }
             return list;

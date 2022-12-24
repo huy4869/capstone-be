@@ -27,5 +27,6 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<List<Report>> GetReportWaiting(int eventId);
         Task<NumberMoney> GetReceiveMoney(int eventId, int userID);
         Task<NumberMoney> GetDebtMoney(int eventId, int userID);
+        Task<int> GetEventIdByUrl(string eventId);
     }
 }

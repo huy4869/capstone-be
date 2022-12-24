@@ -217,7 +217,9 @@ namespace G24_BWallet_Backend.Repository
         {
             User user = await context.Users.FirstOrDefaultAsync(u => u.ID == userID);
             Friend friend = await context.Friends
-                .Where(f => f.UserID == currentId && f.UserFriendID == userID)
+                .Where(f => (f.UserID == currentId && f.UserFriendID == userID)
+                || (f.UserFriendID == currentId && f.UserID == userID)
+                )
                 .OrderBy(f => f.UserFriendID)
                 .LastOrDefaultAsync();
             //có trong bảng rồi

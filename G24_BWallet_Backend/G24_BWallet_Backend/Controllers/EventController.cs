@@ -112,25 +112,26 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet("join")]
         public async Task<Respond<IDictionary>> CheckJoinByUrl([FromQuery] string eventId)
         {
-            // cái url lúc này nó đang dạng encode, mình phải decode ra đã
-            eventId = HttpUtility.UrlDecode(eventId);
-            // event Id lúc này đang bị mã hoá, mình phải giải mã và chuyển về int
-            Format format = new Format();
-            int eventIdInt = 0;
-            try
-            {
-                eventIdInt = Convert.ToInt32(await format.DecryptAsync(eventId));
-            }
-            catch (Exception ex)
-            {
-                return new Respond<IDictionary>()
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Error = "",
-                    Message = "Đường dẫn sự kiện sai!",
-                    Data = null
-                };
-            }
+            //// cái url lúc này nó đang dạng encode, mình phải decode ra đã
+            //eventId = HttpUtility.UrlDecode(eventId);
+            //// event Id lúc này đang bị mã hoá, mình phải giải mã và chuyển về int
+            //Format format = new Format();
+            //int eventIdInt = 0;
+            //try
+            //{
+            //    eventIdInt = Convert.ToInt32(await format.DecryptAsync(eventId));
+            //}
+            //catch (Exception ex)
+            //{
+            //    return new Respond<IDictionary>()
+            //    {
+            //        StatusCode = HttpStatusCode.NotFound,
+            //        Error = "",
+            //        Message = "Đường dẫn sự kiện sai!",
+            //        Data = null
+            //    };
+            //}
+            int eventIdInt = await repo.GetEventIdByUrl(eventId);
             EventUserID eu = new EventUserID { EventId = eventIdInt, UserId = GetUserId() };
             bool isJoin = await repo.CheckUserJoinEvent(eu);
             IDictionary<string, int> result = new Dictionary<string, int>

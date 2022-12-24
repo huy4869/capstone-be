@@ -15,11 +15,13 @@ namespace G24_BWallet_Backend.Repository
     {
         private readonly MyDBContext context;
         private readonly ActivityRepository activity;
+        private readonly Format format;
 
         public ReportRepository(MyDBContext myDB)
         {
             this.context = myDB;
             this.activity = new ActivityRepository(myDB);
+            format = new Format();
         }
         public async Task<Report> GetReportByID(int reportID)
         {
@@ -38,7 +40,7 @@ namespace G24_BWallet_Backend.Repository
                     ReportReceiptName = re.Receipt.ReceiptName,
                     ReportReason = re.ReportReason,
                     ReportStatus = re.ReportStatus,
-                    CreatedAt = re.CreatedAt,
+                    CreatedAt = format.DateFormat(re.CreatedAt),
                     Reporter = new Member
                     {
                         UserId = re.User.ID,
@@ -63,7 +65,7 @@ namespace G24_BWallet_Backend.Repository
                     ReportReceiptName = re.Receipt.ReceiptName,
                     ReportReason = re.ReportReason,
                     ReportStatus = re.ReportStatus,
-                    CreatedAt = re.CreatedAt,
+                    CreatedAt = format.DateFormat(re.CreatedAt),
                     Reporter = new Member
                     {
                         UserId = re.User.ID,
@@ -114,7 +116,7 @@ namespace G24_BWallet_Backend.Repository
         {
             Report report = context.Reports.Where(re => re.ID == reportId).FirstOrDefault();
             if (report == null) return ("Báo cáo không còn tồn tại!");
-            else if (report.ReportStatus != 0) return("Bản báo cáo này đã được xử lý!");
+            else if (report.ReportStatus != 0) return ("Bản báo cáo này đã được xử lý!");
 
             Receipt receipt = context.Receipts.Include(r => r.UserDepts)
                 .Include(r => r.Event).Where(r => r.Id == report.ReceiptId).FirstOrDefault();
