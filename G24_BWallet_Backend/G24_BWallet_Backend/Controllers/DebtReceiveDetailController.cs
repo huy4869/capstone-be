@@ -73,7 +73,7 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<string>> ClickRemind(IdAvatarNamePhoneMoney i)
         {
             string check = await repo.SendRemind(i);
-            if ( check != null && check.Equals("Wrong"))
+            if (check != null && check.Equals("Wrong"))
                 return new Respond<string>()
                 {
                     StatusCode = HttpStatusCode.Accepted,
@@ -94,7 +94,7 @@ namespace G24_BWallet_Backend.Controllers
                 StatusCode = HttpStatusCode.NotAcceptable,
                 Error = "",
                 Message = "",
-                Data = "Bạn đã gửi vào lúc " + check + "! Mỗi lần gửi phải cách nhau 12 tiếng!"
+                Data = "Bạn đã gửi vào: " + check + " ! Mỗi lần gửi phải cách nhau 12 tiếng!"
             };
         }
     }
