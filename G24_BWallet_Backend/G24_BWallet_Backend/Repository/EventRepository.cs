@@ -431,11 +431,15 @@ namespace G24_BWallet_Backend.Repository
         }
 
         // lấy danh sách các thành viên trong event
-        public async Task<List<UserAvatarName>> GetListUserInEvent(int eventId)
+        public async Task<List<UserAvatarName>> GetListUserInEvent(int eventId, bool getAll)
         {
             List<UserAvatarName> result = new List<UserAvatarName>();
+            // get all mà là true nghĩa là lấy full, còn bằng false thì chỉ lấy những thằng role != 4
             List<EventUser> eu = await context.EventUsers.Include(e => e.User)
                 .Where(e => e.EventID == eventId).ToListAsync();
+            if (getAll == false)
+                eu = await context.EventUsers.Include(e => e.User)
+                .Where(e => e.EventID == eventId && e.UserRole != 4).ToListAsync();
             // săp xếp cho thằng owner lên đầu danh sách
             eu = await memberRepository.SortList(eu);
             //eu.ForEach(async item => result.Add(
@@ -460,13 +464,14 @@ namespace G24_BWallet_Backend.Repository
             return result;
         }
 
+        // gửi yêu cầu tham gia nhóm
         public async Task<string> SendJoinRequest(EventUserID eventUserID)
         {
             Event eventt = await context.Events
                 .FirstOrDefaultAsync(e => e.ID == eventUserID.EventId);
             EventUser eu = await context.EventUsers
                 .FirstOrDefaultAsync(e => e.UserID == eventUserID.UserId
-                && e.EventID == eventUserID.EventId);
+                && e.EventID == eventUserID.EventId && e.UserRole != 4);
             if (eu != null) return "Bạn đã ở trong event này rồi";
 
             DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now,
