@@ -174,7 +174,7 @@ namespace G24_BWallet_Backend.Controllers
         public async Task<Respond<IDictionary>> ShowEventIntroduce(int eventId)
         {
             Event e = await repo.GetEventById(eventId);
-            List<UserAvatarName> u = await repo.GetListUserInEvent(eventId);
+            List<UserAvatarName> u = await repo.GetListUserInEvent(eventId, false);
             IDictionary<string, object> result = new Dictionary<string, object>
             {
                 { "EventLogo", e.EventLogo},
@@ -226,7 +226,7 @@ namespace G24_BWallet_Backend.Controllers
         {
             int userId = GetUserId();
             Event e = await repo.GetEventById(eventId);
-            List<UserAvatarName> u = await repo.GetListUserInEvent(eventId);
+            List<UserAvatarName> u = await repo.GetListUserInEvent(eventId, true);
             var listJoinRequest = await repo.GetJoinRequest(eventId);
             var listReportWaiting = await repo.GetReportWaiting(eventId);
             IDictionary<string, object> result = new Dictionary<string, object>
