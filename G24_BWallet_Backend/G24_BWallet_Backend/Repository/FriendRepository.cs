@@ -81,7 +81,7 @@ namespace G24_BWallet_Backend.Repository
             foreach (Member member in listFriends)
             {
                 EventUser eventUser = await context.EventUsers
-                    .FirstOrDefaultAsync(m => m.EventID == eventId && m.UserID == member.UserId);
+                    .FirstOrDefaultAsync(m => m.EventID == eventId && m.UserID == member.UserId && m.UserRole != 4);
                 if (eventUser == null)
                     list.Add(member);
             }
