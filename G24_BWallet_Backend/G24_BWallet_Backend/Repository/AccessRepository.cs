@@ -265,14 +265,21 @@ namespace G24_BWallet_Backend.Repository
             }
 
             if (!userEditInfo.UserName.IsNullOrEmpty())
+            {
+                userEditInfo.UserName = Regex.Replace(userEditInfo.UserName, @"\s+", " ");
                 user.UserName = userEditInfo.UserName.Trim();
+            }
 
             user.AllowAddFriendStatus = userEditInfo.AllowAddFriendStatus;
             user.AllowInviteEventStatus = userEditInfo.AllowInviteEventStatus;
             await context.SaveChangesAsync();
         }
-        public async Task DeleteS3FileByLink(string link)
+        public async Task DeleteS3FileByLink(string link = null)
         {
+            if(link == null)
+            {
+                return;
+            }
             Format f = new Format();
             string AWSS3AccessKeyId = await f.DecryptAsync(_configuration["AWSS3:DeleteKey"]);
             string AWSS3SecretAccessKey = await f.DecryptAsync(_configuration["AWSS3:DeleteSecretKey"]);
