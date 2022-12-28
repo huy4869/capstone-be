@@ -265,7 +265,10 @@ namespace G24_BWallet_Backend.Repository
             }
 
             if (!userEditInfo.UserName.IsNullOrEmpty())
+            {
+                userEditInfo.UserName = Regex.Replace(userEditInfo.UserName, @"\s+", " ");
                 user.UserName = userEditInfo.UserName.Trim();
+            }
 
             user.AllowAddFriendStatus = userEditInfo.AllowAddFriendStatus;
             user.AllowInviteEventStatus = userEditInfo.AllowInviteEventStatus;
