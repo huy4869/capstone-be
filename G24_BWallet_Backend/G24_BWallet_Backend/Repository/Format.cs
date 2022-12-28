@@ -42,7 +42,7 @@ namespace G24_BWallet_Backend.Repository
             // Theo văn hóa Việt Nam.
             CultureInfo viVn = new CultureInfo("vi-VN");
             // ==> 12/20/2015 (dd/MM/yyyy)
-            string dateStr = dateTime.ToString("f", viVn);
+            string dateStr = dateTime.ToString("g", viVn);
             return dateStr;
         }
 
