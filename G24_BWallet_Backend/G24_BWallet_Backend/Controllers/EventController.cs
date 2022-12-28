@@ -60,7 +60,7 @@ namespace G24_BWallet_Backend.Controllers
         [HttpGet("search/name={name}")]
         public async Task<Respond<IEnumerable<EventHome>>> GetAllEventByName(string name)
         {
-            var events = repo.GetAllEventsAsync(GetUserId(), name);
+            var events = repo.GetAllEventsAsync(GetUserId(), name.Trim());
             return new Respond<IEnumerable<EventHome>>()
             {
                 StatusCode = HttpStatusCode.Accepted,

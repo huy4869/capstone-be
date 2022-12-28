@@ -23,6 +23,7 @@ using Twilio;
 using Twilio.Http;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Rest.Chat.V2.Service.User;
+using Twilio.TwiML.Fax;
 using Twilio.TwiML.Voice;
 using static System.Net.WebRequestMethods;
 
@@ -249,12 +250,12 @@ namespace G24_BWallet_Backend.Controllers
             // Theo văn hóa Việt Nam.
             CultureInfo viVn = new CultureInfo("vi-VN");
             // ==> 12/20/2015 (dd/MM/yyyy)
-            string dateStr = date.ToString("f", viVn);
+            string dateStr = date.ToString("g", viVn);
             return Ok(dateStr);
         }
 
         [HttpGet("sms")]
-        public async Task<IActionResult> SendSms([FromQuery] string phone, [FromQuery] string content)
+        public async Task<IActionResult> SendSms([FromQuery] string phone)
         {
             // Find your Account SID and Auth Token at twilio.com/console
             // and set the environment variables. See http://twil.io/secure
@@ -268,7 +269,8 @@ namespace G24_BWallet_Backend.Controllers
             try
             {
                 var message = await MessageResource.CreateAsync(
-                               body: "Twilio test: " + content,
+                                body: "Xin chào, bạn còn 1 khoản thanh toán của chứng từ: Thuê thợ chụp ảnh"
+                                        + ". Xem chi tiết tại B-Wallet! ",
                                from: new Twilio.Types.PhoneNumber(_configuration["Twilio:from"]),
                                to: new Twilio.Types.PhoneNumber("+" + phone)
                            );

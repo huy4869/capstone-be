@@ -257,7 +257,7 @@ namespace G24_BWallet_Backend.Repository
                     {
                         var message = await MessageResource.CreateAsync(
                                        body: "Xin chào, bạn còn 1 khoản thanh toán của chứng từ: "
-                                       + receipt.ReceiptName,
+                                       + receipt.ReceiptName+". Xem chi tiết tại B-Wallet! ",
                                        from: new Twilio.Types.PhoneNumber(_configuration["Twilio:from"]),
                                        to: new Twilio.Types.PhoneNumber(i.Phone)
                                    );
