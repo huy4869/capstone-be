@@ -19,7 +19,7 @@ namespace G24_BWallet_Backend.Repository.Interface
         Task<bool> IsNormalMember(int eventId, int userId);
         Task<IDictionary> GetMemberRole(int eventId, int userId);
         Task<int> GetRole(int eventId, int userId);
-        Task<List<IdAvatarNamePhone>> ListPromote(int eventId, int v);
+        Task<List<IdAvatarNamePhone>> ListPromote(int eventId, int userId,string name);
         Task<string> GetPhoneByUserId(int useriD);
         Task<List<EventUser>> SortList(List<EventUser> eventUsers);
     }

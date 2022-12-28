@@ -13,31 +13,27 @@ namespace G24_BWallet_Backend.Repository
 {
     public class Format
     {
-        //private readonly IConfiguration _configuration;
 
-        //public Format(IConfiguration configuration)
-        //{
-        //    _configuration = configuration;
-        //}
-        //public string MoneyFormat(double money)
-        //{
-        //    string reverse = Reverse(money.ToString());
-        //    var sb = new StringBuilder();
-        //    var length = reverse.Length;
-        //    sb.Append(reverse);
-        //    if (reverse.Length >= 4)
-        //    {
-        //        for (int i = 3; ; i += 4)
-        //        {
-        //            if (i >= sb.Length)
-        //                break;
-        //            sb.Insert(i, ".");
-        //        }
-        //    }
-        //    return Reverse(sb.ToString()) + " VND";
-        //}
+        private static readonly string[] VietnameseSigns = new string[]
+        {
+        "aAeEoOuUiIdDyY","áàạảãâấầậẩẫăắằặẳẵ","ÁÀẠẢÃÂẤẦẬẨẪĂẮẰẶẲẴ","éèẹẻẽêếềệểễ",
+        "ÉÈẸẺẼÊẾỀỆỂỄ","óòọỏõôốồộổỗơớờợởỡ", "ÓÒỌỎÕÔỐỒỘỔỖƠỚỜỢỞỠ","úùụủũưứừựửữ","ÚÙỤỦŨƯỨỪỰỬỮ",
+        "íìịỉĩ","ÍÌỊỈĨ","đ","Đ","ýỳỵỷỹ","ÝỲỴỶỸ"
+        };
 
-        public  string DateFormat(DateTime dateTime)
+        public string SearchTextFormat(string str)
+        {
+            //Tiến hành thay thế , lọc bỏ dấu cho chuỗi
+            for (int i = 1; i < VietnameseSigns.Length; i++)
+            {
+                for (int j = 0; j < VietnameseSigns[i].Length; j++)
+
+                    str = str.Replace(VietnameseSigns[i][j], VietnameseSigns[0][i - 1]);
+            }
+            return str.ToLower();
+        }
+
+        public string DateFormat(DateTime dateTime)
         {
             // Theo văn hóa Việt Nam.
             CultureInfo viVn = new CultureInfo("vi-VN");

@@ -6,6 +6,7 @@ using G24_BWallet_Backend.Repository.Interface;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -246,7 +247,7 @@ namespace G24_BWallet_Backend.Repository
         }
 
         // danh sách các member thường để promote, role == 0
-        public async Task<List<IdAvatarNamePhone>> ListPromote(int eventId, int v)
+        public async Task<List<IdAvatarNamePhone>> ListPromote(int eventId, int userId, string name)
         {
             List<IdAvatarNamePhone> list = new List<IdAvatarNamePhone>();
             List<EventUser> eventUsers = await context.EventUsers
@@ -261,7 +262,19 @@ namespace G24_BWallet_Backend.Repository
                 param.Phone = await GetPhoneByUserId(item.UserID);
                 list.Add(param);
             }
-            return list;
+            // kiểm tra nếu name == null thì trả về list luôn
+            if (name.IsNullOrEmpty())
+                return list;
+            // không thì phải search
+            name = format.SearchTextFormat(name.Trim());
+            List<IdAvatarNamePhone> listSearch = new List<IdAvatarNamePhone>();
+            list.ForEach(param =>
+            {
+                string userName = format.SearchTextFormat(param.Name);
+                if (userName.Contains(name))
+                    listSearch.Add(param);
+            });
+            return listSearch;
         }
 
         public async Task<string> GetPhoneByUserId(int useriD)
