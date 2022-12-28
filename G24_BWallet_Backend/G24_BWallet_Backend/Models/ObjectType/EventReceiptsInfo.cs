@@ -16,7 +16,10 @@ namespace G24_BWallet_Backend.Models.ObjectType
         public string GroupAmountFormat { get; set; }
         public double UserAmount { get; set; }
         public string UserAmountFormat { get; set; }
-        public MoneyColor ReceiveOrPaidAmount { get; set; }
+        //public double ReceiveAmount { get; set; }
+        public string ReceiveAmountFormat { get; set; }
+        //public double DebtAmount { get; set; }
+        public string DebtAmountFormat { get; set; }
         public int Number { get; set; }
         //public double TotalReceiptsAmount { get; set; }
         public List<ReceiptMainInfo> listReceipt { get; set; }
