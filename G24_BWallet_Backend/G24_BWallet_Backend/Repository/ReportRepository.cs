@@ -81,13 +81,23 @@ namespace G24_BWallet_Backend.Repository
         // tạo report
         public async Task<string> createReport(int receiptID, int userID, string reason)
         {
-            Report report = context.Reports.Where(re => re.ReceiptId == receiptID).FirstOrDefault();
+            //check chứng từ đã có ai trả nợ chưa
+            List<int> listUserDeptId = context.UserDepts.Where(ud => ud.ReceiptId == receiptID).Select(ud => ud.Id).ToList();
+            PaidDebtList pdl = context.PaidDebtLists.Include(pdl => pdl.PaidDept).Where(pdl => listUserDeptId.Contains(pdl.DebtId) && pdl.PaidDept.Status == 2).FirstOrDefault();
+            if (pdl != null)
+            {
+                return ("Không thể báo cáo chứng từ đang trong quá trình trả nợ!");
+            }
+
+            //kiểm tra chứng từ đã bị báo cáo chưa
+            Report report = context.Reports.Where(re => re.ReceiptId == receiptID && re.ReportStatus != 2)
+                .FirstOrDefault();
             if (report != null) return ("Chứng từ này đã bị báo cáo.");
 
             Receipt receipt = context.Receipts.Include(r => r.UserDepts).Include(r => r.Event)
                 .Where(r => r.Id == receiptID).FirstOrDefault();
             if (receipt == null) return ("Chứng từ này không còn tồn tại!");
-            else if (receipt.ReceiptStatus != 2) return ("Không thể báo cáo! Chứng từ này đã được thanh toán.");
+            else if (receipt.ReceiptStatus != 2) return ("Không thể báo cáo! Chứng từ này đã được thanh toán hết.");
 
             Report addReport = new Report();
             addReport.EventId = receipt.EventID;
@@ -116,7 +126,7 @@ namespace G24_BWallet_Backend.Repository
         {
             Report report = context.Reports.Where(re => re.ID == reportId).FirstOrDefault();
             if (report == null) return ("Báo cáo không còn tồn tại!");
-            else if (report.ReportStatus != 0) return ("Bản báo cáo này đã được xử lý!");
+            else if (report.ReportStatus != 0) return ("Báo cáo này đã được xử lý.");
 
             Receipt receipt = context.Receipts.Include(r => r.UserDepts)
                 .Include(r => r.Event).Where(r => r.Id == report.ReceiptId).FirstOrDefault();

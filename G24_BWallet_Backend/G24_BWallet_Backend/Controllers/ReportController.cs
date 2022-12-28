@@ -108,7 +108,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "đã xử lý báo cáo",
+                Message = result,
                 Data = null
             };
         }
