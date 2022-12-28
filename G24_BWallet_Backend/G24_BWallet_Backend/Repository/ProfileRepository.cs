@@ -42,7 +42,7 @@ namespace G24_BWallet_Backend.Repository
             EventUser eu = new EventUser();
             eu.UserID = userId;
             eu.EventID = invite.EventID;
-            eu.UserRole = 2;
+            eu.UserRole = 0;
             await context.EventUsers.AddAsync(eu);
             await context.SaveChangesAsync();
             await activity.InviteActivity(3, 1, userId, -1, invite.EventID);

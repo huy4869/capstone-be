@@ -132,8 +132,10 @@ namespace G24_BWallet_Backend.Repository
             //eventInfo.TotalReceiptsAmount = listReceipt.Sum(r => r.ReceiptAmount);
             NumberMoney Debt = await GetDebtMoney(EventID, userID);
             NumberMoney Receive = await GetReceiveMoney(EventID, userID);
-            // sau khi biết số tiền mình nợ event và số tiền mình cần nhận lại thì tính chung ra 1 cái
-            eventInfo.ReceiveOrPaidAmount = await ReceiveOrPaidAmount(Debt, Receive);
+            //// sau khi biết số tiền mình nợ event và số tiền mình cần nhận lại thì tính chung ra 1 cái
+            //eventInfo.ReceiveOrPaidAmount = await ReceiveOrPaidAmount(Debt, Receive);
+            eventInfo.DebtAmountFormat = format.MoneyFormat(Debt.Money.Amount);
+            eventInfo.ReceiveAmountFormat = format.MoneyFormat(Receive.Money.Amount);
             eventInfo.UserAmountFormat = format.MoneyFormat(await AllUserMoneyInEvent(EventID, userID));
             eventInfo.GroupAmountFormat = format.MoneyFormat(await AllGroupMoneyInEvent(EventID, userID));
             eventInfo.TotalAmountFormat = format.MoneyFormat(
@@ -234,6 +236,7 @@ namespace G24_BWallet_Backend.Repository
             double mon = 0;
             int total = 0;
             List<int> userIdList = new List<int>();
+            // lấy hết các receipt đang trả trong event này
             // lấy hết các receipt đang trả trong event này
             List<Receipt> receiptList = await myDB.Receipts
                 .Where(r => r.EventID == eventId && (r.ReceiptStatus == 2 || r.ReceiptStatus == 4))
@@ -512,7 +515,7 @@ namespace G24_BWallet_Backend.Repository
                 await myDB.SaveChangesAsync();
                 // nếu tổng số tiền thằng tạo receipt nợ và số nó chờ nhận lại bằng nhau
                 // thì sửa lại hết status của receipt nó tạo và nợ của nó thành đã trả hết
-                await CheckStatusChange(receipt.UserID, receipt.EventID);
+                //await CheckStatusChange(receipt.UserID, receipt.EventID);
             }
         }
 
@@ -547,10 +550,45 @@ namespace G24_BWallet_Backend.Repository
                 {
                     userDepts.DeptStatus = 0;
                     await myDB.SaveChangesAsync();
+                    // đoạn này phải thêm 1 bước nữa là check cả hoá đơn cho thằng chủ nợ
+                    // nghĩa là mình nợ nó 300k, h mình trả nó 300 thì phải xem nó có đang nợ ai đúng 300 không
+                    // nếu có thì chuyển cái hoá đơn nợ 300k của nó thành đã trả hết
+                    //await CheckOwnerDebt(userDepts);
+                }
+            }
+            // kiểm tra trong event này, tất cả các user dept của cái nào mà trả hết rồi
+            // thì chuyển receipt status thành 0
+            await ChangeAllReceiptStatusInEvent(eventID);
+        }
+
+        // kiểm tra trong event này, tất cả các user dept của cái nào mà trả hết rồi
+        // thì chuyển receipt status thành 0
+        private async Task ChangeAllReceiptStatusInEvent(int eventId)
+        {
+            List<Receipt> receipts = await myDB.Receipts.Include(r => r.UserDepts)
+                .Where(r => r.EventID == eventId && (r.ReceiptStatus == 2 || r.ReceiptStatus == 4))
+                .ToListAsync();
+            foreach (Receipt receipt in receipts)
+            {
+                bool allUserDeptDone = true;
+                // duyệt hết userdept của receipt này
+                List<UserDept> userDepts = receipt.UserDepts;
+                foreach (UserDept userDept in userDepts)
+                {
+                    if (userDept.DeptStatus == 2 || userDept.DeptStatus == 4)
+                    {
+                        allUserDeptDone = false;
+                        break;
+                    }
+
+                }
+                // nếu biến kia là true nghĩa là tất cả các userdept đã trả hết rồi=> receipt = 0
+                if (allUserDeptDone)
+                {
+                    receipt.ReceiptStatus = 0;
+                    await myDB.SaveChangesAsync();
                 }
             }
         }
-
-
     }
 }

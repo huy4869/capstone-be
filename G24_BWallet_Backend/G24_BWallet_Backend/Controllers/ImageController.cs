@@ -33,7 +33,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "lưu ảnh thành công",
+                Message = "Lưu ảnh thành công.",
                 Data = await imglinks
             };
         }
@@ -71,7 +71,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Lưu ảnh thành công",
+                Message = "Lưu ảnh thành công.",
                 Data = await imglinks
             };
         }
@@ -88,7 +88,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "xóa ảnh thành công",
+                Message = "Xóa ảnh thành công.",
                 Data = null
             };
         }
