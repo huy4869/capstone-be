@@ -42,7 +42,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Chỉnh sửa thông tin user thành công",
+                Message = "Chỉnh sửa thông tin thành công.",
                 Data = null
             };
         }
