@@ -125,8 +125,8 @@ namespace G24_BWallet_Backend.Repository
                     .FirstOrDefaultAsync(u => u.Id == item.DebtId);
                 // mình check cho cả thằng chủ nợ nữa, nếu mình trả đúng số tiền thằng chủ đang 
                 // cần thu và thằng chủ nó nợ người khác, thì mình cx đổi hết status cho thằng chủ luôn
-                await ChangeOwnerDebtStatus(userDebt.Receipt.UserID, userDebt.Receipt.EventID
-                    , item.PaidAmount);
+                //await ChangeOwnerDebtStatus(userDebt.Receipt.UserID, userDebt.Receipt.EventID
+                //    , item.PaidAmount);
                 userDebt.DebtLeft -= item.PaidAmount;
                 if (userDebt.DebtLeft <= 0)// trả hết nợ
                 {
@@ -139,9 +139,9 @@ namespace G24_BWallet_Backend.Repository
             }
             // sau khi cập nhật xong xuôi hết thì mình cần kiểm tra xem tổng mình nợ 
             // và tổng phải thu của mình trong event nếu bằng nhau, thì cho tất cả 
-            // receipt mình tạo(đuwong nhiên là có cả các userdept của nó)
+            // receipt mình tạo(đương nhiên là có cả các userdept của nó)
             // và userdept của mình bằng 0 (đã thu và đã trả hêt)
-            await CheckReceiptUserDebt(paidDept);
+            //await CheckReceiptUserDebt(paidDept);
         }
 
         // user id này là thằng chủ nợ, paidamount là số tiền nó đc nhận từ người khác trả
