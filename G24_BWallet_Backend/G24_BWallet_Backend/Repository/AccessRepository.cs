@@ -83,14 +83,14 @@ namespace G24_BWallet_Backend.Repository
         }
 
         // kiểm tra otp còn hạn hay ko
-        public async Task<bool> CheckOTPTimeAsync(string phone, int minute)
+        public async Task<bool> CheckOTPTimeAsync(string phone, int second)
         {
             var otp = await context.Otps.OrderBy(o => o.OtpID)
                  .LastOrDefaultAsync(o => o.Phone.Equals(phone.Trim()));
             DateTime createTime = otp.CreatedAt;
             DateTime now = DateTime.Now;
             TimeSpan diffResult = now.Subtract(createTime);
-            if (diffResult.Minutes > minute)
+            if (diffResult.TotalSeconds > second)
                 return false;
             return true;
         }
@@ -110,7 +110,8 @@ namespace G24_BWallet_Backend.Repository
             try
             {
                 var message = await MessageResource.CreateAsync(
-                               body: "Welcome to B-Wallet, Your OTP is: " + otp,
+                               body: "Mã OTP của bạn là: " + otp+". Mã chỉ có hiệu lực trong vòng 5 phút, " +
+                               "vui lòng truy cập B-Wallet để tiếp tục!",
                                from: new Twilio.Types.PhoneNumber(_configuration["Twilio:from"]),
                                to: new Twilio.Types.PhoneNumber(phone)
                            );

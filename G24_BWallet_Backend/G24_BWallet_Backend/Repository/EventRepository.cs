@@ -166,13 +166,16 @@ namespace G24_BWallet_Backend.Repository
             return receipts.Count;
         }
 
+        //tìm kiếm event theo tên
         private async Task<List<Event>> GetEventUserByEventName(int userID, string name)
         {
+            // đầu tiên là format kí tự tìm kiếm
             string nameFormat = format.SearchTextFormat(name);
             List<Event> userJoin = new List<Event>();
             List<Event> listSearch = new List<Event>();
             (await context.Events.ToListAsync()).ForEach(e =>
             {
+                // format luôn từng event name để đem ra so sánh(contain)
                 string eventName = format.SearchTextFormat(e.EventName);
                 if (eventName.Contains(nameFormat))
                     listSearch.Add(e);
