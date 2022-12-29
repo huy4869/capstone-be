@@ -27,7 +27,7 @@ namespace G24_BWallet_Backend.Repository
 
         // show ra danh sách bạn bè chưa tham gia nhóm để mời
         public async Task<List<Member>> SearchFriendToInvite(int userID, int eventId,
-            string search = null )
+            string search = null)
         {
             IQueryable<Member> list1;
             IQueryable<Member> list2;
@@ -54,7 +54,7 @@ namespace G24_BWallet_Backend.Repository
                 list1 = from f in context.Friends
                         join u in context.Users.Include(u => u.Account) on f.UserFriendID equals u.ID
                         where f.UserID == userID
-                        && (u.Account.PhoneNumber.Contains(search) || u.UserName.Contains(search) )
+                        && (u.Account.PhoneNumber.Contains(search) || u.UserName.Contains(search))
                         && f.status == 1
                         && u.AllowInviteEventStatus == 1
                         select (new Member(u.ID, u.UserName, u.Avatar, u.Account.PhoneNumber));
@@ -63,11 +63,11 @@ namespace G24_BWallet_Backend.Repository
                 list2 = from f in context.Friends
                         join u in context.Users.Include(u => u.Account) on f.UserID equals u.ID
                         where f.UserFriendID == userID
-                        && (u.Account.PhoneNumber.Contains(search) || u.UserName.Contains(search) )
+                        && (u.Account.PhoneNumber.Contains(search) || u.UserName.Contains(search))
                         && f.status == 1
                         && u.AllowInviteEventStatus == 1
                         select (new Member(u.ID, u.UserName, u.Avatar, u.Account.PhoneNumber));
-               
+
             }
 
             List<Member> listFriends = list1.ToList();
@@ -158,7 +158,22 @@ namespace G24_BWallet_Backend.Repository
 
             List<Member> listFriends = list1.ToList();
             listFriends.AddRange(list2);
+            // chỉ lấy những thằng cho phép thêm vào nhóm
+            listFriends = await GetFriendAllowInviteEvent(listFriends);
             return listFriends.OrderBy(m => m.UserName).ToList();
+        }
+
+        private async Task<List<Member>> GetFriendAllowInviteEvent(List<Member> listFriends)
+        {
+            List<Member> list = new List<Member>();
+            foreach (Member item in listFriends)
+            {
+                User user = await context.Users.FirstOrDefaultAsync(u =>
+                u.ID == item.UserId && u.AllowInviteEventStatus == 1);
+                if (user != null)
+                    list.Add(item);
+            }
+            return list;
         }
 
         public async Task<List<searchFriendToAdd>> SearchFriendToAdd(int userID, string search = null)
@@ -183,7 +198,7 @@ namespace G24_BWallet_Backend.Repository
             List<searchFriendToAdd> searchResult = new List<searchFriendToAdd>();
             foreach (searchFriendToAdd sf in await ListUsers)
             {
-                if(format.SearchTextFormat(sf.UserPhone).Contains(search) || format.SearchTextFormat(sf.UserName).Contains(search) )
+                if (format.SearchTextFormat(sf.UserPhone).Contains(search) || format.SearchTextFormat(sf.UserName).Contains(search))
                     searchResult.Add(sf);
             }
 
@@ -207,7 +222,7 @@ namespace G24_BWallet_Backend.Repository
         {
             User user = await context.Users.FirstOrDefaultAsync(u => u.ID == userFriendID);
             Friend friend = await context.Friends
-                .Where( f => (f.UserID == userId && f.UserFriendID == userFriendID) )
+                .Where(f => (f.UserID == userId && f.UserFriendID == userFriendID))
                 .OrderBy(f => f.UserFriendID)
                 .LastOrDefaultAsync();
             //có trong bảng rồi
@@ -312,7 +327,7 @@ namespace G24_BWallet_Backend.Repository
                 list = from f in context.Friends
                        join u in context.Users.Include(u => u.Account) on f.UserID equals u.ID
                        where f.UserFriendID == UserID
-                           && (u.Account.PhoneNumber.Contains(search) || u.UserName.Contains(search) )
+                           && (u.Account.PhoneNumber.Contains(search) || u.UserName.Contains(search))
                            && f.status == 0
                        select (new Member(u.ID, u.UserName, u.Avatar, u.Account.PhoneNumber));
             }
