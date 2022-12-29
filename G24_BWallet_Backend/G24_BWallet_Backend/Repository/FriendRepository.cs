@@ -98,7 +98,7 @@ namespace G24_BWallet_Backend.Repository
                 // kiểm tra xem bạn bè đã ở trong event này chưa, nếu chưa thì mới add vào
                 EventUser eu = await context.EventUsers
                     .Include(e => e.Event)
-                    .FirstOrDefaultAsync(er => er.EventID == e.EventId && er.UserID == friendId);
+                    .FirstOrDefaultAsync(er => er.EventID == e.EventId && er.UserID == friendId && er.UserRole != 4);
                 if (eu == null)// bạn bè chưa ở trong event-> tạo invite
                 {
                     Invite invite = new Invite();
