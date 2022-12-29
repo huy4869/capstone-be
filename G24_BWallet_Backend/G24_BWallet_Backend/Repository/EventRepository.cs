@@ -168,10 +168,17 @@ namespace G24_BWallet_Backend.Repository
 
         private async Task<List<Event>> GetEventUserByEventName(int userID, string name)
         {
+            string nameFormat = format.SearchTextFormat(name);
             List<Event> userJoin = new List<Event>();
-            List<Event> events = await context.Events
-                .Where(e => e.EventName.Contains(name)).ToListAsync();
-            foreach (var eventt in events)
+            List<Event> listSearch = new List<Event>();
+            (await context.Events.ToListAsync()).ForEach(e =>
+            {
+                string eventName = format.SearchTextFormat(e.EventName);
+                if (eventName.Contains(nameFormat))
+                    listSearch.Add(e);
+            });
+
+            foreach (var eventt in listSearch)
             {
                 EventUser eventUser = await context.EventUsers
                     .Include(eu => eu.Event)

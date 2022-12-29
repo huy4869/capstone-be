@@ -175,7 +175,8 @@ namespace G24_BWallet_Backend.Controllers
 
         // show ra danh sách các member thường để promote, chỉ owner mới thấy
         [HttpGet("list-promote/eventId={eventId}")]
-        public async Task<Respond<List<IdAvatarNamePhone>>> ListPromote(int eventId)
+        public async Task<Respond<List<IdAvatarNamePhone>>> ListPromote(int eventId, 
+            [FromQuery] string name)
         {
             bool isOwner = await repo.IsOwner(eventId, GetUserId());
             if (isOwner == false)
@@ -188,7 +189,7 @@ namespace G24_BWallet_Backend.Controllers
                     Data = null
                 };
             }
-            List<IdAvatarNamePhone> list = await repo.ListPromote(eventId, GetUserId());
+            List<IdAvatarNamePhone> list = await repo.ListPromote(eventId, GetUserId(),name);
             return new Respond<List<IdAvatarNamePhone>>()
             {
                 StatusCode = HttpStatusCode.Accepted,
