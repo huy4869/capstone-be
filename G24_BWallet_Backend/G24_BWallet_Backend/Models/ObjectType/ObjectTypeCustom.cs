@@ -75,7 +75,7 @@ namespace G24_BWallet_Backend.Models.ObjectType
     public class RenamePaidDebtList
     {
         public int userDeptId { get; set; }
-        public int debtLeft { get; set; }
+        public double debtLeft { get; set; }
     }
 
     public class PhoneParam
