@@ -15,11 +15,13 @@ namespace G24_BWallet_Backend.Repository
     public class FriendRepository : IFriendRepository
     {
         private readonly MyDBContext context;
+        private readonly Format format;
         private readonly ActivityRepository activity;
 
         public FriendRepository(MyDBContext myDB)
         {
             this.context = myDB;
+            this.format = new Format();
             this.activity = new ActivityRepository(myDB);
         }
 
@@ -98,7 +100,7 @@ namespace G24_BWallet_Backend.Repository
                 // kiểm tra xem bạn bè đã ở trong event này chưa, nếu chưa thì mới add vào
                 EventUser eu = await context.EventUsers
                     .Include(e => e.Event)
-                    .FirstOrDefaultAsync(er => er.EventID == e.EventId && er.UserID == friendId);
+                    .FirstOrDefaultAsync(er => er.EventID == e.EventId && er.UserID == friendId && er.UserRole != 4);
                 if (eu == null)// bạn bè chưa ở trong event-> tạo invite
                 {
                     Invite invite = new Invite();
@@ -159,12 +161,17 @@ namespace G24_BWallet_Backend.Repository
             return listFriends.OrderBy(m => m.UserName).ToList();
         }
 
-        public async Task<List<searchFriendToAdd>> SearchFriendToAdd(int userID, string search)
+        public async Task<List<searchFriendToAdd>> SearchFriendToAdd(int userID, string search = null)
         {
+            if (search.IsNullOrEmpty())
+            {
+                return null;
+            }
+            search = format.SearchTextFormat(search);
             //all user can be add friend
             var ListUsers = context.Users.Include(u => u.Account)
                 .Where(u => u.ID != userID)
-                .Where(u => u.Account.PhoneNumber.Contains(search) || u.UserName.Contains(search) )
+                //.Where(u => u.Account.PhoneNumber.Contains(search) || format.SearchTextFormat(u.UserName).Contains(search) )
                 .Select(u => new searchFriendToAdd()
                 {
                     UserId = u.ID,
@@ -173,7 +180,12 @@ namespace G24_BWallet_Backend.Repository
                     UserPhone = u.Account.PhoneNumber
                 })
                 .ToListAsync();
-            var searchResult = await ListUsers;
+            List<searchFriendToAdd> searchResult = new List<searchFriendToAdd>();
+            foreach (searchFriendToAdd sf in await ListUsers)
+            {
+                if(format.SearchTextFormat(sf.UserPhone).Contains(search) || format.SearchTextFormat(sf.UserName).Contains(search) )
+                    searchResult.Add(sf);
+            }
 
             //bỏ bạn của mình
             var listFriendID = context.Friends.Where(f => f.UserID == userID && f.status == 1).Select(f => f.UserFriendID).ToList();
