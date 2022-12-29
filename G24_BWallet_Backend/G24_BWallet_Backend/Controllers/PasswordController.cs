@@ -37,8 +37,8 @@ namespace G24_BWallet_Backend.Controllers
                 {
                     StatusCode = HttpStatusCode.NotFound,
                     Error = "",
-                    Message = "Số điện thoại này chưa được đăng ký!",
-                    Data = "Số điện thoại này chưa được đăng ký!"
+                    Message = "Số điện thoại sai!",
+                    Data = "Số điện thoại sai!"
                 };
             if (await repo.SendOtpTwilioAsync(phone, await otp) == false)
                 return new Respond<string>()
@@ -63,6 +63,16 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost("check-otp")]
         public async Task<Respond<string>> CheckOtp(OtpParam o)
         {
+            // check thời gian 1 otp là 5 phút = 300 giây
+            bool timeCheck = await repo.CheckOTPTimeAsync(o.Phone, 298);
+            if (timeCheck == false)
+                return new Respond<string>()
+                {
+                    StatusCode = HttpStatusCode.RequestTimeout,// 408
+                    Error = "",
+                    Message = "Mã OTP đã hết hạn!",
+                    Data = "Mã OTP đã hết hạn!"
+                };
             bool check = await repo.CheckOTPAsync(o.Phone, o.Enter);
             if (check)
                 return new Respond<string>()

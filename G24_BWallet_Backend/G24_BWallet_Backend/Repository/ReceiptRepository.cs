@@ -319,6 +319,7 @@ namespace G24_BWallet_Backend.Repository
         //}
 
 
+        //show thông tin chi tiết của receipt khi click vào cái số tiền
         public async Task<ReceiptUserDeptName> GetReceiptDetail(int receiptId)
         {
             ReceiptUserDeptName result = new ReceiptUserDeptName();
