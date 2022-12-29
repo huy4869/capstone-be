@@ -431,7 +431,7 @@ namespace G24_BWallet_Backend.Repository
         public async Task<List<ReceiptSentParam>> ReceiptSent(int userId, int eventId)
         {
             List<ReceiptSentParam> list = new List<ReceiptSentParam>();
-            List<Receipt> receipts = await myDB.Receipts.Include(r => r.User)
+            List<Receipt> receipts = await myDB.Receipts.Include(r => r.User).Include(r => r.User.Account)
                .OrderByDescending(r => r.UpdatedAt)
                .Where(r => r.EventID == eventId && r.UserID == userId)
                .ToListAsync();
@@ -448,11 +448,12 @@ namespace G24_BWallet_Backend.Repository
                     .Where(p => p.ImageType.Equals("receipt") && p.ModelId == receipt.Id)
                     .Select(p => p.ImageLink).ToListAsync();
                 // lấy ra cả tên của ông tạo ra receipt này
-                //param.User = new UserAvatarName
-                //{
-                //    Avatar = receipt.User.Avatar,
-                //    Name = receipt.User.UserName
-                //};
+                param.User = new UserAvatarName
+                {
+                    Avatar = receipt.User.Avatar,
+                    Name = receipt.User.UserName,
+                    Phone = receipt.User.Account.PhoneNumber
+                };
                 list.Add(param);
             }
             return list;
