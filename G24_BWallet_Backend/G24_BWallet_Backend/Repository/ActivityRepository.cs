@@ -164,10 +164,10 @@ namespace G24_BWallet_Backend.Repository
                 content = string.Format("Bạn đã từ chối yêu cầu tham gia sự kiện <b>{0}</b>" +
                     " của <b>{1}({2})</b>", eventName, user.UserName, user.Account.PhoneNumber);
             else if (status == 3 && acceptStatus == 1)
-                content = string.Format("Yêu cầu tham gia sự kiện <b>{0}</b>" +
+                content = string.Format("Yêu cầu tham gia sự kiện <b>{0}</b> " +
                     "đã được chấp thuận.", eventName);
             else if (status == 3 && acceptStatus == 0)
-                content = string.Format("Yêu cầu tham gia sự kiện <b>{0}</b>" +
+                content = string.Format("Yêu cầu tham gia sự kiện <b>{0}</b> " +
                     "đã bị từ chối.", eventName);
             await AddActivity(userId, content, "request");
         }

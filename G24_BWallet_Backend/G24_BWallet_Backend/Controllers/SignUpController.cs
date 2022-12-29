@@ -42,7 +42,7 @@ namespace G24_BWallet_Backend.Controllers
                 {
                     StatusCode = HttpStatusCode.NotAcceptable,
                     Error = "",
-                    Message = "Số điện thoại này đã được đăng kí!",
+                    Message = "Số điện thoại này đã được đăng ký!",
                     Data = false
                 };
             if (await repo.SendOtpTwilioAsync(phone, otp) == false)
@@ -50,7 +50,7 @@ namespace G24_BWallet_Backend.Controllers
                 {
                     StatusCode = HttpStatusCode.NotAcceptable,
                     Error = "",
-                    Message = "Gửi otp thất bại (có thể là do nhập sai số điện thoại)",
+                    Message = "Gửi OTP thất bại!",
                     Data = false
                 };
             string jwt = await repo.JWTGenerateAsync(phone, 0);
@@ -59,7 +59,7 @@ namespace G24_BWallet_Backend.Controllers
             {
                 StatusCode = HttpStatusCode.Accepted,
                 Error = "",
-                Message = "Gửi otp thành công",
+                Message = "Gửi OTP thành công!",
                 Data = true
             };
         }
@@ -97,8 +97,8 @@ namespace G24_BWallet_Backend.Controllers
         [HttpPost("check-otp")]
         public async Task<Respond<bool>> CheckOtp(OtpParam o)
         {
-            // check thời gian 1 otp là 5 phút
-            bool timeCheck = await repo.CheckOTPTimeAsync(o.Phone,5);
+            // check thời gian 1 otp là 5 phút = 300 giây
+            bool timeCheck = await repo.CheckOTPTimeAsync(o.Phone,298);
             if (timeCheck == false)
                 return new Respond<bool>()
                 {
@@ -113,7 +113,7 @@ namespace G24_BWallet_Backend.Controllers
                 {
                     StatusCode = HttpStatusCode.Accepted,
                     Error = "",
-                    Message = "Mã OTP chính xác!",
+                    Message = "Mã OTP đúng!",
                     Data = true
                 };
             return new Respond<bool>()
