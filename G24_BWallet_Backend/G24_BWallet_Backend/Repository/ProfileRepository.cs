@@ -39,11 +39,19 @@ namespace G24_BWallet_Backend.Repository
             // chấp nhận
             invite.Status = 1;
             // add user vao event
-            EventUser eu = new EventUser();
-            eu.UserID = userId;
-            eu.EventID = invite.EventID;
-            eu.UserRole = 0;
-            await context.EventUsers.AddAsync(eu);
+            EventUser eu = context.EventUsers.Where(eu => eu.EventID == invite.EventID && eu.UserID == userId).FirstOrDefault();
+            if (eu == null)
+            {
+                eu = new EventUser();
+                eu.UserID = userId;
+                eu.EventID = invite.EventID;
+                eu.UserRole = 0;
+                await context.EventUsers.AddAsync(eu);
+            }
+            else
+            {
+                eu.UserRole = 0;
+            }
             await context.SaveChangesAsync();
             await activity.InviteActivity(3, 1, userId, -1, invite.EventID);
             await activity.InviteActivity(4, 1, invite.UserID, userId, invite.EventID);
