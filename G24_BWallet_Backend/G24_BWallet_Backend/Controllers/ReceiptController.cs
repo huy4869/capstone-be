@@ -138,7 +138,7 @@ namespace G24_BWallet_Backend.Controllers
                     Data = null
                 };
             }
-            if (!receipt.IMGLinks.Any())
+           /* if (!receipt.IMGLinks.Any())
             {
                 return new Respond<Receipt>()
                 {
@@ -147,7 +147,7 @@ namespace G24_BWallet_Backend.Controllers
                     Message = "",
                     Data = null
                 };
-            }
+            }*/
 
             if (receipt.ReceiptAmount < receipt.UserDepts.Sum(ud => ud.Debt))
             {
@@ -166,7 +166,8 @@ namespace G24_BWallet_Backend.Controllers
 
             Receipt createdReceipt = await createReceiptTask;
 
-            await imageRepo.AddIMGLinksDB("receipt", createdReceipt.Id, receipt.IMGLinks);
+            if(receipt.IMGLinks.Any())
+                await imageRepo.AddIMGLinksDB("receipt", createdReceipt.Id, receipt.IMGLinks);
 
             foreach (UserDept ud in receipt.UserDepts)
             {

@@ -482,7 +482,7 @@ namespace G24_BWallet_Backend.Repository
             EventUser eu = await context.EventUsers
                 .FirstOrDefaultAsync(e => e.UserID == eventUserID.UserId
                 && e.EventID == eventUserID.EventId && e.UserRole != 4);
-            if (eu != null) return "Bạn đã ở trong event này rồi";
+            if (eu != null) return "Bạn đã ở trong sự kiện này rồi";
 
             DateTime VNDateTime = TimeZoneInfo.ConvertTime(DateTime.Now,
                 TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
@@ -496,7 +496,7 @@ namespace G24_BWallet_Backend.Repository
                 .FirstOrDefaultAsync(request => request.UserID == r.UserID
                 && request.EventID == r.EventID);
             if (request != null && request.Status == 3)
-                return "Bạn đã gửi yêu cầu gia nhập nhóm này rồi(đang chờ accept)";
+                return "Bạn đã gửi yêu cầu gia nhập nhóm này rồi(đang chờ duyệt)";
             if (request != null && request.Status == 5)
             {
                 request.Status = 3;

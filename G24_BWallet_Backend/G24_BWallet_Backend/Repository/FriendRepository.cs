@@ -163,9 +163,10 @@ namespace G24_BWallet_Backend.Repository
 
         public async Task<List<searchFriendToAdd>> SearchFriendToAdd(int userID, string search = null)
         {
+            List<searchFriendToAdd> searchResult = new List<searchFriendToAdd>();
             if (search.IsNullOrEmpty())
             {
-                return null;
+                return searchResult;
             }
             search = format.SearchTextFormat(search);
             //all user can be add friend
@@ -180,7 +181,7 @@ namespace G24_BWallet_Backend.Repository
                     UserPhone = u.Account.PhoneNumber
                 })
                 .ToListAsync();
-            List<searchFriendToAdd> searchResult = new List<searchFriendToAdd>();
+            
             foreach (searchFriendToAdd sf in await ListUsers)
             {
                 if(format.SearchTextFormat(sf.UserPhone).Contains(search) || format.SearchTextFormat(sf.UserName).Contains(search) )
