@@ -267,7 +267,7 @@ namespace G24_BWallet_Backend.Repository
 
             if (!userEditInfo.UserName.IsNullOrEmpty())
             {
-                userEditInfo.UserName = Regex.Replace(userEditInfo.UserName, @"\s+", " ");
+                userEditInfo.UserName = userEditInfo.UserName.Trim();
                 user.UserName = userEditInfo.UserName.Trim();
             }
 

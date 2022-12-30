@@ -61,7 +61,7 @@ namespace G24_BWallet_Backend.Controllers
             try
             {
                 paidParam.UserId = GetUserId();
-                if (!paidParam.IMGLinks.Any())
+                /*if (!paidParam.IMGLinks.Any())
                 {
                     return new Respond<PaidDept>()
                     {
@@ -70,11 +70,12 @@ namespace G24_BWallet_Backend.Controllers
                         Message = "",
                         Data = null
                     };
-                }
+                }*/
 
                 var paid = await paidDeptRepo.PaidDebtInEvent(paidParam);
 
-                await imageRepo.AddIMGLinksDB("paidDept", paid.Id, paidParam.IMGLinks);
+                if (paidParam.IMGLinks.Any())
+                    await imageRepo.AddIMGLinksDB("paidDept", paid.Id, paidParam.IMGLinks);
 
 
             }

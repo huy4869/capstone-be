@@ -78,17 +78,34 @@ namespace G24_BWallet_Backend.Repository
             return await list;
         }
 
+        public async Task<List<ReportReturn>> GetYourReports(int eventId, int userId)
+        {
+            var list = context.Reports.Where(re => re.EventId == eventId && re.UserId == userId)
+                .Include(re => re.User)
+                .Include(re => re.User.Account)
+                .Select(re => new ReportReturn
+                {
+                    ID = re.ID,
+                    ReportReceiptID = re.ReceiptId,
+                    ReportReceiptName = re.Receipt.ReceiptName,
+                    ReportReason = re.ReportReason,
+                    ReportStatus = re.ReportStatus,
+                    CreatedAt = format.DateFormat(re.CreatedAt),
+                    Reporter = new Member
+                    {
+                        UserId = re.User.ID,
+                        UserName = re.User.UserName,
+                        UserAvatar = re.User.Avatar,
+                        UserPhone = re.User.Account.PhoneNumber
+                    }
+                })
+                .ToListAsync();
+            return await list;
+        }
+
         // tạo report
         public async Task<string> createReport(int receiptID, int userID, string reason)
         {
-            //check chứng từ đã có ai trả nợ chưa
-            List<int> listUserDeptId = context.UserDepts.Where(ud => ud.ReceiptId == receiptID).Select(ud => ud.Id).ToList();
-            PaidDebtList pdl = context.PaidDebtLists.Include(pdl => pdl.PaidDept).Where(pdl => listUserDeptId.Contains(pdl.DebtId) && pdl.PaidDept.Status == 2).FirstOrDefault();
-            if (pdl != null)
-            {
-                return ("Không thể báo cáo chứng từ đang trong quá trình trả nợ!");
-            }
-
             //kiểm tra chứng từ đã bị báo cáo chưa
             Report report = context.Reports.Where(re => re.ReceiptId == receiptID && re.ReportStatus != 2)
                 .FirstOrDefault();
@@ -98,6 +115,14 @@ namespace G24_BWallet_Backend.Repository
                 .Where(r => r.Id == receiptID).FirstOrDefault();
             if (receipt == null) return ("Chứng từ này không còn tồn tại!");
             else if (receipt.ReceiptStatus != 2) return ("Không thể báo cáo! Chứng từ này đã được thanh toán hết.");
+
+            //check chứng từ đã có ai trả nợ chưa
+            List<int> listUserDeptId = context.UserDepts.Where(ud => ud.ReceiptId == receiptID).Select(ud => ud.Id).ToList();
+            PaidDebtList pdl = context.PaidDebtLists.Include(pdl => pdl.PaidDept).Where(pdl => listUserDeptId.Contains(pdl.DebtId) && pdl.PaidDept.Status == 2).FirstOrDefault();
+            if (pdl != null)
+            {
+                return ("Không thể báo cáo chứng từ đang trong quá trình trả nợ!");
+            }
 
             Report addReport = new Report();
             addReport.EventId = receipt.EventID;
@@ -118,7 +143,7 @@ namespace G24_BWallet_Backend.Repository
             context.Receipts.Update(receipt);
             await activity.ReportActivity(1, 0, userID, receipt.ReceiptName, receipt.Event.EventName);
             await context.SaveChangesAsync();
-            return "Đã báo cáo chứng từ thành công";
+            return "Đã báo cáo chứng từ thành công.";
         }
 
         // xủ lý chấp thuận hay từ chối báo cáo

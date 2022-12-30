@@ -62,6 +62,21 @@ namespace G24_BWallet_Backend.Controllers
             };
         }
 
+        [HttpGet("your-reports")]
+        public async Task<Respond<List<ReportReturn>>> GetYourReports([FromQuery] int eventid)
+        {
+            int userID = GetUserId();
+            var listReport = reportRepo.GetYourReports(eventid, userID);
+
+            return new Respond<List<ReportReturn>>()
+            {
+                StatusCode = HttpStatusCode.Accepted,
+                Error = "",
+                Message = "Danh sách báo cáo của bạn.",
+                Data = await listReport
+            };
+        }
+
         [HttpPost]
         public async Task<Respond<Report>> createReport([FromBody] Report reportInfo)
         {
